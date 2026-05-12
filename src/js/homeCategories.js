@@ -1,12 +1,5 @@
 import { getStorefrontSupabase } from "../lib/supabase/storefrontClient.js";
-
-/** روابط الصفحات الثابتة الحالية (slug كما في قاعدة البيانات) */
-const SLUG_TO_STATIC_PAGE = {
-  shoes: "./category-shoes.html",
-  watches: "./category-watches.html",
-  perfumes: "./category-perfumes.html",
-  menswear: "./category-menswear.html",
-};
+import { categoryStorefrontHref } from "./storefrontPaths.js";
 
 function escapeHtml(s) {
   return String(s)
@@ -16,14 +9,9 @@ function escapeHtml(s) {
     .replace(/"/g, "&quot;");
 }
 
-function categoryHref(slug) {
-  const s = String(slug || "").trim().toLowerCase();
-  return SLUG_TO_STATIC_PAGE[s] || `./category.html?slug=${encodeURIComponent(s)}`;
-}
-
 function renderCard(row) {
   const nameAr = escapeHtml(row.name_ar || "");
-  const href = escapeHtml(categoryHref(row.slug));
+  const href = escapeHtml(categoryStorefrontHref(row.slug));
   const imgUrl = row.image_url && String(row.image_url).trim() ? escapeHtml(String(row.image_url).trim()) : "";
   const imgBlock = imgUrl
     ? `<img alt="" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="${imgUrl}" loading="lazy"/>`

@@ -1,4 +1,5 @@
 import { getStorefrontSupabase } from "../lib/supabase/storefrontClient.js";
+import { sectionStorefrontHref } from "./storefrontPaths.js";
 
 function escapeHtml(s) {
   return String(s)
@@ -67,16 +68,24 @@ async function main() {
     ? `<div class="mt-8 max-w-3xl aspect-[21/9] rounded border border-outline-variant overflow-hidden"><img src="${escapeHtml(String(cat.image_url))}" alt="" class="w-full h-full object-cover"/></div>`
     : "";
 
+  const catSlug = String(cat.slug || "").trim().toLowerCase();
   const sectionList = (secs || []).length
     ? `<ul class="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         ${(secs || [])
-          .map(
-            (s) =>
-              `<li class="border border-outline-variant rounded px-4 py-3 bg-surface-container-low">
+          .map((s) => {
+            const secSlug = String(s.slug || "").trim().toLowerCase();
+            const href = escapeHtml(sectionStorefrontHref(catSlug, secSlug));
+            const sub = s.name_en
+              ? `<span class="block text-label-sm text-on-surface-variant mt-1" dir="ltr">${escapeHtml(s.name_en)}</span>`
+              : "";
+            return `<li>
+              <a href="${href}" class="block border border-outline-variant rounded px-4 py-3 bg-surface-container-low luxury-border luxury-hover transition-colors hover:border-primary/60">
                 <span class="text-on-surface font-headline-sm text-headline-sm">${escapeHtml(s.name_ar)}</span>
-                ${s.name_en ? `<span class="block text-label-sm text-on-surface-variant mt-1" dir="ltr">${escapeHtml(s.name_en)}</span>` : ""}
-              </li>`,
-          )
+                ${sub}
+                <span class="block text-label-sm text-primary mt-2">استعراض المنتجات</span>
+              </a>
+            </li>`;
+          })
           .join("")}
        </ul>`
     : '<p class="text-on-surface-variant text-body-md mt-8">لا توجد أقسام فرعية ظاهرة تحت هذا التصنيف بعد.</p>';

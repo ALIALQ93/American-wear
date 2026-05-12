@@ -70,7 +70,7 @@ npm run dev
 
 ## 5bis) واجهة المتجر (الرئيسية)
 
-صفحة **`home.html`** تجلب التصنيفات **النشطة** من جدول `categories` باستخدام مفتاح **anon / publishable** عند بناء المشروع (نفس `VITE_SUPABASE_URL` و`VITE_SUPABASE_PUBLISHABLE_KEY` أو `VITE_SUPABASE_ANON_KEY` في `.env`). التصنيفات ذات الصفحات الثابتة (`category-shoes.html` وغيرها) تُربَط تلقائياً عند تطابق **slug**؛ أي slug آخر يفتح **`category.html?slug=…`** مع قائمة الأقسام الفرعية الظاهرة.
+صفحة **`home.html`** تجلب التصنيفات **النشطة** من جدول `categories` باستخدام مفتاح **anon / publishable** عند بناء المشروع (نفس `VITE_SUPABASE_URL` و`VITE_SUPABASE_PUBLISHABLE_KEY` أو `VITE_SUPABASE_ANON_KEY` في `.env`). التصنيفات ذات الصفحات الثابتة (`category-shoes.html` وغيرها) تُربَط تلقائياً عند تطابق **slug**؛ أي slug آخر يفتح **`category.html?slug=…`** مع قائمة الأقسام الفرعية الظاهرة. كل قسم يفتح **`section.html?category=…&section=…`** لعرض **المنتجات النشطة** المرتبطة بـ `section_id`.
 
 ## 6bis) GitHub Pages + Supabase (بدون Render)
 

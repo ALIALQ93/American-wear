@@ -13,7 +13,7 @@
   .luxury-border { border: 1px solid rgba(230, 195, 100, 0.3); }
   .luxury-hover:hover { border-color: rgba(230, 195, 100, 1); transition: border-color 0.3s ease; }
 </style>
-<title>American wear | التصنيف</title>
+<title>American wear | القسم</title>
 </head>
 <body class="overflow-x-hidden">
 <nav class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-md border-b border-primary/30 h-20">
@@ -25,15 +25,17 @@
 </div>
 </nav>
 <main class="pt-28 pb-20 max-w-container-max mx-auto px-margin-desktop min-h-[60vh]">
-<nav class="mb-8 flex items-center gap-2 text-on-surface-variant font-label-md text-label-md flex-wrap">
+<nav class="mb-8 flex items-center gap-2 text-on-surface-variant font-label-md text-label-md flex-wrap" aria-label="مسار التنقل">
 <a class="hover:text-primary" href="./home.html">الرئيسية</a>
 <span class="material-symbols-outlined text-[14px]" aria-hidden="true">chevron_left</span>
-<span class="text-primary" id="category-crumb-current">…</span>
+<a class="hover:text-primary" id="section-crumb-category" href="#">التصنيف</a>
+<span class="material-symbols-outlined text-[14px]" aria-hidden="true">chevron_left</span>
+<span class="text-primary" id="section-crumb-current">…</span>
 </nav>
-<div id="category-dynamic-root">
+<div id="section-dynamic-root">
 <p class="text-on-surface-variant text-body-md">جاري التحميل…</p>
 </div>
 </main>
-<script type="module" src="./src/js/categoryPage.js"></script>
+<script type="module" src="./src/js/sectionPage.js"></script>
 </body>
 </html>
