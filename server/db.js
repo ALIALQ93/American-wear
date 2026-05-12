@@ -336,9 +336,9 @@ export async function listCategoriesTree(includeInactive = true) {
   if (!cats.length) return [];
   const ids = cats.map((c) => c.id);
   const secSql = includeInactive
-    ? `SELECT id, category_id AS "categoryId", name_ar AS "nameAr", name_en AS "nameEn", slug, sort_order AS "sortOrder", is_active AS "isActive"
+    ? `SELECT id, category_id AS "categoryId", name_ar AS "nameAr", name_en AS "nameEn", slug, image_url AS "imageUrl", sort_order AS "sortOrder", is_active AS "isActive"
          FROM category_sections WHERE category_id = ANY($1::bigint[]) ORDER BY category_id, sort_order, id`
-    : `SELECT id, category_id AS "categoryId", name_ar AS "nameAr", name_en AS "nameEn", slug, sort_order AS "sortOrder", is_active AS "isActive"
+    : `SELECT id, category_id AS "categoryId", name_ar AS "nameAr", name_en AS "nameEn", slug, image_url AS "imageUrl", sort_order AS "sortOrder", is_active AS "isActive"
          FROM category_sections WHERE category_id = ANY($1::bigint[]) AND is_active = 1 ORDER BY category_id, sort_order, id`;
   const { rows: secs } = await getPool().query(secSql, [ids]);
   return nestSections(cats, secs);
@@ -384,11 +384,11 @@ export async function updateCategory(id, patch) {
 }
 
 export async function createSection(categoryId, row) {
-  const { name_ar, name_en, slug, sort_order, is_active } = row;
+  const { name_ar, name_en, slug, image_url, sort_order, is_active } = row;
   const { rows } = await getPool().query(
-    `INSERT INTO category_sections (category_id, name_ar, name_en, slug, sort_order, is_active)
-     VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
-    [categoryId, name_ar, name_en ?? null, slug, sort_order ?? 0, is_active ?? 1],
+    `INSERT INTO category_sections (category_id, name_ar, name_en, slug, image_url, sort_order, is_active)
+     VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+    [categoryId, name_ar, name_en ?? null, slug, image_url ?? null, sort_order ?? 0, is_active ?? 1],
   );
   return rows[0].id;
 }
@@ -398,6 +398,7 @@ export async function updateSection(id, patch) {
     ["name_ar", patch.name_ar],
     ["name_en", patch.name_en],
     ["slug", patch.slug],
+    ["image_url", patch.image_url],
     ["sort_order", patch.sort_order],
     ["is_active", patch.is_active],
     ["category_id", patch.category_id],

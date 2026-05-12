@@ -78,6 +78,8 @@ function toSectionRow(body) {
     name_ar: String(body.nameAr ?? "").trim(),
     name_en: body.nameEn != null && String(body.nameEn).trim() !== "" ? String(body.nameEn).trim() : null,
     slug: String(body.slug ?? "").trim().toLowerCase(),
+    image_url:
+      body.imageUrl != null && String(body.imageUrl).trim() !== "" ? String(body.imageUrl).trim() : null,
     sort_order: body.sortOrder != null ? Number(body.sortOrder) || 0 : 0,
     is_active: body.isActive === false || body.isActive === 0 ? 0 : 1,
   };
@@ -682,6 +684,9 @@ app.patch("/api/admin/sections/:id", requireAdmin, async (req, res) => {
     }
     if (body.sortOrder !== undefined) patch.sort_order = Number(body.sortOrder) || 0;
     if (body.isActive !== undefined) patch.is_active = body.isActive === false || body.isActive === 0 ? 0 : 1;
+    if (body.imageUrl !== undefined) {
+      patch.image_url = body.imageUrl == null || String(body.imageUrl).trim() === "" ? null : String(body.imageUrl).trim();
+    }
     if (body.categoryId !== undefined) {
       const cid = Number(body.categoryId);
       if (!Number.isFinite(cid)) return res.status(400).json({ error: "معرف التصنيف غير صالح" });

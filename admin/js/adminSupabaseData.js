@@ -287,6 +287,7 @@ function nestSections(cats, secs) {
         nameAr: s.name_ar,
         nameEn: s.name_en,
         slug: s.slug,
+        imageUrl: s.image_url ?? null,
         sortOrder: Number(s.sort_order) || 0,
         isActive: s.is_active,
       });
@@ -382,6 +383,7 @@ export async function createSection(categoryId, body) {
     name_ar: String(body.nameAr ?? "").trim(),
     name_en: body.nameEn != null && String(body.nameEn).trim() !== "" ? String(body.nameEn).trim() : null,
     slug,
+    image_url: body.imageUrl != null && String(body.imageUrl).trim() !== "" ? String(body.imageUrl).trim() : null,
     sort_order: body.sortOrder != null ? Number(body.sortOrder) || 0 : 0,
     is_active: body.isActive === false || body.isActive === 0 ? 0 : 1,
   };
@@ -408,6 +410,9 @@ export async function updateSection(id, body) {
   if (body.sortOrder !== undefined) patch.sort_order = Number(body.sortOrder) || 0;
   if (body.isActive !== undefined) patch.is_active = body.isActive === false || body.isActive === 0 ? 0 : 1;
   if (body.categoryId !== undefined) patch.category_id = Number(body.categoryId);
+  if (body.imageUrl !== undefined) {
+    patch.image_url = body.imageUrl == null || String(body.imageUrl).trim() === "" ? null : String(body.imageUrl).trim();
+  }
   const { error } = await sb.from("category_sections").update(patch).eq("id", id);
   if (error) {
     if (error.code === "23505") throw new Error("هذا slug مستخدم ضمن نفس التصنيف");
@@ -590,6 +595,46 @@ export async function uploadCategoryCoverImage(file) {
   const { sb } = ctx;
   const ext = categoryImageExtFromFile(file);
   const path = `covers/${crypto.randomUUID()}.${ext}`;
+  const { error: upErr } = await sb.storage.from(CATEGORY_IMAGES_BUCKET).upload(path, file, {
+    cacheControl: "3600",
+    upsert: false,
+    contentType: mime,
+  });
+  if (upErr) {
+    const m = String(upErr.message || "");
+    if (m.includes("Bucket not found") || m.includes("not found")) {
+      throw new Error("دلو التخزين غير مُنشأ — نفّذ npm run db:push لهجرة التخزين.");
+    }
+    throw new Error(m || "فشل الرفع");
+  }
+  const { data } = sb.storage.from(CATEGORY_IMAGES_BUCKET).getPublicUrl(path);
+  const url = data?.publicUrl;
+  if (!url) throw new Error("تعذر الحصول على رابط الصورة");
+  return url;
+}
+
+/**
+ * رفع صورة غلاف قسم فرعي إلى نفس دلو التصنيفات (`category-images/section-covers/…`).
+ * يُخزَّن الرابط في `category_sections.image_url`.
+ * @param {File} file
+ * @returns {Promise<string>}
+ */
+export async function uploadSectionCoverImage(file) {
+  if (!(file instanceof File) || file.size === 0) {
+    throw new Error("اختر ملف صورة صالحاً");
+  }
+  if (file.size > CATEGORY_IMAGE_MAX_BYTES) {
+    throw new Error("حجم الصورة يتجاوز ٥ ميغابايت");
+  }
+  const mime = normalizeCategoryImageMime(file);
+  if (!mime || !Object.prototype.hasOwnProperty.call(CATEGORY_IMAGE_MIME_TO_EXT, mime)) {
+    throw new Error("الصيغ المسموحة: JPEG أو PNG أو WebP أو GIF");
+  }
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) throw new Error("انتهت الجلسة — سجّل الدخول مجدداً");
+  const { sb } = ctx;
+  const ext = categoryImageExtFromFile(file);
+  const path = `section-covers/${crypto.randomUUID()}.${ext}`;
   const { error: upErr } = await sb.storage.from(CATEGORY_IMAGES_BUCKET).upload(path, file, {
     cacheControl: "3600",
     upsert: false,

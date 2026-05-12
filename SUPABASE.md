@@ -35,6 +35,8 @@ npm run db:push
 
 هجرة **`20260522120000_storage_category_images.sql`** تُنشئ دلو **`category-images`** في Storage (قراءة عامة، رفع/تعديل/حذف لمسؤول نشط فقط) لرفع صور أغلفة التصنيفات من لوحة «التصنيفات»؛ بدون تطبيقها يظهر خطأ عند محاولة الرفع من الجهاز.
 
+هجرة **`20260523120000_section_image_url.sql`** تضيف عمود **`image_url`** لجدول **`category_sections`** (صورة القسم للواجهة العامة).
+
 ## 4) ملف `.env`
 
 1. انسخ `.env.example` إلى `.env`.
@@ -70,7 +72,7 @@ npm run dev
 
 ## 5bis) واجهة المتجر (الرئيسية)
 
-صفحة **`home.html`** تجلب التصنيفات **النشطة** من جدول `categories` باستخدام مفتاح **anon / publishable** عند بناء المشروع (نفس `VITE_SUPABASE_URL` و`VITE_SUPABASE_PUBLISHABLE_KEY` أو `VITE_SUPABASE_ANON_KEY` في `.env`). التصنيفات ذات الصفحات الثابتة (`category-shoes.html` وغيرها) تُربَط تلقائياً عند تطابق **slug**؛ أي slug آخر يفتح **`category.html?slug=…`** مع قائمة الأقسام الفرعية الظاهرة. كل قسم يفتح **`section.html?category=…&section=…`** لعرض **المنتجات النشطة** المرتبطة بـ `section_id`.
+صفحة **`home.html`** تجلب التصنيفات **النشطة** من جدول `categories` باستخدام مفتاح **anon / publishable** عند بناء المشروع (نفس `VITE_SUPABASE_URL` و`VITE_SUPABASE_PUBLISHABLE_KEY` أو `VITE_SUPABASE_ANON_KEY` في `.env`). التصنيفات ذات الصفحات الثابتة (`category-shoes.html` وغيرها) تُربَط تلقائياً عند تطابق **slug**؛ أي slug آخر يفتح **`category.html?slug=…`** مع قائمة الأقسام الفرعية الظاهرة (مع صورة كل قسم إن وُجدت في **`category_sections.image_url`**). كل قسم يفتح **`section.html?category=…&section=…`** لعرض **المنتجات النشطة** المرتبطة بـ `section_id` وصورة غلاف القسم إن وُجدت.
 
 ## 6bis) GitHub Pages + Supabase (بدون Render)
 

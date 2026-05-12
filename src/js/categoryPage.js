@@ -51,7 +51,7 @@ async function main() {
 
   const { data: secs, error: sErr } = await sb
     .from("category_sections")
-    .select("id,name_ar,name_en,slug,sort_order")
+    .select("id,name_ar,name_en,slug,image_url,sort_order")
     .eq("category_id", cat.id)
     .eq("is_active", 1)
     .order("sort_order", { ascending: true })
@@ -70,19 +70,26 @@ async function main() {
 
   const catSlug = String(cat.slug || "").trim().toLowerCase();
   const sectionList = (secs || []).length
-    ? `<ul class="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    ? `<ul class="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
         ${(secs || [])
           .map((s) => {
             const secSlug = String(s.slug || "").trim().toLowerCase();
             const href = escapeHtml(sectionStorefrontHref(catSlug, secSlug));
+            const imgUrl = s.image_url && String(s.image_url).trim() ? escapeHtml(String(s.image_url).trim()) : "";
+            const imgBlock = imgUrl
+              ? `<img alt="" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="${imgUrl}" loading="lazy"/>`
+              : `<div class="absolute inset-0 bg-gradient-to-br from-[#2a2a2a] to-[#0d0d0d]" aria-hidden="true"></div>`;
             const sub = s.name_en
-              ? `<span class="block text-label-sm text-on-surface-variant mt-1" dir="ltr">${escapeHtml(s.name_en)}</span>`
+              ? `<span class="text-white/85 text-label-sm mt-1 block" dir="ltr">${escapeHtml(s.name_en)}</span>`
               : "";
-            return `<li>
-              <a href="${href}" class="block border border-outline-variant rounded px-4 py-3 bg-surface-container-low luxury-border luxury-hover transition-colors hover:border-primary/60">
-                <span class="text-on-surface font-headline-sm text-headline-sm">${escapeHtml(s.name_ar)}</span>
-                ${sub}
-                <span class="block text-label-sm text-primary mt-2">استعراض المنتجات</span>
+            return `<li class="min-w-0">
+              <a href="${href}" class="group relative block aspect-[3/4] overflow-hidden luxury-border luxury-hover rounded">
+                ${imgBlock}
+                <div class="absolute inset-0 bg-black/45 flex flex-col items-center justify-center p-3 text-center">
+                  <span class="text-white font-headline-sm text-headline-sm leading-tight">${escapeHtml(s.name_ar)}</span>
+                  ${sub}
+                  <span class="text-primary text-label-sm mt-3">استعراض المنتجات</span>
+                </div>
               </a>
             </li>`;
           })

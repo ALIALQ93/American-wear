@@ -13,10 +13,11 @@ import {
   updateCategory,
   updateSection,
   uploadCategoryCoverImage,
+  uploadSectionCoverImage,
 } from "./adminSupabaseData.js";
 
 /** @typedef {{ id: number, nameAr: string, nameEn?: string|null, slug: string, descriptionAr?: string|null, imageUrl?: string|null, sortOrder: number, isActive: number|boolean, sections?: SectionRow[] }} Cat */
-/** @typedef {{ id: number, categoryId: number, nameAr: string, nameEn?: string|null, slug: string, sortOrder: number, isActive: number|boolean }} SectionRow */
+/** @typedef {{ id: number, categoryId: number, nameAr: string, nameEn?: string|null, slug: string, imageUrl?: string|null, sortOrder: number, isActive: number|boolean }} SectionRow */
 
 /** @type {Cat[]} */
 let tree = [];
@@ -60,6 +61,35 @@ function syncCatImagePreview() {
   }
   img.src = url;
   wrap.classList.remove("hidden");
+}
+
+function syncSecImagePreview() {
+  const url = document.getElementById("sec-image-url")?.value?.trim() || "";
+  const wrap = document.getElementById("sec-image-preview-wrap");
+  const img = document.getElementById("sec-image-preview");
+  if (!wrap || !img) return;
+  if (!url) {
+    img.removeAttribute("src");
+    wrap.classList.add("hidden");
+    return;
+  }
+  img.src = url;
+  wrap.classList.remove("hidden");
+}
+
+function setSecImageUploadMsg(text, isError) {
+  const el = document.getElementById("sec-image-upload-msg");
+  if (!el) return;
+  if (!text) {
+    el.textContent = "";
+    el.classList.add("hidden");
+    el.classList.remove("text-error", "text-primary");
+    return;
+  }
+  el.textContent = text;
+  el.classList.remove("hidden");
+  el.classList.toggle("text-error", Boolean(isError));
+  el.classList.toggle("text-primary", !isError);
 }
 
 function suggestSlug(text) {
@@ -138,9 +168,18 @@ function render() {
       const secs = sortedSecs(c.sections);
       const secRows = secs
         .map(
-          (s) => `
+          (s) => {
+            const secThumb = s.imageUrl
+              ? `<div class="w-9 h-9 shrink-0 rounded border border-outline-variant overflow-hidden bg-surface-container"><img src="${escapeHtml(s.imageUrl)}" alt="" class="w-full h-full object-cover"/></div>`
+              : "";
+            return `
         <tr class="border-b border-outline-variant/40 hover:bg-surface-container-highest/40" data-section-id="${s.id}">
-          <td class="px-4 py-3 font-body-md text-on-surface">${escapeHtml(s.nameAr)}</td>
+          <td class="px-4 py-3 font-body-md text-on-surface">
+            <div class="flex items-center gap-2 min-w-0">
+              ${secThumb}
+              <span class="min-w-0">${escapeHtml(s.nameAr)}</span>
+            </div>
+          </td>
           <td class="px-4 py-3 text-label-sm text-on-surface-variant font-mono dir-ltr text-left">${escapeHtml(s.slug)}</td>
           <td class="px-4 py-3 text-label-sm text-on-surface-variant">${Number(s.sortOrder) || 0}</td>
           <td class="px-4 py-3">
@@ -155,7 +194,8 @@ function render() {
               <button type="button" class="p-1.5 rounded hover:bg-error/10 text-on-surface-variant hover:text-error js-sec-del" data-id="${s.id}" title="حذف"><span class="material-symbols-outlined text-lg">delete</span></button>
             </div>
           </td>
-        </tr>`,
+        </tr>`;
+          },
         )
         .join("");
       const thumbBlock = c.imageUrl
@@ -373,6 +413,12 @@ function openSectionModal(categoryId, s) {
   document.getElementById("sec-name-ar").value = s?.nameAr || "";
   document.getElementById("sec-name-en").value = s?.nameEn || "";
   document.getElementById("sec-slug").value = s?.slug || "";
+  const siu = document.getElementById("sec-image-url");
+  if (siu) siu.value = s?.imageUrl || "";
+  const sfile = document.getElementById("sec-image-file");
+  if (sfile) sfile.value = "";
+  setSecImageUploadMsg("", false);
+  syncSecImagePreview();
   document.getElementById("sec-sort").value = String(s?.sortOrder ?? 0);
   document.getElementById("sec-active").checked = s ? isActiveVal(s.isActive) : true;
   modal.classList.remove("hidden");
@@ -436,6 +482,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("sec-suggest-slug")?.addEventListener("click", () => {
     const en = document.getElementById("sec-name-en")?.value || "";
     document.getElementById("sec-slug").value = suggestSlug(en);
+  });
+
+  document.getElementById("sec-image-url")?.addEventListener("input", () => syncSecImagePreview());
+
+  document.getElementById("sec-image-file")?.addEventListener("change", async (ev) => {
+    const t = ev.target;
+    if (!(t instanceof HTMLInputElement) || !t.files?.length) return;
+    const file = t.files[0];
+    setSecImageUploadMsg("جاري الرفع…", false);
+    try {
+      const url = await uploadSectionCoverImage(file);
+      const urlIn = document.getElementById("sec-image-url");
+      if (urlIn) urlIn.value = url;
+      syncSecImagePreview();
+      setSecImageUploadMsg("تم الرفع — اضغط «حفظ» لتخزين الرابط مع القسم.", false);
+    } catch (err) {
+      setSecImageUploadMsg(err instanceof Error ? err.message : "فشل الرفع", true);
+      t.value = "";
+    }
   });
 
   document.getElementById("category-form")?.addEventListener("submit", async (e) => {
@@ -530,6 +595,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       nameAr,
       nameEn: document.getElementById("sec-name-en")?.value?.trim() || null,
       slug,
+      imageUrl: document.getElementById("sec-image-url")?.value?.trim() || null,
       sortOrder: Number(document.getElementById("sec-sort")?.value) || 0,
       isActive: document.getElementById("sec-active")?.checked !== false,
     };

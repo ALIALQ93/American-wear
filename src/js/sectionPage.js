@@ -86,7 +86,7 @@ async function main() {
 
   const { data: sec, error: sErr } = await sb
     .from("category_sections")
-    .select("id,name_ar,name_en,slug")
+    .select("id,name_ar,name_en,slug,image_url")
     .eq("category_id", cat.id)
     .eq("slug", sectionSlug)
     .eq("is_active", 1)
@@ -123,6 +123,10 @@ async function main() {
     sec.name_en && String(sec.name_en).trim()
       ? `<p class="text-on-surface-variant text-label-md mt-2" dir="ltr">${escapeHtml(String(sec.name_en).trim())}</p>`
       : "";
+  const secHero =
+    sec.image_url && String(sec.image_url).trim()
+      ? `<div class="mt-8 max-w-3xl aspect-[21/9] rounded border border-outline-variant overflow-hidden"><img src="${escapeHtml(String(sec.image_url).trim())}" alt="" class="w-full h-full object-cover"/></div>`
+      : "";
 
   const grid =
     list.length > 0
@@ -132,6 +136,7 @@ async function main() {
   root.innerHTML = `
     <h1 class="text-primary font-display-lg text-display-lg">${title}</h1>
     ${sub}
+    ${secHero}
     <h2 class="text-headline-md font-headline-md text-on-surface mt-10">المنتجات</h2>
     ${grid}
   `;

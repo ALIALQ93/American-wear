@@ -183,6 +183,19 @@
 <label class="block text-label-sm text-on-surface-variant mb-1">المعرف slug * <span class="font-normal">(فريد داخل نفس التصنيف)</span></label>
 <input id="sec-slug" required dir="ltr" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none text-left" type="text"/>
 </div>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">صورة القسم</label>
+<div class="flex flex-wrap items-center gap-2 mb-2">
+<input id="sec-image-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif" class="max-w-full text-label-sm text-on-surface file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-surface-container-high file:text-on-surface"/>
+<span id="sec-image-upload-msg" class="text-label-sm text-on-surface-variant hidden"></span>
+</div>
+<div id="sec-image-preview-wrap" class="hidden mb-2 max-w-xs rounded border border-outline-variant overflow-hidden bg-surface-container">
+<img id="sec-image-preview" alt="" class="w-full h-28 object-cover"/>
+</div>
+<label class="block text-label-sm text-on-surface-variant mb-1">أو رابط الصورة (HTTPS)</label>
+<input id="sec-image-url" dir="ltr" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none text-left text-sm" type="url" placeholder="https://… يُملأ بعد الرفع من الجهاز"/>
+<p class="text-label-sm text-on-surface-variant mt-1 leading-relaxed">تُعرض للزائر في صفحة التصنيف وبطاقة القسم؛ تُرفع إلى نفس تخزين صور التصنيفات ثم تُحفظ مع القسم عند «حفظ».</p>
+</div>
 <div class="grid grid-cols-2 gap-3">
 <div>
 <label class="block text-label-sm text-on-surface-variant mb-1">ترتيب العرض</label>
