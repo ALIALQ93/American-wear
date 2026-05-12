@@ -1,4 +1,4 @@
-import { apiUrl } from "./apiBase.js";
+import { authFetch } from "./authFetch.js";
 import { getAdminToken } from "./session.js";
 import { isSupabaseAuthConfigured, syncAdminTokenFromSupabaseSession, clearAdminSessionAndSupabase } from "./supabaseAuth.js";
 
@@ -226,15 +226,6 @@ function closeModal() {
   const modal = document.getElementById("product-modal");
   if (modal) modal.classList.add("hidden");
   document.body.classList.remove("overflow-hidden");
-}
-
-async function authFetch(path, options = {}) {
-  const token = getAdminToken();
-  const headers = { ...options.headers, Authorization: `Bearer ${token}` };
-  if (options.body && typeof options.body === "string" && !headers["Content-Type"]) {
-    headers["Content-Type"] = "application/json";
-  }
-  return fetch(apiUrl(path), { ...options, headers });
 }
 
 async function patchProduct(id, body) {

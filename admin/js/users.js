@@ -1,4 +1,4 @@
-import { apiUrl } from "./apiBase.js";
+import { authFetch } from "./authFetch.js";
 import { getAdminToken } from "./session.js";
 import {
   isSupabaseAuthConfigured,
@@ -12,13 +12,6 @@ function escapeHtml(s) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
-}
-
-async function authFetch(path, opts = {}) {
-  const token = getAdminToken();
-  const headers = { Authorization: `Bearer ${token}`, ...(opts.headers || {}) };
-  if (opts.body && !headers["Content-Type"]) headers["Content-Type"] = "application/json";
-  return fetch(apiUrl(path), { ...opts, headers });
 }
 
 /** @type {{ userId: string, email: string, role: string, isActive: boolean }[]} */
