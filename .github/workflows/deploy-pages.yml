@@ -26,9 +26,16 @@ jobs:
           node-version: "22"
           cache: npm
       - run: npm ci
+      # يُحقَن في حزمة المتصفح وقت البناء — مطلوب لصفحة دخول الإدارة على Pages (بدونها يظهر تنبيه .env).
+      # أضف في المستودع: Settings → Secrets and variables → Actions → New repository secret
+      #   VITE_SUPABASE_URL = Project URL من Supabase → Settings → API
+      #   وواحداً على الأقل: VITE_SUPABASE_ANON_KEY أو VITE_SUPABASE_PUBLISHABLE_KEY (نفس صفحة API)
       - name: Build for GitHub Pages
         env:
           BASE_PATH: /${{ github.event.repository.name }}/
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
         run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
