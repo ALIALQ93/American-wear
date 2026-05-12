@@ -68,6 +68,10 @@ npm run dev
 
 بدون `DATABASE_URL` يتوقف الخادم عند البدء برسالة توضيحية.
 
+## 5bis) واجهة المتجر (الرئيسية)
+
+صفحة **`home.html`** تجلب التصنيفات **النشطة** من جدول `categories` باستخدام مفتاح **anon / publishable** عند بناء المشروع (نفس `VITE_SUPABASE_URL` و`VITE_SUPABASE_PUBLISHABLE_KEY` أو `VITE_SUPABASE_ANON_KEY` في `.env`). التصنيفات ذات الصفحات الثابتة (`category-shoes.html` وغيرها) تُربَط تلقائياً عند تطابق **slug**؛ أي slug آخر يفتح **`category.html?slug=…`** مع قائمة الأقسام الفرعية الظاهرة.
+
 ## 6bis) GitHub Pages + Supabase (بدون Render)
 
 بعد تطبيق الهجرة **`20260520140000_rls_github_pages_admin.sql`** (`npm run db:push`):

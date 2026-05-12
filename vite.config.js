@@ -55,6 +55,7 @@ export default ({ mode }) => {
           categoryPerfumes: resolve(root, "category-perfumes.html"),
           categoryShoes: resolve(root, "category-shoes.html"),
           categoryMenswear: resolve(root, "category-menswear.html"),
+          categoryDynamic: resolve(root, "category.html"),
           accountOrders: resolve(root, "account-orders.html"),
           accountOrdersSidebar: resolve(root, "account-orders-with-sidebar.html"),
           adminLogin: resolve(root, "admin/login.html"),

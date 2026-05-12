@@ -78,41 +78,14 @@
 <button class="bg-primary text-on-primary font-label-md text-label-md px-12 py-4 tracking-widest hover:bg-primary-container transition-all uppercase shadow-lg">تسوق الآن</button>
 </div>
 </header>
-<!-- Categories Grid -->
-<section class="max-w-container-max mx-auto px-margin-desktop py-24">
+<!-- Categories Grid (يُملأ من Supabase: تصنيفات نشطة) -->
+<section id="home-categories-section" class="max-w-container-max mx-auto px-margin-desktop py-24">
 <div class="flex justify-between items-end mb-16 border-b border-outline-variant pb-6">
 <h2 class="text-primary font-headline-md text-headline-md">التصنيفات الراقية</h2>
-<a class="text-on-surface-variant font-label-md text-label-md hover:text-primary transition-colors flex items-center gap-2" href="#">عرض الكل <span class="material-symbols-outlined text-[18px]" data-icon="chevron_left">chevron_left</span></a>
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-primary transition-colors flex items-center gap-2" href="#home-categories-section">عرض الكل <span class="material-symbols-outlined text-[18px]" data-icon="chevron_left">chevron_left</span></a>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter">
-<!-- Category: Shoes -->
-<a class="group relative aspect-[3/4] overflow-hidden luxury-border luxury-hover" href="#">
-<img alt="Luxury Shoes Collection" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A pair of exquisitely crafted handmade Italian leather dress shoes placed on a reflective black marble surface. Soft studio lighting catches the rich texture of the leather and the delicate stitching. The environment is dark and moody, emphasizing the high-end quality of the footwear. Elegant golden highlights define the edges of the shoes against the deep shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-qeBwIsZCNQoWYWq_DVgYpbE_5Z5WXu35zYNKzCKhP3iePetTf7V88nlt-itDUAvZMeRVaAocIfpXaBuENObnEZnUQoH2SVzgF0vsGY2-ZyzdZnas3wysvi9knFHn7We7oZ_Fp-9yCZuiAIT781KR_xGxvSaUaIHtZnNW30SvLPWU3G5xSA2_UXZW-scHfFs1AI-0UM8_LtmTQP472_I1hgS6RHJ0Ld70f-1X3flqNUDn-5wmnonIrvOeWk5iOIO7s52LMPTLjjI"/>
-<div class="absolute inset-0 bg-black/40 flex items-center justify-center">
-<h3 class="text-white font-headline-sm text-headline-sm">أحذية</h3>
-</div>
-</a>
-<!-- Category: Watches -->
-<a class="group relative aspect-[3/4] overflow-hidden luxury-border luxury-hover" href="#">
-<img alt="Luxury Watch Collection" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A macro close-up of a high-end mechanical watch with a gold casing and a leather strap, set against a dark architectural background. The lighting is directional, creating high contrast and highlighting the intricate details of the watch face. The aesthetic is purely minimalist and sophisticated, focusing on precision and heritage. The overall atmosphere is silent and powerful." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkyVOt0pTM2Ls1rNmn6gvmU868rt3dh27fceA-daJdSY1Blt1vf1ULnllvdvCRTOIVksl6kx_2YFR8tEYcCGXRuyF0m0xdT-bFAUXCZKFioD_A1J6Ucx5udMVdQuWBmFWe4QGXJTJa6qhjqZRdWTT-8z4m2FF8XiNQ9JpgHVULadqlAV5PGUzc9zwRro5WEZv_jl_IQqBIveIfYspqLIkQS7-NwcQDsGg4O98NBg295rUz3JZDoqvmGPSOFoURk7YxK4ARDKEeDxc"/>
-<div class="absolute inset-0 bg-black/40 flex items-center justify-center">
-<h3 class="text-white font-headline-sm text-headline-sm">ساعات</h3>
-</div>
-</a>
-<!-- Category: Clothing -->
-<a class="group relative aspect-[3/4] overflow-hidden luxury-border luxury-hover" href="#">
-<img alt="Luxury Clothing Collection" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A high-fashion apparel display featuring draped premium fabrics like silk and cashmere in deep neutral tones. The lighting is soft and diffused, creating a luxurious 'atelier' atmosphere. The focus is on the flow and texture of the garments. The background is a clean, dark grey minimalist wall that adds depth and focuses all attention on the designer clothing pieces." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDumh2oenNBllTCfLHb1gUccqvJ7KK2d1t0fK9E_eHO-CJP_HlCAk4MQBpxmjXqfm9dTjj3fEoi8Svwbk-sLdvNskRU_Qg2HGRDP9lnGZn28v7FIW1ty_LFJ765nvKbZE0AQHg0LAHzaRkcyTqI2CgmZcmiJqOd9Xw4bdkQ9qZpu2bqhrOsCQds34g-j8Z-v5v2BYvYQlPxv8b-KK4p85O3mRz9J5xk0lFgMQBaozVYRTgU8K-wRAYnrgqwq-o_DujOhcwrYzEUJpk"/>
-<div class="absolute inset-0 bg-black/40 flex items-center justify-center">
-<h3 class="text-white font-headline-sm text-headline-sm">ملابس</h3>
-</div>
-</a>
-<!-- Category: Perfumes -->
-<a class="group relative aspect-[3/4] overflow-hidden luxury-border luxury-hover" href="#">
-<img alt="Luxury Perfume Collection" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="An artistic arrangement of minimalist glass perfume bottles on a black stone podium. The bottles have gold caps that glint under sharp spotlighting. Wisps of smoke or incense drift in the background, adding an air of mystery and sensory luxury. The scene is deeply anchored in a dark, high-contrast aesthetic typical of premium fragrance boutiques." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtlkewEU4yxgJcud4u041go9cp5AxfLN9sef-ysqlpoevo28RZUZ_8E6V4BBoYZ9gyI86JS4dSTLr9JQkEUjXzXXXQ5edGZHcL9tZJpIypQ01kkP84mZfwNF_Wg70i9WwxpzfWFX99KBdq6kNSGp9e7dgAnsYVdyQ-X4G8v6aPYEhW5XkK_fCxpjIbXT6quzclEY3HOq3FStWNZjaNmQGcNF1-XhjBRCKM1XGaL7clofPdiJr-hpFEMOZzktJU1ANnmkfw-8l1dBU"/>
-<div class="absolute inset-0 bg-black/40 flex items-center justify-center">
-<h3 class="text-white font-headline-sm text-headline-sm">عطور</h3>
-</div>
-</a>
+<div id="home-categories-grid" class="grid grid-cols-1 md:grid-cols-4 gap-gutter min-h-[12rem]">
+<p id="home-categories-loading" class="col-span-full text-on-surface-variant text-center py-12 text-body-md">جاري تحميل التصنيفات…</p>
 </div>
 </section>
 <!-- New Arrivals Product Grid -->
@@ -242,4 +215,5 @@
             © ٢٠٢٤ American wear للفخامة. جميع الحقوق محفوظة.
         </div>
 </footer>
+<script type="module" src="./src/js/homeCategories.js"></script>
 </body></html>
