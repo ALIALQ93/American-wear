@@ -1,3 +1,4 @@
+import { apiUrl } from "./apiBase.js";
 import { getAdminToken } from "./session.js";
 import { isSupabaseAuthConfigured, syncAdminTokenFromSupabaseSession, clearAdminSessionAndSupabase } from "./supabaseAuth.js";
 
@@ -93,7 +94,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   try {
-    const res = await fetch("/api/admin/dashboard", {
+    const res = await fetch(apiUrl("/api/admin/dashboard"), {
       headers: { Authorization: `Bearer ${token}` },
     });
     const data = await res.json().catch(() => ({}));

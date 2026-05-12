@@ -1,3 +1,4 @@
+import { apiUrl } from "./apiBase.js";
 import { getAdminToken } from "./session.js";
 import { isSupabaseAuthConfigured, syncAdminTokenFromSupabaseSession, clearAdminSessionAndSupabase } from "./supabaseAuth.js";
 
@@ -233,7 +234,7 @@ async function authFetch(path, options = {}) {
   if (options.body && typeof options.body === "string" && !headers["Content-Type"]) {
     headers["Content-Type"] = "application/json";
   }
-  return fetch(path, { ...options, headers });
+  return fetch(apiUrl(path), { ...options, headers });
 }
 
 async function patchProduct(id, body) {

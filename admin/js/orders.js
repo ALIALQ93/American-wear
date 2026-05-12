@@ -1,3 +1,4 @@
+import { apiUrl } from "./apiBase.js";
 import { getAdminToken } from "./session.js";
 import {
   isSupabaseAuthConfigured,
@@ -99,7 +100,7 @@ function renderTable() {
 
 async function authFetch(path) {
   const token = getAdminToken();
-  return fetch(path, { headers: { Authorization: `Bearer ${token}` } });
+  return fetch(apiUrl(path), { headers: { Authorization: `Bearer ${token}` } });
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

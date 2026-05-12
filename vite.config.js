@@ -4,6 +4,15 @@ import { loadEnv } from "vite";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
 
+/** مسار النشر العام (مثال GitHub Pages: `/American-wear/`). يُضبط عبر BASE_PATH في CI فقط عادةً. */
+function publicBase() {
+  const raw = (process.env.BASE_PATH ?? "").trim();
+  if (!raw) return "/";
+  let b = raw.startsWith("/") ? raw : `/${raw}`;
+  if (!b.endsWith("/")) b += "/";
+  return b;
+}
+
 function parseApiPort(env) {
   const p = Number.parseInt(String(env.PORT ?? "").trim(), 10);
   if (Number.isFinite(p) && p > 0 && p <= 65535) return p;
@@ -17,6 +26,7 @@ export default ({ mode }) => {
   const apiTarget = `http://127.0.0.1:${apiPort}`;
 
   return {
+    base: publicBase(),
     appType: "mpa",
     /** يعرّض متغيرات البيئة التي تبدأ بـ VITE_ أو NEXT_PUBLIC_ (مثل قالب Supabase App Router) */
     envPrefix: ["VITE_", "NEXT_PUBLIC_"],
