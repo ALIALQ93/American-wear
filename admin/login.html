@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+
+<html class="dark" dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link rel="stylesheet" href="/src/styles/tailwind.css"/>
+<title>American wear | تسجيل دخول المسؤول</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='10' fill='%23e6c364'/%3E%3C/svg%3E"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;family=EB+Garamond:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #0A0A0A;
+        }
+        .luxury-input-focus:focus {
+            border-color: #e6c364 !important;
+            box-shadow: 0 0 0 1px rgba(230, 195, 100, 0.3);
+            outline: none;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface min-h-screen flex items-center justify-center p-margin-mobile md:p-0 overflow-hidden relative">
+<!-- Decorative Background Element -->
+<div class="absolute inset-0 z-0 overflow-hidden opacity-20">
+<div class="absolute -top-1/2 -right-1/4 w-[800px] h-[800px] bg-primary/10 rounded-full blur-[120px]"></div>
+<div class="absolute -bottom-1/2 -left-1/4 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[100px]"></div>
+</div>
+<!-- Main Content Canvas -->
+<main class="relative z-10 w-full max-w-[440px] flex flex-col items-center">
+<!-- Logo Header -->
+<header class="mb-12 text-center">
+<h1 class="text-headline-md font-headline-md text-primary tracking-[0.2em] mb-2">American wear</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest opacity-60">Admin Portal Access</p>
+</header>
+<!-- Login Form Container -->
+<section class="w-full bg-surface-container-lowest/40 backdrop-blur-xl border border-primary/20 p-10 rounded-none shadow-2xl">
+<div class="mb-8 text-center">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-2">تسجيل دخول المسؤول</h2>
+<div class="w-12 h-[1px] bg-primary mx-auto opacity-50"></div>
+<p class="mt-4 text-center font-label-sm text-on-surface-variant/80 leading-relaxed">سجّل الدخول بحسابك من <strong class="text-on-surface font-medium">Supabase Authentication</strong> (نفس البريد وكلمة المرور التي أنشأتها في لوحة Supabase → Authentication → Users). يجب أن يكون بريدك مضمناً في المتغيّر <span dir="ltr" class="text-primary">ADMIN_ALLOWED_EMAILS</span> على خادم Node حتى يُقبل طلبات لوحة الإدارة.</p>
+</div>
+<p id="login-error" class="hidden mb-4 rounded-sm border border-error/40 bg-error-container/20 px-4 py-3 text-center text-sm text-error" role="alert"></p>
+<form id="admin-login-form" class="space-y-6" autocomplete="on">
+<!-- Email Field -->
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant block mr-1" for="email">
+                        البريد الإلكتروني
+                    </label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-[20px]">
+                            mail
+                        </span>
+<input class="w-full bg-surface-container-high border border-outline-variant px-12 py-4 font-body-md text-body-md text-on-surface luxury-input-focus transition-all placeholder:text-on-surface-variant/30" id="email" name="email" placeholder="you@example.com" type="email" autocomplete="username" required/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant block mr-1" for="password">
+                        كلمة المرور
+                    </label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-[20px]">
+                            lock
+                        </span>
+<input class="w-full bg-surface-container-high border border-outline-variant px-12 py-4 font-body-md text-body-md text-on-surface luxury-input-focus transition-all placeholder:text-on-surface-variant/30" id="password" name="password" placeholder="••••••••" type="password" autocomplete="current-password" required/>
+<button class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">visibility_off</span>
+</button>
+</div>
+</div>
+<!-- Action Button -->
+<button class="w-full bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md py-4 transition-all duration-300 transform active:scale-[0.98] mt-4 flex items-center justify-center gap-2 group" type="submit">
+<span>تسجيل الدخول</span>
+<span class="material-symbols-outlined text-[18px] group-hover:-translate-x-1 transition-transform">
+                        arrow_back
+                    </span>
+</button>
+</form>
+<!-- Footer Links -->
+<footer class="mt-8 flex flex-col items-center gap-4">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-all underline-offset-8 hover:underline" href="#">
+                    نسيت كلمة المرور؟
+                </a>
+</footer>
+</section>
+<!-- Security Badge -->
+<div class="mt-12 flex items-center gap-2 opacity-40">
+<span class="material-symbols-outlined text-[16px]">verified_user</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest">Secure Encrypted Portal</span>
+</div>
+</main>
+<!-- Side Image Decoration (Admin Concept) -->
+<div class="fixed left-0 top-0 h-full w-[25%] hidden xl:block border-r border-primary/10 overflow-hidden">
+<img alt="Secure Technology" class="h-full w-full object-cover grayscale brightness-[0.2] contrast-125" data-alt="A cinematic, low-key close-up of a high-end vintage professional workspace in a deep black setting. The visual features an expensive obsidian desk with minimal silver hardware accents and soft, warm golden rim lighting. The atmosphere is quiet, authoritative, and sophisticated, mirroring the luxury brand American wear's identity. The aesthetic is digital noir with razor-sharp focus and deep shadows that convey ultimate security and exclusivity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgYvi723uIS5T2RgLUP4XJGKY9jqnzTSx0xm0BgQvg_WxeZssOk6fGvNQ6MYmVSfuZXkm4RPG3DAsRh9G2jgq1tgTW8CTl21_4_CdlO6JQDKn-ENjG4KGn5bpPRIrT18aIA7lxGdVFy2LcZo8RJJ8TVv7Qoo89vCr5h3nAE_6LInLsL_v6-XOVzVvwxK7boTMRDkddrFfTrtbWkctTgV32alVB4nDEQvjL6FZMEE_xLm0LI2yKnuJ6F2z_DP8W3P4qUWuDhv6xVxY"/>
+</div>
+<script type="module" src="./js/login.js"></script>
+</body></html>

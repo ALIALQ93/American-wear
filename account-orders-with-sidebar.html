@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+
+<html class="dark" dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link rel="stylesheet" href="/src/styles/tailwind.css"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&amp;family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .luxury-border-opacity { border-color: rgba(201, 168, 76, 0.3); }
+        .glass-nav { background: rgba(0, 0, 0, 0.15); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-md border-b border-primary/30 h-20">
+<div class="flex flex-row-reverse justify-between items-center px-margin-desktop h-full max-w-container-max mx-auto">
+<!-- Brand Logo -->
+<div class="text-headline-md font-headline-md text-primary tracking-widest">American wear</div>
+<!-- Navigation Links -->
+<nav class="hidden md:flex gap-8 items-center">
+<a class="text-on-surface opacity-50 hover:opacity-100 transition-opacity font-headline-sm text-headline-sm" href="#">المجموعات</a>
+<a class="text-on-surface opacity-50 hover:opacity-100 transition-opacity font-headline-sm text-headline-sm" href="#">وصلنا حديثاً</a>
+<a class="text-on-surface opacity-50 hover:opacity-100 transition-opacity font-headline-sm text-headline-sm" href="#">المصممون</a>
+<a class="text-on-surface opacity-50 hover:opacity-100 transition-opacity font-headline-sm text-headline-sm" href="#">الحصريات</a>
+</nav>
+<!-- Trailing Icons -->
+<div class="flex gap-6 items-center">
+<button class="hover:text-primary transition-colors duration-300 scale-95 duration-200">
+<span class="material-symbols-outlined">language</span>
+</button>
+<button class="hover:text-primary transition-colors duration-300 scale-95 duration-200">
+<span class="material-symbols-outlined">payments</span>
+</button>
+<button class="hover:text-primary transition-colors duration-300 scale-95 duration-200">
+<span class="material-symbols-outlined">shopping_bag</span>
+</button>
+<button class="hover:text-primary transition-colors duration-300 scale-95 duration-200 text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+</button>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed right-0 top-0 h-screen w-64 bg-surface-container-lowest border-l border-outline-variant pt-24 pb-4 hidden lg:flex flex-col z-40">
+<div class="px-6 mb-8 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden border border-primary/30">
+<img alt="Admin Profile" class="w-full h-full object-cover" data-alt="A close-up portrait of a sophisticated Middle Eastern gentleman with a neatly trimmed beard, wearing a high-end black silk thobe. The lighting is dramatic, high-contrast, creating a luxury editorial atmosphere. The background is a minimalist, dark grey textured wall that complements the professional and prestigious aesthetic of the brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPVH5jeKNL7Vt4oSRykkkCVYwm5fKhCveboHhLQkdLqB4UE6cGrviJUPiiEBenG94H9aDiGty-TGr57tRH1GCtzIkUOXOIxKy0flzJz5QQs6wtQ4Kc4cHRnue0UA93W1wVkJWVltr-ddHk2VjgV7Xz5m2myxB0iUhhqRhZn5ARE6hlj1mxlgUfoWlCPfBCQTsofFg4Lo1ubCXqXweZlcqz0jOtBWC2LSjAg-KYTBB9YDtq5wN7Egt8B55wEUrnnfK1G5mq-41gr_A"/>
+</div>
+<div>
+<h3 class="font-label-md text-label-md text-primary">المسؤول</h3>
+<p class="text-[10px] text-on-surface-variant opacity-70">إدارة الفخامة</p>
+</div>
+</div>
+<nav class="flex-1">
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md text-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>لوحة التحكم</span>
+</a>
+<a class="bg-primary/10 text-primary border-r-4 border-primary px-4 py-3 flex items-center gap-3 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
+<span>الطلبات</span>
+</a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md text-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span>المخزون</span>
+</a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md text-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined">group</span>
+<span>العملاء</span>
+</a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md text-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span>التقارير</span>
+</a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md text-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>الإعدادات</span>
+</a>
+</nav>
+<div class="mt-auto pt-4 border-t border-outline-variant/30">
+<button class="w-full text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md text-label-md hover:bg-surface-container-high hover:text-primary transition-all">
+<span class="material-symbols-outlined">logout</span>
+<span>تسجيل الخروج</span>
+</button>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="lg:mr-64 pt-32 pb-16 px-margin-mobile md:px-margin-desktop min-h-screen">
+<div class="max-w-5xl mx-auto">
+<!-- User Profile Header -->
+<div class="mb-12 flex flex-col md:flex-row justify-between items-end gap-6 border-b luxury-border-opacity pb-8">
+<div>
+<h1 class="font-display-lg text-display-lg text-primary mb-2">طلباتي</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">مرحباً بك مجدداً، أحمد. هنا يمكنك تتبع مشترياتك الفاخرة.</p>
+</div>
+<div class="flex gap-4">
+<div class="text-left md:text-right">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest opacity-60">إجمالي المشتريات</p>
+<p class="font-headline-sm text-headline-sm text-primary">12,450,000 IQD</p>
+</div>
+<div class="w-[1px] h-12 bg-primary/30 mx-2"></div>
+<div class="text-left md:text-right">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest opacity-60">الطلبات النشطة</p>
+<p class="font-headline-sm text-headline-sm text-primary">02</p>
+</div>
+</div>
+</div>
+<!-- Orders Table Container -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-sm overflow-hidden">
+<table class="w-full border-collapse text-right">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant/30">
+<th class="p-6 font-label-md text-label-md text-primary uppercase tracking-widest">رقم الطلب</th>
+<th class="p-6 font-label-md text-label-md text-primary uppercase tracking-widest">التاريخ</th>
+<th class="p-6 font-label-md text-label-md text-primary uppercase tracking-widest">المنتجات</th>
+<th class="p-6 font-label-md text-label-md text-primary uppercase tracking-widest text-left">المبلغ</th>
+<th class="p-6 font-label-md text-label-md text-primary uppercase tracking-widest text-center">الحالة</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<!-- Order Row 1 -->
+<tr class="hover:bg-surface-container-high transition-colors group">
+<td class="p-6">
+<span class="font-label-md text-label-md text-on-surface">#ORD-2024-8812</span>
+</td>
+<td class="p-6">
+<span class="font-body-md text-body-md text-on-surface-variant">14 أكتوبر 2023</span>
+</td>
+<td class="p-6">
+<div class="flex items-center gap-3">
+<div class="flex -space-x-reverse -space-x-3">
+<img alt="Item" class="w-10 h-10 rounded-sm border border-outline-variant/50 object-cover bg-surface" data-alt="A detailed shot of a luxury leather shoe handcrafted from premium Italian calfskin. The lighting is soft and directional, highlighting the rich grain of the leather and the impeccable stitching. Set against a dark, moody background with subtle gold accents, reflecting the brand's ultra-high-end aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYoU0IaHlIacUH-iKaopMn9koy_VoFu943XApP52BOVoIiiqzb5i7NijYICWkVUjhgELD990dRoT4tII2UJ5pP1yIs_rR9udVYVRDbcIMMKgVe0IGAD3Mnn_CF4RnpjZXRTQRDMHQWyL6N6tNSZvrqzrdX-LksKnYde1V9_0rO_n6UdsfuHKoNs2w4QlIIefla65Ed3DFs_rVZ7YFugygPYxoJajQBmzu3MBkiSxzyojw0MKft5SrbmAvfj4ncIk3VSUvfmtndp50"/>
+<img alt="Item" class="w-10 h-10 rounded-sm border border-outline-variant/50 object-cover bg-surface" data-alt="A minimalist studio shot of a high-end luxury watch with a white face and gold markers, resting on a charcoal velvet pedestal. The image uses high-key lighting to emphasize the reflective surfaces of the gold bezel. The overall style is clean, architectural, and evokes an effortless sense of prestige." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDy_A3Bt6EA2u9GDsSsTtZc4omFwI4BFNS7YtBltm8nJrtM6nVFarIGiQseDpML_RbWwp5HmbH0ScqYw2KbqkZjLMDncbQNNwgxKSbiXv3gKEZyU_gy9yd1XYCSDbfsRq2130gDj1pofhOc60Cm1qmq2rqq6tKYwAaTeJytsw5cyHrJYJ1iaL-3D7kVrcpW4Ek12kOeDW8a8NqwPBp01n_eSg_1njrqCW7s5TV-uufXzPUD1lCB8oELEttS6MKF_ieBLrDsHXSCQgY"/>
+</div>
+<span class="text-label-sm text-on-surface-variant">+3 منتجات أخرى</span>
+</div>
+</td>
+<td class="p-6 text-left">
+<div class="flex flex-col items-start">
+<span class="font-label-md text-label-md text-primary">4,250,000 IQD</span>
+<span class="text-[10px] text-on-surface-variant opacity-60">$3,240 USD</span>
+</div>
+</td>
+<td class="p-6 text-center">
+<span class="inline-flex items-center px-4 py-1 rounded-full bg-primary text-on-primary font-label-sm text-label-sm shadow-sm">تم الشحن</span>
+</td>
+</tr>
+<!-- Order Row 2 -->
+<tr class="hover:bg-surface-container-high transition-colors group">
+<td class="p-6">
+<span class="font-label-md text-label-md text-on-surface">#ORD-2024-9004</span>
+</td>
+<td class="p-6">
+<span class="font-body-md text-body-md text-on-surface-variant">12 أكتوبر 2023</span>
+</td>
+<td class="p-6">
+<div class="flex items-center gap-3">
+<img alt="Item" class="w-10 h-10 rounded-sm border border-outline-variant/50 object-cover bg-surface" data-alt="An editorial close-up of a premium silk tie with intricate geometric patterns in shades of deep charcoal and gold. The fabric has a high-glaze finish, caught by a sharp, focused light source. The background is a deep black, making the textures of the silk stand out as a piece of digital atelier art." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBTEsXORaOFTNuj7BBFuakRu1x50FkG6JiYqyzL5abY6TJgycytdDDFxr8MoSr31wQMWM4ZaqxMQFFYrHEjKCfAaTxM8i-fZ2HhcH1LzG41b3Z3WAwZgdW21WcyxB9Y8Xn7ndro5itOnaRPvlu3ldGr16Ce6x0CvJy1F7FBGnUO4SXIoxYFfmKeg99GkDdS2EhsCGgUs6d-nxyuYhX0dLhH2QCi4FSt0dNCkGxn8bUz23dkFtG6-vdR7rxKHq_swt7Q3f84k3Cp_4"/>
+<span class="text-label-sm text-on-surface-variant">رداء حريري ملكي</span>
+</div>
+</td>
+<td class="p-6 text-left">
+<div class="flex flex-col items-start">
+<span class="font-label-md text-label-md text-primary">1,120,000 IQD</span>
+<span class="text-[10px] text-on-surface-variant opacity-60">$850 USD</span>
+</div>
+</td>
+<td class="p-6 text-center">
+<span class="inline-flex items-center px-4 py-1 rounded-full bg-surface-container-highest text-primary border border-primary/30 font-label-sm text-label-sm">قيد المراجعة</span>
+</td>
+</tr>
+<!-- Order Row 3 -->
+<tr class="hover:bg-surface-container-high transition-colors group">
+<td class="p-6">
+<span class="font-label-md text-label-md text-on-surface">#ORD-2023-7741</span>
+</td>
+<td class="p-6">
+<span class="font-body-md text-body-md text-on-surface-variant">28 سبتمبر 2023</span>
+</td>
+<td class="p-6">
+<div class="flex items-center gap-3">
+<div class="flex -space-x-reverse -space-x-3">
+<img alt="Item" class="w-10 h-10 rounded-sm border border-outline-variant/50 object-cover bg-surface" data-alt="A high-fashion shot of a structured black blazer tailored to perfection, displayed on a minimalist matte black mannequin. The lighting highlights the razor-sharp edges and the subtle sheen of the premium wool fabric. The aesthetic is authoritative and sophisticated, perfectly aligned with a luxury fashion gallery." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtvccqjie6rXqGq9XWbOgmMMLXXLb5-2vtFGuOQiUrCXtMA5jmbCDYKfDk8ULO1O23MLUUnU2RlGZzYCo92wfpn1rxRUeceoUv-eO8OFDjLr37HmpiK9eb_Gh_GAA3JFMjPR24JT97IGfdSh1u9btHi4geMoK35UKEKef9ttv2jgFNZ1qd7Smg6bK1wo6jWLZ3TlNcejmKNMc0zPfRb7WUa1oAAsAtXu2C0Dmga7ySxqrCxyqdAvn4tuUxZC2yOTV_rdS4tph4cUY"/>
+<img alt="Item" class="w-10 h-10 rounded-sm border border-outline-variant/50 object-cover bg-surface" data-alt="A minimalist presentation of luxury perfume bottles made of heavy faceted glass with gold caps, arranged in an asymmetrical composition on a black marble slab. Soft, diffused lighting creates elegant reflections, emphasizing a mood of serene prestige and exclusivity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDbaRMVObB2e6jL6TfYP-QlzGyFJrb8grB7HHmrM8ItXnzogXss6WiG2jpkSoOzvedZjCuUhEFk7EZLxubrH8Sq-OohkuGgC_GIOlBTnmeDgHTX4X4w4rSE-kbJ-ZlOs8aUalNrurU0b4HEpFcuaw-WQxHD3WS2iqmEXHH2FrG6JNUw2T89WSM-O9Pis7l76Doe1CXD76Zswp7UWpHT_TyflTI0zuc-Ml_v0RHKDjrDQDdGq79DOWDvnb2jSWePw27fap093HyFCI"/>
+</div>
+<span class="text-label-sm text-on-surface-variant">مجموعة الملابس الشتوية</span>
+</div>
+</td>
+<td class="p-6 text-left">
+<div class="flex flex-col items-start">
+<span class="font-label-md text-label-md text-primary">7,080,000 IQD</span>
+<span class="text-[10px] text-on-surface-variant opacity-60">$5,400 USD</span>
+</div>
+</td>
+<td class="p-6 text-center">
+<span class="inline-flex items-center px-4 py-1 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm opacity-50">تم التسليم</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Empty State Contextual Hint (Subtle) -->
+<div class="mt-12 text-center p-12 border border-dashed border-primary/20 rounded-sm">
+<span class="material-symbols-outlined text-4xl text-primary/30 mb-4">shopping_bag</span>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-6">هل تبحث عن المزيد من الفخامة؟</p>
+<button class="bg-primary text-on-primary px-8 py-3 font-label-md text-label-md tracking-widest hover:brightness-110 transition-all">تصفح التشكيلة الجديدة</button>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-16 px-margin-desktop flex flex-col items-center gap-8 bg-surface-container-low border-t border-outline-variant">
+<div class="text-headline-sm font-headline-sm text-primary tracking-widest">American wear</div>
+<div class="flex flex-wrap justify-center gap-8 md:gap-16">
+<a class="text-on-surface-variant font-body-md text-body-md hover:text-primary underline-offset-4 hover:underline opacity-80 hover:opacity-100 transition-all" href="#">سياسة الخصوصية</a>
+<a class="text-on-surface-variant font-body-md text-body-md hover:text-primary underline-offset-4 hover:underline opacity-80 hover:opacity-100 transition-all" href="#">الشروط والأحكام</a>
+<a class="text-on-surface-variant font-body-md text-body-md hover:text-primary underline-offset-4 hover:underline opacity-80 hover:opacity-100 transition-all" href="#">اتصل بنا</a>
+<a class="text-on-surface-variant font-body-md text-body-md hover:text-primary underline-offset-4 hover:underline opacity-80 hover:opacity-100 transition-all" href="#">الفروع</a>
+</div>
+<div class="text-on-surface-variant opacity-50 font-body-md text-body-md mt-4">
+            © ٢٠٢٤ American wear للفخامة. جميع الحقوق محفوظة.
+        </div>
+</footer>
+</body></html>

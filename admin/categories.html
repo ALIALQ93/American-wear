@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html class="dark" dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/>
+<title>American wear | التصنيفات والأقسام</title>
+<script>
+(function () {
+  try {
+    if (!sessionStorage.getItem("aw_admin_jwt")) location.replace("./login.html");
+  } catch (e) {
+    location.replace("./login.html");
+  }
+})();
+</script>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link rel="stylesheet" href="/src/styles/tailwind.css"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        body { background-color: #131313; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-x-hidden">
+<aside class="fixed right-0 top-0 h-screen w-64 bg-surface-container-lowest border-l border-outline-variant z-40 hidden md:flex flex-col pt-8 pb-4">
+<div class="px-6 mb-10">
+<h1 class="text-headline-sm font-headline-sm text-primary">American wear</h1>
+<p class="text-label-sm text-on-surface-variant">إدارة الفخامة</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./index.html">
+<span class="material-symbols-outlined">dashboard</span>
+<span>لوحة التحكم</span>
+</a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./orders.html">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span>الطلبات</span>
+</a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./products.html">
+<span class="material-symbols-outlined">inventory_2</span>
+<span>المنتجات</span>
+</a>
+<a class="bg-primary/10 text-primary border-r-4 border-primary px-4 py-3 flex items-center gap-3 font-label-md" href="./categories.html">
+<span class="material-symbols-outlined">category</span>
+<span>التصنيفات</span>
+</a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./sizes.html">
+<span class="material-symbols-outlined">straighten</span>
+<span>المقاسات</span>
+</a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./users.html">
+<span class="material-symbols-outlined">manage_accounts</span>
+<span>المسؤولون</span>
+</a>
+</nav>
+<div class="px-4 mt-auto">
+<button type="button" id="sidebar-new-category" class="w-full bg-primary text-on-primary font-label-md py-3 mb-6 flex items-center justify-center gap-2 transition-transform active:scale-95">
+<span class="material-symbols-outlined">add</span>
+تصنيف جديد
+</button>
+<div class="flex items-center gap-3 px-2 py-4 border-t border-outline-variant">
+<div class="w-10 h-10 bg-surface-variant border border-primary/30 flex items-center justify-center text-primary text-label-sm font-bold">A</div>
+<div>
+<p class="text-label-md text-on-surface">المسؤول</p>
+<button type="button" id="admin-logout-btn" class="text-label-sm text-primary flex items-center gap-1 hover:underline">
+<span class="material-symbols-outlined text-[14px]">logout</span>
+تسجيل الخروج
+</button>
+</div>
+</div>
+</aside>
+
+<main class="md:mr-64 min-h-screen">
+<header class="h-auto min-h-[5rem] px-6 md:px-8 py-4 flex flex-wrap items-center justify-between gap-4 border-b border-primary/30 sticky top-0 bg-surface/90 backdrop-blur-md z-30">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">التصنيفات والأقسام</h2>
+<p class="text-label-sm text-on-surface-variant max-w-xl mt-1">أنشئ تصنيفات رئيسية (مثل ساعات، عطور) ثم أضف <strong class="text-on-surface font-medium">أقساماً فرعية مربوطة بكل تصنيف</strong> (مثل رجالي، نسائي). الـ slug يُستخدم في الروابط — أحرف لاتينية صغيرة وأرقام وشرطة فقط.</p>
+</div>
+<button type="button" id="header-new-category" class="bg-primary text-black px-4 py-2 font-label-md whitespace-nowrap shrink-0">+ تصنيف</button>
+</header>
+
+<div class="p-6 md:p-8 max-w-container-max mx-auto">
+<p id="page-banner" class="hidden mb-4 text-label-sm text-error border border-error/40 bg-error-container/15 px-4 py-3"></p>
+<div id="cats-root" class="space-y-6">
+<p class="text-on-surface-variant text-body-md py-8 text-center">جاري التحميل…</p>
+</div>
+</div>
+</main>
+
+<!-- Modal: تصنيف -->
+<div id="category-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+<div id="category-modal-backdrop" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+<div class="relative w-full max-w-lg bg-surface-container-low border border-outline-variant shadow-2xl max-h-[90vh] overflow-y-auto">
+<div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant">
+<h3 id="category-modal-title" class="text-headline-sm font-headline-sm text-on-surface">تصنيف جديد</h3>
+<button type="button" id="category-modal-close" class="p-2 text-on-surface-variant hover:text-primary" aria-label="إغلاق"><span class="material-symbols-outlined">close</span></button>
+</div>
+<form id="category-form" class="p-6 space-y-4">
+<input type="hidden" id="category-edit-id" value=""/>
+<p id="category-form-error" class="hidden text-label-sm text-error bg-error-container/20 border border-error/30 px-3 py-2"></p>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">الاسم بالعربية *</label>
+<input id="cat-name-ar" required class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none" type="text"/>
+</div>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">الاسم بالإنجليزية</label>
+<div class="flex gap-2">
+<input id="cat-name-en" class="flex-1 bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none" type="text" placeholder="Watches"/>
+<button type="button" id="cat-suggest-slug" class="shrink-0 px-3 py-2 text-label-sm border border-outline-variant hover:border-primary text-on-surface-variant">اقتراح slug</button>
+</div>
+</div>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">المعرف slug * <span class="text-on-surface-variant font-normal">(لاتيني، مثل watches)</span></label>
+<input id="cat-slug" required dir="ltr" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none text-left" type="text" placeholder="watches"/>
+</div>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">وصف قصير (عربي)</label>
+<textarea id="cat-desc-ar" rows="2" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none resize-y"></textarea>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">ترتيب العرض</label>
+<input id="cat-sort" type="number" step="1" value="0" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none"/>
+</div>
+<label class="flex items-center gap-2 cursor-pointer self-end pb-2">
+<input id="cat-active" type="checkbox" class="rounded border-outline-variant text-primary" checked/>
+<span class="text-body-md text-on-surface">ظاهر في المتجر</span>
+</label>
+</div>
+<div class="flex justify-end gap-3 pt-4 border-t border-outline-variant">
+<button type="button" id="category-modal-close-2" class="px-4 py-2 text-label-md text-on-surface-variant border border-outline-variant hover:border-primary">إلغاء</button>
+<button type="submit" class="px-6 py-2 bg-primary text-black font-label-md">حفظ</button>
+</div>
+</form>
+</div>
+</div>
+
+<!-- Modal: قسم فرعي -->
+<div id="section-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+<div id="section-modal-backdrop" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+<div class="relative w-full max-w-lg bg-surface-container-low border border-outline-variant shadow-2xl max-h-[90vh] overflow-y-auto">
+<div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant">
+<h3 id="section-modal-title" class="text-headline-sm font-headline-sm text-on-surface">قسم فرعي</h3>
+<button type="button" id="section-modal-close" class="p-2 text-on-surface-variant hover:text-primary" aria-label="إغلاق"><span class="material-symbols-outlined">close</span></button>
+</div>
+<form id="section-form" class="p-6 space-y-4">
+<input type="hidden" id="section-edit-id" value=""/>
+<p id="section-form-error" class="hidden text-label-sm text-error bg-error-container/20 border border-error/30 px-3 py-2"></p>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">التصنيف الرئيسي *</label>
+<select id="sec-parent-category" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none"></select>
+<p class="text-label-sm text-on-surface-variant mt-1 leading-relaxed">القسم الفرعي دائماً تابع لتصنيف رئيسي واحد. عند نقل القسم إلى تصنيف آخر، تُحدَّث تلقائياً منتجات مرتبطة به لتبقى ضمن نفس التصنيف الجديد.</p>
+</div>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">الاسم بالعربية *</label>
+<input id="sec-name-ar" required class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none" type="text"/>
+</div>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">الاسم بالإنجليزية</label>
+<div class="flex gap-2">
+<input id="sec-name-en" class="flex-1 bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none" type="text"/>
+<button type="button" id="sec-suggest-slug" class="shrink-0 px-3 py-2 text-label-sm border border-outline-variant hover:border-primary text-on-surface-variant">اقتراح slug</button>
+</div>
+</div>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">المعرف slug * <span class="font-normal">(فريد داخل نفس التصنيف)</span></label>
+<input id="sec-slug" required dir="ltr" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none text-left" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">ترتيب العرض</label>
+<input id="sec-sort" type="number" step="1" value="0" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none"/>
+</div>
+<label class="flex items-center gap-2 cursor-pointer self-end pb-2">
+<input id="sec-active" type="checkbox" class="rounded border-outline-variant text-primary" checked/>
+<span class="text-body-md text-on-surface">ظاهر</span>
+</label>
+</div>
+<div class="flex justify-end gap-3 pt-4 border-t border-outline-variant">
+<button type="button" id="section-modal-close-2" class="px-4 py-2 text-label-md text-on-surface-variant border border-outline-variant hover:border-primary">إلغاء</button>
+<button type="submit" class="px-6 py-2 bg-primary text-black font-label-md">حفظ</button>
+</div>
+</form>
+</div>
+</div>
+
+<script type="module" src="./js/categories.js"></script>
+</body>
+</html>

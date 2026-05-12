@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html class="dark" dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/>
+<title>American wear | إدارة المنتجات</title>
+<script>
+(function () {
+  try {
+    if (!sessionStorage.getItem("aw_admin_jwt")) location.replace("./login.html");
+  } catch (e) {
+    location.replace("./login.html");
+  }
+})();
+</script>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link rel="stylesheet" href="/src/styles/tailwind.css"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        body { background-color: #131313; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-x-hidden">
+<aside class="fixed right-0 top-0 h-screen w-64 bg-surface-container-lowest border-l border-outline-variant z-40 hidden md:flex flex-col pt-8 pb-4">
+<div class="px-6 mb-10">
+<h1 class="text-headline-sm font-headline-sm text-primary">American wear</h1>
+<p class="text-label-sm text-on-surface-variant">إدارة الفخامة</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./index.html">
+<span class="material-symbols-outlined">dashboard</span>
+<span>لوحة التحكم</span>
+</a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./orders.html">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span>الطلبات</span>
+</a>
+<a class="bg-primary/10 text-primary border-r-4 border-primary px-4 py-3 flex items-center gap-3 font-label-md" href="./products.html">
+<span class="material-symbols-outlined">inventory_2</span>
+<span>المنتجات</span>
+</a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./categories.html">
+<span class="material-symbols-outlined">category</span>
+<span>التصنيفات</span>
+</a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./sizes.html">
+<span class="material-symbols-outlined">straighten</span>
+<span>المقاسات</span>
+</a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./users.html">
+<span class="material-symbols-outlined">manage_accounts</span>
+<span>المسؤولون</span>
+</a>
+</nav>
+<div class="px-4 mt-auto">
+<button type="button" id="sidebar-add-product" class="w-full bg-primary text-on-primary font-label-md py-3 mb-6 flex items-center justify-center gap-2 transition-transform duration-200 active:scale-95">
+<span class="material-symbols-outlined">add</span>
+إضافة منتج
+</button>
+<div class="flex items-center gap-3 px-2 py-4 border-t border-outline-variant">
+<div class="w-10 h-10 bg-surface-variant border border-primary/30 flex items-center justify-center text-primary text-label-sm font-bold">A</div>
+<div>
+<p class="text-label-md text-on-surface">المسؤول</p>
+<button type="button" id="admin-logout-btn" class="text-label-sm text-primary flex items-center gap-1 hover:underline">
+<span class="material-symbols-outlined text-[14px]">logout</span>
+تسجيل الخروج
+</button>
+</div>
+</div>
+</aside>
+
+<main class="md:mr-64 min-h-screen">
+<header class="h-20 px-6 md:px-8 flex flex-wrap items-center justify-between gap-4 border-b border-primary/30 sticky top-0 bg-surface/90 backdrop-blur-md z-30">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">إدارة المنتجات</h2>
+<p class="text-label-sm text-on-surface-variant hidden sm:block">عرض وتعديل وإضافة منتجات المتجر</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl">search</span>
+<input id="product-search" class="bg-surface-container-low border border-outline-variant text-on-surface pr-10 pl-3 py-2 w-56 md:w-72 focus:border-primary outline-none text-body-md" placeholder="بحث بالاسم أو SKU..." type="search"/>
+</div>
+<button type="button" id="header-add-product" class="bg-primary text-black px-4 py-2 font-label-md whitespace-nowrap">+ منتج جديد</button>
+</div>
+</header>
+
+<div class="p-6 md:p-8 max-w-container-max mx-auto">
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-gutter mb-8">
+<div class="bg-surface-container-low p-4 md:p-6 border border-outline-variant">
+<p class="text-label-sm text-primary mb-1">إجمالي المنتجات</p>
+<p id="stat-prod-total" class="text-headline-md font-display-lg text-on-surface">—</p>
+</div>
+<div class="bg-surface-container-low p-4 md:p-6 border border-outline-variant">
+<p class="text-label-sm text-primary mb-1">متوفر</p>
+<p id="stat-prod-instock" class="text-headline-md font-display-lg text-on-surface">—</p>
+</div>
+<div class="bg-surface-container-low p-4 md:p-6 border border-outline-variant">
+<p class="text-label-sm text-error mb-1">مخزون منخفض</p>
+<p id="stat-prod-low" class="text-headline-md font-display-lg text-on-surface">—</p>
+</div>
+<div class="bg-surface-container-low p-4 md:p-6 border border-outline-variant">
+<p class="text-label-sm text-primary mb-1">قيمة المخزون (IQD)</p>
+<p id="stat-prod-value" class="text-headline-md font-display-lg text-on-surface">—</p>
+</div>
+</div>
+
+<section class="bg-surface-container-low border border-outline-variant overflow-hidden rounded-lg">
+<div class="overflow-x-auto">
+<table class="w-full text-right min-w-[720px]">
+<thead>
+<tr class="bg-surface-container-high border-b border-outline-variant">
+<th class="px-6 py-3 text-label-md text-primary font-bold">المنتج</th>
+<th class="px-6 py-3 text-label-md text-primary font-bold">التصنيف</th>
+<th class="px-6 py-3 text-label-md text-primary font-bold text-left">السعر (IQD)</th>
+<th class="px-6 py-3 text-label-md text-primary font-bold">المخزون</th>
+<th class="px-6 py-3 text-label-md text-primary font-bold">الحالة</th>
+<th class="px-6 py-3 text-label-md text-primary font-bold text-center">إجراءات</th>
+</tr>
+</thead>
+<tbody id="products-tbody" class="divide-y divide-outline-variant/40">
+<tr><td colspan="6" class="px-6 py-10 text-center text-on-surface-variant">جاري التحميل…</td></tr>
+</tbody>
+</table>
+</div>
+<div class="px-6 py-4 border-t border-outline-variant flex justify-between items-center gap-2">
+<p id="products-count-label" class="text-label-sm text-on-surface-variant">—</p>
+</div>
+</section>
+</div>
+</main>
+
+<!-- Modal -->
+<div id="product-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+<div id="product-modal-backdrop" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+<div class="relative w-full max-w-lg bg-surface-container-low border border-outline-variant shadow-2xl max-h-[90vh] overflow-y-auto">
+<div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant">
+<h3 id="product-modal-title" class="text-headline-sm font-headline-sm text-on-surface">إضافة منتج</h3>
+<button type="button" id="product-modal-close" class="p-2 text-on-surface-variant hover:text-primary" aria-label="إغلاق">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<form id="product-form" class="p-6 space-y-4">
+<input type="hidden" id="product-edit-id" value=""/>
+<p id="product-form-error" class="hidden text-label-sm text-error bg-error-container/20 border border-error/30 px-3 py-2"></p>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">الاسم بالعربية *</label>
+<input id="product-name-ar" required class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none" type="text"/>
+</div>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">الاسم بالإنجليزية</label>
+<input id="product-name-en" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">SKU</label>
+<input id="product-sku" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none" type="text"/>
+</div>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">السعر (IQD)</label>
+<input id="product-price" min="0" step="1" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none" type="number" value="0"/>
+</div>
+</div>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">المخزون</label>
+<input id="product-stock" min="0" step="1" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none" type="number" value="0"/>
+</div>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">رابط الصورة</label>
+<input id="product-image-url" dir="ltr" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none text-left" type="url" placeholder="https://..."/>
+</div>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">التصنيف الرئيسي</label>
+<select id="product-category-id" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none">
+<option value="">— بدون —</option>
+</select>
+</div>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">القسم الفرعي</label>
+<select id="product-section-id" disabled class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none disabled:opacity-50">
+<option value="">— بدون —</option>
+</select>
+</div>
+<label class="flex items-center gap-2 cursor-pointer">
+<input id="product-is-active" type="checkbox" class="rounded border-outline-variant text-primary focus:ring-primary" checked/>
+<span class="text-body-md text-on-surface">المنتج ظاهر في المتجر</span>
+</label>
+<div class="flex justify-end gap-3 pt-4 border-t border-outline-variant">
+<button type="button" id="product-modal-close-2" class="px-4 py-2 text-label-md text-on-surface-variant border border-outline-variant hover:border-primary">إلغاء</button>
+<button type="submit" class="px-6 py-2 bg-primary text-black font-label-md">حفظ</button>
+</div>
+</form>
+</div>
+</div>
+
+<script type="module" src="./js/products.js"></script>
+</body>
+</html>

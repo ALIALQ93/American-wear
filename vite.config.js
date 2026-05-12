@@ -1,0 +1,61 @@
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { loadEnv } from "vite";
+
+const root = fileURLToPath(new URL(".", import.meta.url));
+
+function parseApiPort(env) {
+  const p = Number.parseInt(String(env.PORT ?? "").trim(), 10);
+  if (Number.isFinite(p) && p > 0 && p <= 65535) return p;
+  return 3000;
+}
+
+/** @type {import('vite').UserConfigFnObject} */
+export default ({ mode }) => {
+  const env = loadEnv(mode, root, "");
+  const apiPort = parseApiPort(env);
+  const apiTarget = `http://127.0.0.1:${apiPort}`;
+
+  return {
+    appType: "mpa",
+    /** يعرّض متغيرات البيئة التي تبدأ بـ VITE_ أو NEXT_PUBLIC_ (مثل قالب Supabase App Router) */
+    envPrefix: ["VITE_", "NEXT_PUBLIC_"],
+    server: {
+      open: "/",
+      proxy: {
+        "/api": { target: apiTarget, changeOrigin: true },
+      },
+      fs: {
+        allow: [root],
+      },
+    },
+    /** نفس توجيه /api أثناء `vite preview` — المنفذ من PORT في `.env` */
+    preview: {
+      proxy: {
+        "/api": { target: apiTarget, changeOrigin: true },
+      },
+    },
+    build: {
+      rollupOptions: {
+        input: {
+          home: resolve(root, "index.html"),
+          storefront: resolve(root, "home.html"),
+          productDetail: resolve(root, "product-detail.html"),
+          categoryWatches: resolve(root, "category-watches.html"),
+          categoryPerfumes: resolve(root, "category-perfumes.html"),
+          categoryShoes: resolve(root, "category-shoes.html"),
+          categoryMenswear: resolve(root, "category-menswear.html"),
+          accountOrders: resolve(root, "account-orders.html"),
+          accountOrdersSidebar: resolve(root, "account-orders-with-sidebar.html"),
+          adminLogin: resolve(root, "admin/login.html"),
+          adminDashboard: resolve(root, "admin/index.html"),
+          adminProducts: resolve(root, "admin/products.html"),
+          adminOrders: resolve(root, "admin/orders.html"),
+          adminSizes: resolve(root, "admin/sizes.html"),
+          adminUsers: resolve(root, "admin/users.html"),
+          adminCategories: resolve(root, "admin/categories.html"),
+        },
+      },
+    },
+  };
+};

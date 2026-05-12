@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+
+<html class="dark" dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link rel="stylesheet" href="/src/styles/tailwind.css"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&amp;family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #131313;
+            color: #e5e2e1;
+        }
+        .luxury-underline::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            right: 50%;
+            width: 0;
+            height: 1px;
+            background-color: #e6c364;
+            transition: all 0.3s ease;
+            transform: translateX(50%);
+        }
+        .luxury-underline:hover::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- TopNavBar -->
+<header class="bg-surface/85 backdrop-blur-md fixed top-0 w-full z-50 border-b border-primary/30 h-20">
+<div class="flex flex-row-reverse justify-between items-center px-margin-desktop h-full max-w-container-max mx-auto">
+<div class="text-headline-md font-headline-md text-primary tracking-widest">American wear</div>
+<nav class="hidden md:flex gap-10">
+<a class="font-headline-sm text-headline-sm text-on-surface opacity-50 hover:opacity-100 transition-opacity relative luxury-underline" href="#">الحصريات</a>
+<a class="font-headline-sm text-headline-sm text-on-surface opacity-50 hover:opacity-100 transition-opacity relative luxury-underline" href="#">المصممون</a>
+<a class="font-headline-sm text-headline-sm text-on-surface opacity-50 hover:opacity-100 transition-opacity relative luxury-underline" href="#">وصلنا حديثاً</a>
+<a class="font-headline-sm text-headline-sm text-primary font-bold border-b-2 border-primary pb-1" href="#">المجموعات</a>
+</nav>
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors duration-300" data-icon="person">person</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors duration-300" data-icon="shopping_bag">shopping_bag</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors duration-300" data-icon="payments">payments</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors duration-300" data-icon="language">language</span>
+</div>
+</div>
+</header>
+<main class="pt-32 pb-16 max-w-container-max mx-auto px-margin-desktop min-h-screen">
+<!-- Breadcrumbs -->
+<nav class="mb-12 flex items-center gap-4 text-on-surface-variant font-label-md text-label-md">
+<a class="hover:text-primary" href="#">الرئيسية</a>
+<span class="material-symbols-outlined text-[14px]" data-icon="chevron_left">chevron_left</span>
+<span class="text-primary">ساعات</span>
+</nav>
+<div class="flex flex-col md:flex-row-reverse gap-gutter">
+<!-- Sidebar Filters -->
+<aside class="w-full md:w-64 flex-shrink-0">
+<div class="sticky top-32 space-y-10">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-6 border-b border-primary/20 pb-2">الجنس</h3>
+<div class="space-y-3 font-label-md text-label-md">
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="w-4 h-4 border border-outline group-hover:border-primary transition-colors"></div>
+<span>رجالي</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="w-4 h-4 border border-primary bg-primary/10 transition-colors"></div>
+<span class="text-primary">نسائي</span>
+</label>
+</div>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-6 border-b border-primary/20 pb-2">العلامة التجارية</h3>
+<div class="space-y-3 font-label-md text-label-md">
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="w-4 h-4 border border-outline group-hover:border-primary transition-colors"></div>
+<span>باتيك فيليب</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="w-4 h-4 border border-outline group-hover:border-primary transition-colors"></div>
+<span>رولكس</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="w-4 h-4 border border-outline group-hover:border-primary transition-colors"></div>
+<span>أوديمار بيجيه</span>
+</label>
+</div>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-6 border-b border-primary/20 pb-2">المادة</h3>
+<div class="space-y-3 font-label-md text-label-md">
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="w-4 h-4 border border-outline group-hover:border-primary transition-colors"></div>
+<span>جلد</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="w-4 h-4 border border-outline group-hover:border-primary transition-colors"></div>
+<span>ستيل</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="w-4 h-4 border border-primary bg-primary/10 transition-colors"></div>
+<span class="text-primary">ذهب</span>
+</label>
+</div>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-6 border-b border-primary/20 pb-2">نطاق السعر</h3>
+<div class="px-2">
+<input class="w-full accent-primary bg-surface-container-highest h-1" max="100000" min="1000" type="range"/>
+<div class="flex justify-between mt-4 font-label-sm text-label-sm text-on-surface-variant">
+<span>١,٠٠٠ ر.س</span>
+<span>١٠٠,٠٠٠+ ر.س</span>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Product Grid -->
+<section class="flex-grow">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-gutter gap-y-16">
+<!-- Product Card 1 -->
+<div class="group flex flex-col">
+<div class="relative aspect-[3/4] mb-6 overflow-hidden bg-surface-container-low">
+<img alt="ساعة رويال أوك" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A macro close-up of a luxury gold wristwatch featuring an intricate mechanical skeleton dial. The lighting is dramatic and moody with a sharp key light reflecting off the polished gold surfaces against a deep charcoal background. The composition is artistic and minimalist, evoking high-end fashion editorial photography found in premium Middle Eastern luxury catalogs. The image emphasizes precision and heritage." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBo1jzHidVXFiFARHn7xNcl6nkQdTbttJPiKViEb9VzLr8r65JkKc1MyYdh2tlhfMDagcmXadsJE4UYnYGTUPZDs07oYlh7YqTHiL4Dw1XxG8-pF422N3EOdHl8gsmE8PznKlVPCZ06VMjUR5S_HoAkT33j6eIB0Bvlybo4B98eatpOjBEyCYpxskJWUHnRgR7fz0_qpr3_Xnt3kBcAAm8kd3faYwfgr9ffXhTaNIsupWrbdt-KCMQJDlNmSAobR_y5xKmZ98xlTOo"/>
+<div class="absolute inset-0 border border-primary/0 group-hover:border-primary/40 transition-all duration-300"></div>
+<button class="absolute bottom-0 left-0 right-0 bg-primary text-on-primary py-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 font-label-md text-label-md">
+                                أضف إلى السلة
+                            </button>
+</div>
+<div class="flex flex-col items-start text-right">
+<span class="text-primary font-label-sm text-label-sm mb-1 uppercase tracking-widest">أوديمار بيجيه</span>
+<h2 class="font-headline-sm text-headline-sm mb-2 group-hover:text-primary transition-colors">رويال أوك أوتوماتيك</h2>
+<p class="text-on-surface-variant font-body-md text-body-md">١٨٤,٥٠٠ ر.س</p>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="group flex flex-col">
+<div class="relative aspect-[3/4] mb-6 overflow-hidden bg-surface-container-low">
+<img alt="ساعة باتيك فيليب" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A luxurious minimalist timepiece with a black leather strap and a clean white dial featuring gold hands. The watch is positioned on a piece of dark architectural stone under soft, diffuse cinematic lighting. The aesthetic is ultra-high-end and sophisticated, maintaining a stark contrast between deep blacks and bright gold accents to match the Digital Atelier brand identity. The focus is on the textures of the leather and the clarity of the design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2OV1TPgCOFFmBkzwf1EebL3cnpo82FxiHQBOyDOKVDH1r5MwATZFm2z6jK_Ax5Z_Myjk4wSEyJs_KM4nRXem-l1jk_1FYce2wPu5DynAHUKWirHsMvszKxhN7FUNeFB4zfL5Xb21leEiwDUDV9vOtikaNX6_uo7-4tV2bGJpfeMRM4INH9CPHZDOzKnsxOcdw6PIB59S7XCSa4J8fsc4vT7nDvBihoWAsCvSKmZn1bvHbBbmBrFDgM79NUhd_1rdRw81sg3owHcc"/>
+<div class="absolute inset-0 border border-primary/0 group-hover:border-primary/40 transition-all duration-300"></div>
+<button class="absolute bottom-0 left-0 right-0 bg-primary text-on-primary py-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 font-label-md text-label-md">
+                                أضف إلى السلة
+                            </button>
+</div>
+<div class="flex flex-col items-start text-right">
+<span class="text-primary font-label-sm text-label-sm mb-1 uppercase tracking-widest">باتيك فيليب</span>
+<h2 class="font-headline-sm text-headline-sm mb-2 group-hover:text-primary transition-colors">كالاترافا الكلاسيكية</h2>
+<p class="text-on-surface-variant font-body-md text-body-md">١٢٠,٠٠٠ ر.س</p>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="group flex flex-col">
+<div class="relative aspect-[3/4] mb-6 overflow-hidden bg-surface-container-low">
+<img alt="ساعة رولكس" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A professional shot of a steel sports watch with a deep blue sunburst dial, reflecting shards of cool white light. The watch is set against a minimalist dark textured background that complements the metallic sheen of the steel. The lighting highlights the sharp edges and brushed finishing of the bracelet, creating an atmosphere of architectural precision and durability. The overall mood is authoritative and modern, emphasizing the effortless prestige of the brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrEN9CJl8v2iRzWxbpOvUjvv0iPnLS40YJqUVzJISeMXvUwQTS5ZEiQM1HV98Wjd7MJCGIFKM51TuoKfsaAPs6ivbqw9t0KGh-sER3i_PiVjRyn0DW4DnHzdeFKa-JLDBGIVpAQ90rkF2XgMER_A87zUl91pyRsEnZJKgX2C9ydvzYu8amHWfiU6JwZe3T-8Mz16LOkc9Hi3j6HZnatKaGzD3vSiPMrGqoLN3upffmOG099jSDVx0mAw9GeCR7loSvAFM7G1vqEKQ"/>
+<div class="absolute inset-0 border border-primary/0 group-hover:border-primary/40 transition-all duration-300"></div>
+<button class="absolute bottom-0 left-0 right-0 bg-primary text-on-primary py-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 font-label-md text-label-md">
+                                أضف إلى السلة
+                            </button>
+</div>
+<div class="flex flex-col items-start text-right">
+<span class="text-primary font-label-sm text-label-sm mb-1 uppercase tracking-widest">رولكس</span>
+<h2 class="font-headline-sm text-headline-sm mb-2 group-hover:text-primary transition-colors">دايتونا بلاتينيوم</h2>
+<p class="text-on-surface-variant font-body-md text-body-md">٢٦٥,٩٠٠ ر.س</p>
+</div>
+</div>
+<!-- Product Card 4 -->
+<div class="group flex flex-col">
+<div class="relative aspect-[3/4] mb-6 overflow-hidden bg-surface-container-low">
+<img alt="ساعة تعقيدات" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Close up of a luxury watch face featuring moon phase complications and Roman numerals on a cream-colored textured dial. The lighting is warm and soft, accentuating the gold casing and the subtle depth of the dial's layers. The image is composed in an asymmetrical style typical of high-end fashion photography, with generous negative space surrounding the subject. The background is a dark, out-of-focus velvet texture, enhancing the feeling of exclusivity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqTFTP4feFIGPxKGAW3dVfg55CfT6W5T8qFe8ttAj2qGrweosXdpvZI1FHh2OU_AZwkmWvGEtUrC3fu-mCGMRHua7q5Udv0Ej3TpTtMfRs07tBfPaNGymL2a9TTMJFxX8cwsTIuzHPPU3aEjKJYgL6P1kBd1Ox69If4FNHKdhtIb30WVISOB-DSIbMyyVHJmR3GvD098q2kMiRD5e78EapjqOtzG7kJHSamJZZG2HkpzQhtEcKbQ0SNMSTRkR1mj9Ka6iT6Blq-bg"/>
+<div class="absolute inset-0 border border-primary/0 group-hover:border-primary/40 transition-all duration-300"></div>
+<button class="absolute bottom-0 left-0 right-0 bg-primary text-on-primary py-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 font-label-md text-label-md">
+                                أضف إلى السلة
+                            </button>
+</div>
+<div class="flex flex-col items-start text-right">
+<span class="text-primary font-label-sm text-label-sm mb-1 uppercase tracking-widest">فاشرون كونستانتين</span>
+<h2 class="font-headline-sm text-headline-sm mb-2 group-hover:text-primary transition-colors">باتريموني أطوار القمر</h2>
+<p class="text-on-surface-variant font-body-md text-body-md">١٤٢,٠٠٠ ر.س</p>
+</div>
+</div>
+<!-- Product Card 5 -->
+<div class="group flex flex-col">
+<div class="relative aspect-[3/4] mb-6 overflow-hidden bg-surface-container-low">
+<img alt="ساعة فضية" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="An elegant silver watch with a mesh bracelet resting on a dark marble surface. The lighting creates sharp, thin highlights along the edges of the watch, showcasing its slim profile and architectural design. The palette is strictly neutral, focusing on blacks, greys, and reflective silvers, punctuated by a thin gold second hand. The image conveys a sense of modern luxury and precision, following the Digital Atelier's minimalist, high-contrast visual standards." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuRrzY_JmK9TdmIlnnGo1EuMGujiy1rd4VqUN846AkJSXyNfEcGaR4IZ-V_PdiC3g5DuH4eysrkQ9S9k5nJ5nAskaofOUS1udtZA0WWJ3nF6Ok3Geztz5zdxDKMOIW3FIfyI5m8s5pk_mppfdKbYLfRoS6lcj8PL76o1c2wSeNQGjCZSiO9zjzL3VRCaYuSa0K6D2PN6KA8myVYg9BNsruSDYy4dfVrMgBy7ncf9AhTTPQNQKfuC4aRdYlI7YzK6lvv9ptYKY4JIA"/>
+<div class="absolute inset-0 border border-primary/0 group-hover:border-primary/40 transition-all duration-300"></div>
+<button class="absolute bottom-0 left-0 right-0 bg-primary text-on-primary py-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 font-label-md text-label-md">
+                                أضف إلى السلة
+                            </button>
+</div>
+<div class="flex flex-col items-start text-right">
+<span class="text-primary font-label-sm text-label-sm mb-1 uppercase tracking-widest">كارتييه</span>
+<h2 class="font-headline-sm text-headline-sm mb-2 group-hover:text-primary transition-colors">سانتوس دو كارتييه</h2>
+<p class="text-on-surface-variant font-body-md text-body-md">٢٨,٤٠٠ ر.س</p>
+</div>
+</div>
+<!-- Product Card 6 -->
+<div class="group flex flex-col">
+<div class="relative aspect-[3/4] mb-6 overflow-hidden bg-surface-container-low">
+<img alt="ساعة كلاسيكية" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A luxury gold watch with a brown alligator leather strap shown in a high-fashion lifestyle context. The lighting is directional and dramatic, casting long shadows that emphasize the watch's sculptural qualities. The overall aesthetic is one of heritage and quiet luxury, using a warm color palette that harmonizes with gold and rich browns against a dark, minimalist backdrop. The image is captured with a shallow depth of field to draw all attention to the watch's exquisite detailing." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBXIiesc48QUmtS9Lfbg8gzXIbF1e1OLteQPFPVxs6RdixzYaNSeWruLTOpLAqMwVodGxlALP32EXV7WGaTyLYqbGkHpof0o8hgbON1Usri5Kkcd2mewjXHsYZnnP_L-nyJQLsR6h0Vl0q22PYDVR7bFljJLh9xLBtxC82uJhvwFcMf3YFHgxU0Ln0iWmmLkhSmQ8hqslZHGEwITswsqcLa-tCepQktA-kmbAbZeav5GCNZq0h4mqh4ymVc2B7HAhQ5ftwPUY9VKw"/>
+<div class="absolute inset-0 border border-primary/0 group-hover:border-primary/40 transition-all duration-300"></div>
+<button class="absolute bottom-0 left-0 right-0 bg-primary text-on-primary py-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 font-label-md text-label-md">
+                                أضف إلى السلة
+                            </button>
+</div>
+<div class="flex flex-col items-start text-right">
+<span class="text-primary font-label-sm text-label-sm mb-1 uppercase tracking-widest">أوميغا</span>
+<h2 class="font-headline-sm text-headline-sm mb-2 group-hover:text-primary transition-colors">كونستيليشن الذهب الوردي</h2>
+<p class="text-on-surface-variant font-body-md text-body-md">٧٦,٢٠٠ ر.س</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low border-t border-outline-variant w-full py-16 px-margin-desktop flex flex-col items-center gap-8">
+<div class="text-headline-sm font-headline-sm text-primary tracking-widest">American wear</div>
+<div class="flex flex-wrap justify-center gap-x-12 gap-y-4">
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">الفروع</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">اتصل بنا</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">الشروط والأحكام</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">سياسة الخصوصية</a>
+</div>
+<div class="text-on-surface-variant opacity-50 font-label-sm text-label-sm text-center">
+            © ٢٠٢٤ American wear للفخامة. جميع الحقوق محفوظة.
+        </div>
+</footer>
+</body></html>

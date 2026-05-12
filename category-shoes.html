@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html class="dark" dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link rel="stylesheet" href="/src/styles/tailwind.css"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&amp;family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .luxury-underline::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            width: 0;
+            height: 1px;
+            background-color: #e6c364;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        .luxury-underline:hover::after {
+            width: 100%;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e6c364; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-primary/30 antialiased">
+<!-- TopNavBar Shell -->
+<nav class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-md border-b border-primary/30">
+<div class="flex flex-row-reverse justify-between items-center px-margin-desktop h-20 max-w-container-max mx-auto">
+<!-- Brand Logo -->
+<div class="text-headline-md font-headline-md text-primary tracking-widest cursor-pointer">
+                American wear
+            </div>
+<!-- Navigation Links (Desktop) -->
+<div class="hidden lg:flex items-center gap-12">
+<a class="text-on-surface opacity-50 hover:opacity-100 transition-opacity font-headline-sm text-headline-sm relative luxury-underline" href="#">المجموعات</a>
+<a class="text-on-surface opacity-50 hover:opacity-100 transition-opacity font-headline-sm text-headline-sm relative luxury-underline" href="#">وصلنا حديثاً</a>
+<a class="text-on-surface opacity-50 hover:opacity-100 transition-opacity font-headline-sm text-headline-sm relative luxury-underline" href="#">المصممون</a>
+<a class="text-primary font-bold border-b-2 border-primary pb-1 font-headline-sm text-headline-sm" href="#">الحصريات</a>
+</div>
+<!-- Trailing Icons -->
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-95 duration-200" data-icon="language">language</span>
+<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-95 duration-200" data-icon="payments">payments</span>
+<div class="relative group cursor-pointer">
+<span class="material-symbols-outlined text-primary hover:scale-95 duration-200" data-icon="shopping_bag">shopping_bag</span>
+<span class="absolute -top-1 -right-1 bg-primary text-on-primary text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">2</span>
+</div>
+<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-95 duration-200" data-icon="person">person</span>
+</div>
+</div>
+</nav>
+<main class="pt-32 pb-20 px-margin-desktop max-w-container-max mx-auto min-h-screen">
+<!-- Breadcrumbs & Header -->
+<header class="mb-12 flex flex-col items-start gap-4">
+<nav class="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md">
+<a class="hover:text-primary transition-colors" href="#">الرئيسية</a>
+<span class="material-symbols-outlined text-[16px] transform rotate-180" data-icon="chevron_left">chevron_left</span>
+<span class="text-primary font-bold">أحذية</span>
+</nav>
+<div class="flex items-baseline gap-4">
+<h1 class="font-headline-md text-headline-md text-primary">الأحذية الفاخرة</h1>
+<span class="text-on-surface-variant font-label-sm text-label-sm opacity-60">(١٤٢ منتج)</span>
+</div>
+</header>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Sidebar Filters -->
+<aside class="md:col-span-3 space-y-10 sticky top-32 h-fit">
+<!-- Gender -->
+<section>
+<h3 class="font-label-md text-label-md text-primary mb-4 border-b border-primary/20 pb-2">الجنس</h3>
+<div class="space-y-3">
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="w-4 h-4 rounded-none bg-transparent border-primary/50 text-primary focus:ring-0" type="checkbox"/>
+<span class="font-body-md text-body-md text-on-surface-variant group-hover:text-primary transition-colors">رجال</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input checked="" class="w-4 h-4 rounded-none bg-transparent border-primary/50 text-primary focus:ring-0" type="checkbox"/>
+<span class="font-body-md text-body-md text-primary transition-colors">نساء</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="w-4 h-4 rounded-none bg-transparent border-primary/50 text-primary focus:ring-0" type="checkbox"/>
+<span class="font-body-md text-body-md text-on-surface-variant group-hover:text-primary transition-colors">أطفال</span>
+</label>
+</div>
+</section>
+<!-- Sizes -->
+<section>
+<h3 class="font-label-md text-label-md text-primary mb-4 border-b border-primary/20 pb-2">المقاس</h3>
+<div class="grid grid-cols-4 gap-2">
+<button class="h-10 border border-outline-variant hover:border-primary text-label-md font-label-md flex items-center justify-center transition-all">38</button>
+<button class="h-10 border border-outline-variant hover:border-primary text-label-md font-label-md flex items-center justify-center transition-all">39</button>
+<button class="h-10 border border-primary bg-primary/10 text-primary text-label-md font-label-md flex items-center justify-center transition-all">40</button>
+<button class="h-10 border border-outline-variant hover:border-primary text-label-md font-label-md flex items-center justify-center transition-all">41</button>
+<button class="h-10 border border-outline-variant hover:border-primary text-label-md font-label-md flex items-center justify-center transition-all">42</button>
+<button class="h-10 border border-outline-variant hover:border-primary text-label-md font-label-md flex items-center justify-center transition-all">43</button>
+<button class="h-10 border border-outline-variant hover:border-primary text-label-md font-label-md flex items-center justify-center transition-all">44</button>
+<button class="h-10 border border-outline-variant hover:border-primary text-label-md font-label-md flex items-center justify-center transition-all">45</button>
+</div>
+</section>
+<!-- Color -->
+<section>
+<h3 class="font-label-md text-label-md text-primary mb-4 border-b border-primary/20 pb-2">اللون</h3>
+<div class="flex flex-wrap gap-3">
+<div class="w-6 h-6 bg-black border border-outline-variant cursor-pointer ring-offset-2 ring-offset-background hover:ring-1 ring-primary transition-all"></div>
+<div class="w-6 h-6 bg-white border border-outline-variant cursor-pointer ring-offset-2 ring-offset-background hover:ring-1 ring-primary transition-all"></div>
+<div class="w-6 h-6 bg-[#C9A84C] border border-outline-variant cursor-pointer ring-offset-2 ring-offset-background hover:ring-1 ring-primary transition-all"></div>
+<div class="w-6 h-6 bg-[#3D2E00] border border-outline-variant cursor-pointer ring-offset-2 ring-offset-background hover:ring-1 ring-primary transition-all"></div>
+<div class="w-6 h-6 bg-[#474646] border border-outline-variant cursor-pointer ring-offset-2 ring-offset-background hover:ring-1 ring-primary transition-all"></div>
+</div>
+</section>
+<!-- Price Range -->
+<section>
+<h3 class="font-label-md text-label-md text-primary mb-4 border-b border-primary/20 pb-2">نطاق السعر</h3>
+<div class="space-y-4">
+<input class="w-full accent-primary bg-surface-container-high h-1 appearance-none cursor-pointer" type="range"/>
+<div class="flex justify-between text-label-sm font-label-sm text-on-surface-variant">
+<span>$100</span>
+<span>$5,000</span>
+</div>
+</div>
+</section>
+<!-- Brand -->
+<section>
+<h3 class="font-label-md text-label-md text-primary mb-4 border-b border-primary/20 pb-2">الماركة</h3>
+<div class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
+<label class="flex items-center gap-3 cursor-pointer group"><input class="w-3 h-3 rounded-none bg-transparent border-primary/50 text-primary focus:ring-0" type="checkbox"/><span class="font-label-sm text-label-sm">American wear الملكي</span></label>
+<label class="flex items-center gap-3 cursor-pointer group"><input class="w-3 h-3 rounded-none bg-transparent border-primary/50 text-primary focus:ring-0" type="checkbox"/><span class="font-label-sm text-label-sm">أرماني بريفيه</span></label>
+<label class="flex items-center gap-3 cursor-pointer group"><input class="w-3 h-3 rounded-none bg-transparent border-primary/50 text-primary focus:ring-0" type="checkbox"/><span class="font-label-sm text-label-sm">برادا ميلانو</span></label>
+<label class="flex items-center gap-3 cursor-pointer group"><input class="w-3 h-3 rounded-none bg-transparent border-primary/50 text-primary focus:ring-0" type="checkbox"/><span class="font-label-sm text-label-sm">غوتشي إيطاليا</span></label>
+</div>
+</section>
+</aside>
+<!-- Product Grid -->
+<div class="md:col-span-9">
+<!-- Sorting & View -->
+<div class="flex justify-between items-center mb-8 bg-surface-container-low p-4">
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-primary cursor-pointer" data-icon="grid_view">grid_view</span>
+<span class="material-symbols-outlined text-on-surface-variant opacity-40 cursor-pointer" data-icon="view_list">view_list</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant">ترتيب حسب:</span>
+<select class="bg-transparent border-none text-primary font-label-md text-label-md focus:ring-0 cursor-pointer">
+<option>الأكثر رواجاً</option>
+<option>السعر: من الأقل للأعلى</option>
+<option>السعر: من الأعلى للأقل</option>
+<option>أحدث الموديلات</option>
+</select>
+</div>
+</div>
+<!-- Main Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-gutter gap-y-12">
+<!-- Product Card 1 -->
+<article class="group relative flex flex-col gap-4 border border-transparent hover:border-primary/20 transition-all p-2 bg-surface-container-lowest/30">
+<div class="relative overflow-hidden aspect-[3/4] bg-surface-container-low">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A side-profile shot of a high-end luxury leather sneaker crafted with premium tan calfskin and cream suede details. The lighting is dramatic and directional, highlighting the rich textures of the material. The background is a minimalist dark architectural space that emphasizes the golden tones of the brand's aesthetic. The overall mood is sophisticated and exclusive." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtrBW4C2K3me_kMKonClHmxrlfi5Z0GmtC4efDu-5-L7mnuHZ6BNMvA2QgPdKT6Q4Hb3I0XztFBqdEAO7iF-3WAJ-BTgw_55Pg6SFGu-OBG_kdVT_r8JLNKEspSPF8zvFEpzRjNoexFCuSAH5H-xEdktIWNoq1Qo0NxRYfu9aQrkGsxJOxWZ_Fe3MU-_YP55LT9XIKNAJiGk2uy9j_ZCAnXxVtVuKSpSC46wyAIF-pCbpgmGeJNi78-9fadydD2qvpZ7TyY5z6IZs"/>
+<div class="absolute top-4 left-4">
+<span class="bg-primary text-on-primary px-3 py-1 font-label-sm text-label-sm">جديد</span>
+</div>
+<div class="absolute bottom-0 w-full p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-surface/80 backdrop-blur-sm">
+<button class="w-full bg-primary text-on-primary py-3 font-label-md text-label-md hover:bg-primary-container transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="shopping_cart">shopping_cart</span>
+                                    إضافة للسلة
+                                </button>
+</div>
+</div>
+<div class="flex flex-col gap-1 pr-2">
+<span class="font-label-sm text-label-sm text-primary tracking-widest">American wear الملكي</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">حذاء أكسفورد كلاسيكي</h2>
+<div class="flex justify-between items-center mt-2">
+<span class="font-headline-sm text-headline-sm text-primary">$1,250 <span class="text-[12px] opacity-60 text-on-surface">/ ١,٨٥٠,٠٠٠ د.ع</span></span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer" data-icon="favorite">favorite</span>
+</div>
+</div>
+</article>
+<!-- Product Card 2 -->
+<article class="group relative flex flex-col gap-4 border border-transparent hover:border-primary/20 transition-all p-2 bg-surface-container-lowest/30">
+<div class="relative overflow-hidden aspect-[3/4] bg-surface-container-low">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A sleek and vibrant crimson high-performance athletic shoe set against a deep charcoal stone background. The lighting is crisp and cool, casting soft shadows that reveal the aerodynamic contours of the footwear. The luxury vibe is maintained through high-contrast photography and a pristine, clean presentation. The mood is powerful and technologically superior." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhWwJPPEY4so36BAYdOqdL2n5HZ4ZSC646oOw4wqlsF_u3CG0hqTWodrKP7GtY29lfMZYy2r-54PCDERFCZOhmDzAgMTlvXgOChmZEVaMt8kNQu9Ohlmf0g-0O4OzmW0cgRseKpRIy3anOj6XYEmUkeXfV1emuvvKylW6ddbRCGvZQ8gWHrkEJwOyawNhk_LMEXXx4mljE1UG8Z3rwxebF4RXqvasqE4MI0FWJbjc4zUJ7eMtPtuFYLPaWvbVc0jXHujgiY-1LlY0"/>
+<div class="absolute bottom-0 w-full p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-surface/80 backdrop-blur-sm">
+<button class="w-full bg-primary text-on-primary py-3 font-label-md text-label-md hover:bg-primary-container transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="shopping_cart">shopping_cart</span>
+                                    إضافة للسلة
+                                </button>
+</div>
+</div>
+<div class="flex flex-col gap-1 pr-2">
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-widest">برادا ميلانو</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">حذاء رياضي فيلوتشي</h2>
+<div class="flex justify-between items-center mt-2">
+<span class="font-headline-sm text-headline-sm text-primary">$890 <span class="text-[12px] opacity-60 text-on-surface">/ ١,٣١٠,٠٠٠ د.ع</span></span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer" data-icon="favorite" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</div>
+</div>
+</article>
+<!-- Product Card 3 -->
+<article class="group relative flex flex-col gap-4 border border-transparent hover:border-primary/20 transition-all p-2 bg-surface-container-lowest/30">
+<div class="relative overflow-hidden aspect-[3/4] bg-surface-container-low">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="An artistic shot of an avant-garde luxury designer sneaker featuring pastel lavender and white panels with intricate stitching. The shoes are placed on a reflective black marble surface with soft, ethereal overhead lighting. The composition is balanced and elegant, echoing a boutique gallery aesthetic. The palette is muted yet premium, with gold accents highlighting the brand logo." src="https://lh3.googleusercontent.com/aida-public/AB6AXuADmU6qKqu2himEbwmW5p7JKokqB5mMBJdJedptRPRKpQEx6FKgXRVzy15dna7SbMGfIglHXSITSbfe0opJz8HUTEw7YPmPHn5EHIiDBTd7zFUQopWjblHJtk7YgVrf0tswZuJv-aWsWzoho5mLSAck4w0oYeY0cO1Dx_LQFVNtugTsOTCE1fey_QidYVsZ4t49Sw-XcSrsVfoAv0z2r1rhmsC3djYfUjBy32VZdwdnIYuj8Mv-PInkihBEH709B1coAmg8qIAGQh4"/>
+<div class="absolute bottom-0 w-full p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-surface/80 backdrop-blur-sm">
+<button class="w-full bg-primary text-on-primary py-3 font-label-md text-label-md hover:bg-primary-container transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="shopping_cart">shopping_cart</span>
+                                    إضافة للسلة
+                                </button>
+</div>
+</div>
+<div class="flex flex-col gap-1 pr-2">
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-widest">غوتشي</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">حذاء ريترو ستريت</h2>
+<div class="flex justify-between items-center mt-2">
+<span class="font-headline-sm text-headline-sm text-primary">$1,100 <span class="text-[12px] opacity-60 text-on-surface">/ ١,٦٢٠,٠٠٠ د.ع</span></span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer" data-icon="favorite">favorite</span>
+</div>
+</div>
+</article>
+<!-- Product Card 4 -->
+<article class="group relative flex flex-col gap-4 border border-transparent hover:border-primary/20 transition-all p-2 bg-surface-container-lowest/30">
+<div class="relative overflow-hidden aspect-[3/4] bg-surface-container-low">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A pair of impeccably polished black leather loafers resting on a plush velvet dark emerald surface. The lighting is high-key editorial style, emphasizing the mirror-like finish of the premium box-calf leather. Tiny gold hardware details catch the light, adding a touch of prestige. The surrounding environment is a minimalist studio, creating a focused, high-fashion atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7O9GkgMzwFKZ5IgfW2FgUNTlPnVZZaJQFbi5hmpqLjjpBy_kMMlDtDb3ztgNmGCsxD2TxMiD1QgPfZ0-sViHHeZyBE5m99Ait_6iWqmozPUo56j7S7MMqrgJLiw50EkBz-KBTvicA4al8OHi1mBUCW1TOVgCDFLtRQv4OvbQfFY5df0lHtuHJBBTtCV2wrJ2UEm3_UiJX_WMnPwg66Y08L608LUAFAWMtbkTgz4m8tAObhPjEetCKDosFLPfjJ4g_E5e9Q07QiKQ"/>
+<div class="absolute bottom-0 w-full p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-surface/80 backdrop-blur-sm">
+<button class="w-full bg-primary text-on-primary py-3 font-label-md text-label-md hover:bg-primary-container transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="shopping_cart">shopping_cart</span>
+                                    إضافة للسلة
+                                </button>
+</div>
+</div>
+<div class="flex flex-col gap-1 pr-2">
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-widest">هيرميس</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">لوفر "باريس" الملكي</h2>
+<div class="flex justify-between items-center mt-2">
+<span class="font-headline-sm text-headline-sm text-primary">$1,850 <span class="text-[12px] opacity-60 text-on-surface">/ ٢,٧٣٠,٠٠٠ د.ع</span></span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer" data-icon="favorite">favorite</span>
+</div>
+</div>
+</article>
+<!-- Product Card 5 -->
+<article class="group relative flex flex-col gap-4 border border-transparent hover:border-primary/20 transition-all p-2 bg-surface-container-lowest/30">
+<div class="relative overflow-hidden aspect-[3/4] bg-surface-container-low">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A minimalist overhead shot of high-fashion combat boots with chunky soles and technical fabric mesh, set against a dark industrial steel backdrop. The lighting is dramatic and rim-lit, showcasing the complex silhouette and high-quality construction. The visual aesthetic is sharp and futuristic, utilizing a palette of deep blacks and metallic greys, consistent with a luxury streetwear gallery." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5gQwmrIgFmQVUKlTnGzpA5aQmKbS0V_FTEtS2RXOw3SwQBKh8egFVY2ADvfEmWJquL1ZJ5SsnjXCPpoTIRgHELd9qUOTcHptYc4z1QZq7fFHgLxcRQitXEYgXBPO1hreI_bzW6bvZEegt_sVeQlGrWUvF0DYpTa5qGuyQOVB8HF5TFp1ManmTUBGyNpqRoT_g1LW4zxOyQgTYaYEdlSy4cn_6JtjQk2zJR_G-Fx9tzRHbmDq0kWGora4PNaP6gYTsdPX0hc-gv9Q"/>
+<div class="absolute bottom-0 w-full p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-surface/80 backdrop-blur-sm">
+<button class="w-full bg-primary text-on-primary py-3 font-label-md text-label-md hover:bg-primary-container transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="shopping_cart">shopping_cart</span>
+                                    إضافة للسلة
+                                </button>
+</div>
+</div>
+<div class="flex flex-col gap-1 pr-2">
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-widest">بالنسياغا</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">بوت "سترايك" الأسود</h2>
+<div class="flex justify-between items-center mt-2">
+<span class="font-headline-sm text-headline-sm text-primary">$1,400 <span class="text-[12px] opacity-60 text-on-surface">/ ٢,٠٧٠,٠٠٠ د.ع</span></span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer" data-icon="favorite">favorite</span>
+</div>
+</div>
+</article>
+<!-- Product Card 6 -->
+<article class="group relative flex flex-col gap-4 border border-transparent hover:border-primary/20 transition-all p-2 bg-surface-container-lowest/30">
+<div class="relative overflow-hidden aspect-[3/4] bg-surface-container-low">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A close-up artistic portrait of a luxurious white leather sneaker with subtle gold embossed branding on the tongue. The shoe is surrounded by soft, warm golden lighting that creates a halo effect. The background is a blurred high-end boutique interior, giving a sense of place and exclusivity. The mood is calm, expensive, and quintessentially high-fashion editorial." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWcVYKeNeePGNemUWItrXSpeH4PJx0cCYW1UWrc_r3e_owFFCsBHgrfKyXJbYc8UBEzSq8hoxNxDoJJj2KDzCG-KIIDbPboR0fLLtUROoykLITrFVzZEUfzJyW9PgudbwF9SchlckCsWoFFAMW8Rphrzx1-54GO5AR4p5R41yqJssFD479oYHDcMRdiZqW2rgQrwsvVWtNfO6wu_a_919i94ed9KfGQCYt5sRW2rqfx4zyXlClyiF1wEmWnMnqaTp32SJu-TLsOYY"/>
+<div class="absolute bottom-0 w-full p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-surface/80 backdrop-blur-sm">
+<button class="w-full bg-primary text-on-primary py-3 font-label-md text-label-md hover:bg-primary-container transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="shopping_cart">shopping_cart</span>
+                                    إضافة للسلة
+                                </button>
+</div>
+</div>
+<div class="flex flex-col gap-1 pr-2">
+<span class="font-label-sm text-label-sm text-primary tracking-widest">American wear الملكي</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">سنيكرز "وايت لاين"</h2>
+<div class="flex justify-between items-center mt-2">
+<span class="font-headline-sm text-headline-sm text-primary">$950 <span class="text-[12px] opacity-60 text-on-surface">/ ١,٤٠٠,٠٠٠ د.ع</span></span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer" data-icon="favorite">favorite</span>
+</div>
+</div>
+</article>
+</div>
+<!-- Pagination -->
+<div class="mt-20 flex justify-center items-center gap-4">
+<button class="w-10 h-10 border border-outline-variant hover:border-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined transform rotate-180" data-icon="chevron_left">chevron_left</span>
+</button>
+<span class="font-label-md text-label-md text-primary">١</span>
+<span class="font-label-md text-label-md text-on-surface-variant">٢</span>
+<span class="font-label-md text-label-md text-on-surface-variant">٣</span>
+<span class="font-label-md text-label-md text-on-surface-variant">...</span>
+<span class="font-label-md text-label-md text-on-surface-variant">١٢</span>
+<button class="w-10 h-10 border border-outline-variant hover:border-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Shell -->
+<footer class="w-full py-16 px-margin-desktop flex flex-col items-center gap-8 bg-surface-container-low border-t border-outline-variant">
+<div class="text-headline-sm font-headline-sm text-primary">American wear</div>
+<div class="flex flex-wrap justify-center gap-12 font-body-md text-body-md">
+<a class="text-on-surface-variant hover:text-primary underline-offset-4 hover:underline opacity-80 hover:opacity-100 transition-all" href="#">سياسة الخصوصية</a>
+<a class="text-on-surface-variant hover:text-primary underline-offset-4 hover:underline opacity-80 hover:opacity-100 transition-all" href="#">الشروط والأحكام</a>
+<a class="text-on-surface-variant hover:text-primary underline-offset-4 hover:underline opacity-80 hover:opacity-100 transition-all" href="#">اتصل بنا</a>
+<a class="text-on-surface-variant hover:text-primary underline-offset-4 hover:underline opacity-80 hover:opacity-100 transition-all" href="#">الفروع</a>
+</div>
+<div class="text-on-surface-variant opacity-60 text-center font-body-md">
+            © ٢٠٢٤ American wear للفخامة. جميع الحقوق محفوظة.
+        </div>
+</footer>
+</body></html>

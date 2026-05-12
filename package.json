@@ -1,0 +1,32 @@
+{
+  "name": "american-wear-store",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "server": "node server/index.js",
+    "dev": "node scripts/dev.mjs",
+    "dev:parallel": "concurrently \"node server/index.js\" \"vite\" --names api,web",
+    "vite": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "db:login": "npx --yes supabase@latest login",
+    "db:link": "npx --yes supabase@latest link",
+    "db:push": "npx --yes supabase@latest db push",
+    "supabase:agent-skills": "npx --yes skills add supabase/agent-skills"
+  },
+  "devDependencies": {
+    "@tailwindcss/container-queries": "^0.1.1",
+    "@tailwindcss/forms": "^0.5.9",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
+    "vite": "^6.3.5"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.105.4",
+    "concurrently": "^9.2.1",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "pg": "^8.20.0"
+  }
+}
