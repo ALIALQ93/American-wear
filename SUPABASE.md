@@ -33,6 +33,8 @@ npm run db:push
 
 تُنشئ الجداول: `products`, `orders`, `size_templates`, ثم `categories` و `category_sections`، ثم **`admin_profiles`** (ربط `auth.users` بصلاحية لوحة الإدارة). لا يوجد جدول `admins` في Postgres — هجرة `20260511183000_drop_public_admins.sql` تُسقط الجدول إن وُجد من نشر قديم.
 
+هجرة **`20260522120000_storage_category_images.sql`** تُنشئ دلو **`category-images`** في Storage (قراءة عامة، رفع/تعديل/حذف لمسؤول نشط فقط) لرفع صور أغلفة التصنيفات من لوحة «التصنيفات»؛ بدون تطبيقها يظهر خطأ عند محاولة الرفع من الجهاز.
+
 ## 4) ملف `.env`
 
 1. انسخ `.env.example` إلى `.env`.

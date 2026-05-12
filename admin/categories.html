@@ -69,7 +69,7 @@
 <header class="h-auto min-h-[5rem] px-6 md:px-8 py-4 flex flex-wrap items-center justify-between gap-4 border-b border-primary/30 sticky top-0 bg-surface/90 backdrop-blur-md z-30">
 <div>
 <h2 class="font-headline-sm text-headline-sm text-on-surface">التصنيفات والأقسام</h2>
-<p class="text-label-sm text-on-surface-variant max-w-xl mt-1">أنشئ تصنيفات رئيسية (مثل ساعات، عطور) ثم أضف <strong class="text-on-surface font-medium">أقساماً فرعية مربوطة بكل تصنيف</strong> (مثل رجالي، نسائي). الـ slug يُستخدم في الروابط — أحرف لاتينية صغيرة وأرقام وشرطة فقط.</p>
+<p class="text-label-sm text-on-surface-variant max-w-xl mt-1">أنشئ تصنيفات رئيسية (رأس الهرم للمتجر) ثم أضف <strong class="text-on-surface font-medium">أقساماً فرعية</strong> لكل تصنيف. الحقول أدناه في النموذج موضّحة خطوة بخطوة.</p>
 </div>
 <button type="button" id="header-new-category" class="bg-primary text-black px-4 py-2 font-label-md whitespace-nowrap shrink-0">+ تصنيف</button>
 </header>
@@ -98,15 +98,34 @@
 <input id="cat-name-ar" required class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none" type="text"/>
 </div>
 <div>
-<label class="block text-label-sm text-on-surface-variant mb-1">الاسم بالإنجليزية</label>
+<label class="block text-label-sm text-on-surface-variant mb-1">الاسم بالإنجليزية *</label>
 <div class="flex gap-2">
-<input id="cat-name-en" class="flex-1 bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none" type="text" placeholder="Watches"/>
+<input id="cat-name-en" required class="flex-1 bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none" type="text" placeholder="Watches"/>
 <button type="button" id="cat-suggest-slug" class="shrink-0 px-3 py-2 text-label-sm border border-outline-variant hover:border-primary text-on-surface-variant">اقتراح slug</button>
 </div>
+<p class="text-label-sm text-on-surface-variant leading-relaxed mt-1">يُعرض في الواجهات ثنائية اللغة ولتوليد المعرف اللاتيني تلقائياً.</p>
 </div>
 <div>
-<label class="block text-label-sm text-on-surface-variant mb-1">المعرف slug * <span class="text-on-surface-variant font-normal">(لاتيني، مثل watches)</span></label>
-<input id="cat-slug" required dir="ltr" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none text-left" type="text" placeholder="watches"/>
+<label class="block text-label-sm text-on-surface-variant mb-1">المعرف slug *</label>
+<input id="cat-slug" required dir="ltr" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none text-left font-mono text-sm" type="text" placeholder="watches"/>
+<p class="text-label-sm text-on-surface-variant leading-relaxed mt-2 space-y-1">
+<span class="block"><strong class="text-on-surface">ما هو؟</strong> اسم تقني قصير باللاتينية (أحرف إنجليزية صغيرة وأرقام وشرطة <code class="text-primary" dir="ltr">-</code> فقط) يميّز التصنيف في قاعدة البيانات وفي الرابط لاحقاً، مثل <code class="text-primary" dir="ltr">watches</code> أو <code class="text-primary" dir="ltr">mens-shoes</code>.</span>
+<span class="block"><strong class="text-on-surface">لماذا لا نكتفي بالعربي؟</strong> الروابط والأنظمة العالمية تعتمد لاتينياً؛ يبقى الاسم العربي للعرض للزائر.</span>
+<span class="block"><strong class="text-on-surface">لا يتكرر:</strong> كل تصنيف له slug فريد في المتجر.</span>
+</p>
+</div>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">صورة التصنيف</label>
+<div class="flex flex-wrap items-center gap-2 mb-2">
+<input id="cat-image-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif" class="max-w-full text-label-sm text-on-surface file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-surface-container-high file:text-on-surface"/>
+<span id="cat-image-upload-msg" class="text-label-sm text-on-surface-variant hidden"></span>
+</div>
+<div id="cat-image-preview-wrap" class="hidden mb-2 max-w-xs rounded border border-outline-variant overflow-hidden bg-surface-container">
+<img id="cat-image-preview" alt="" class="w-full h-32 object-cover"/>
+</div>
+<label class="block text-label-sm text-on-surface-variant mb-1">أو رابط الصورة (HTTPS)</label>
+<input id="cat-image-url" dir="ltr" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none text-left text-sm" type="url" placeholder="https://… يُملأ تلقائياً بعد الرفع"/>
+<p class="text-label-sm text-on-surface-variant mt-1 leading-relaxed">الرفع يحفظ الملف في <strong class="text-on-surface font-medium">Supabase Storage</strong> ثم يُسجَّل الرابط في قاعدة البيانات عند الضغط على «حفظ». الحد ٥ ميغابايت؛ JPEG أو PNG أو WebP أو GIF. يمكنك بدلاً من ذلك لصق رابط خارجي.</p>
 </div>
 <div>
 <label class="block text-label-sm text-on-surface-variant mb-1">وصف قصير (عربي)</label>
@@ -117,9 +136,12 @@
 <label class="block text-label-sm text-on-surface-variant mb-1">ترتيب العرض</label>
 <input id="cat-sort" type="number" step="1" value="0" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none"/>
 </div>
-<label class="flex items-center gap-2 cursor-pointer self-end pb-2">
+<label class="flex flex-col gap-1 cursor-pointer self-end pb-2 max-w-[14rem]">
+<span class="inline-flex items-center gap-2">
 <input id="cat-active" type="checkbox" class="rounded border-outline-variant text-primary" checked/>
 <span class="text-body-md text-on-surface">ظاهر في المتجر</span>
+</span>
+<span class="text-label-sm text-on-surface-variant leading-snug">لا يمكن إخفاء <strong class="text-on-surface">آخر تصنيف نشط</strong>؛ إن وُجدت أقسام فرعية نشطة سيُطلب تأكيد قبل الإخفاء.</span>
 </label>
 </div>
 <div class="flex justify-end gap-3 pt-4 border-t border-outline-variant">

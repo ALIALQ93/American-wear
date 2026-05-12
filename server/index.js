@@ -66,6 +66,8 @@ function toCategoryRow(body) {
     slug: String(body.slug ?? "").trim().toLowerCase(),
     description_ar:
       body.descriptionAr != null && String(body.descriptionAr).trim() !== "" ? String(body.descriptionAr).trim() : null,
+    image_url:
+      body.imageUrl != null && String(body.imageUrl).trim() !== "" ? String(body.imageUrl).trim() : null,
     sort_order: body.sortOrder != null ? Number(body.sortOrder) || 0 : 0,
     is_active: body.isActive === false || body.isActive === 0 ? 0 : 1,
   };
@@ -633,6 +635,7 @@ app.patch("/api/admin/categories/:id", requireAdmin, async (req, res) => {
       patch.slug = s;
     }
     if (body.descriptionAr !== undefined) patch.description_ar = body.descriptionAr == null ? null : String(body.descriptionAr).trim();
+    if (body.imageUrl !== undefined) patch.image_url = body.imageUrl == null ? null : String(body.imageUrl).trim() || null;
     if (body.sortOrder !== undefined) patch.sort_order = Number(body.sortOrder) || 0;
     if (body.isActive !== undefined) patch.is_active = body.isActive === false || body.isActive === 0 ? 0 : 1;
     await updateCategory(id, patch);

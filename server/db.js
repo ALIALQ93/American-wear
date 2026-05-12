@@ -327,9 +327,9 @@ export async function getSizes(category) {
 
 export async function listCategoriesTree(includeInactive = true) {
   const catSql = includeInactive
-    ? `SELECT id, name_ar AS "nameAr", name_en AS "nameEn", slug, description_ar AS "descriptionAr", sort_order AS "sortOrder", is_active AS "isActive"
+    ? `SELECT id, name_ar AS "nameAr", name_en AS "nameEn", slug, description_ar AS "descriptionAr", image_url AS "imageUrl", sort_order AS "sortOrder", is_active AS "isActive"
          FROM categories ORDER BY sort_order, id`
-    : `SELECT id, name_ar AS "nameAr", name_en AS "nameEn", slug, description_ar AS "descriptionAr", sort_order AS "sortOrder", is_active AS "isActive"
+    : `SELECT id, name_ar AS "nameAr", name_en AS "nameEn", slug, description_ar AS "descriptionAr", image_url AS "imageUrl", sort_order AS "sortOrder", is_active AS "isActive"
          FROM categories WHERE is_active = 1 ORDER BY sort_order, id`;
 
   const { rows: cats } = await getPool().query(catSql);
@@ -357,11 +357,11 @@ function nestSections(cats, secs) {
 }
 
 export async function createCategory(row) {
-  const { name_ar, name_en, slug, description_ar, sort_order, is_active } = row;
+  const { name_ar, name_en, slug, description_ar, image_url, sort_order, is_active } = row;
   const { rows } = await getPool().query(
-    `INSERT INTO categories (name_ar, name_en, slug, description_ar, sort_order, is_active)
-     VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
-    [name_ar, name_en ?? null, slug, description_ar ?? null, sort_order ?? 0, is_active ?? 1],
+    `INSERT INTO categories (name_ar, name_en, slug, description_ar, image_url, sort_order, is_active)
+     VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+    [name_ar, name_en ?? null, slug, description_ar ?? null, image_url ?? null, sort_order ?? 0, is_active ?? 1],
   );
   return rows[0].id;
 }
@@ -372,6 +372,7 @@ export async function updateCategory(id, patch) {
     ["name_en", patch.name_en],
     ["slug", patch.slug],
     ["description_ar", patch.description_ar],
+    ["image_url", patch.image_url],
     ["sort_order", patch.sort_order],
     ["is_active", patch.is_active],
   ].filter(([, v]) => v !== undefined);

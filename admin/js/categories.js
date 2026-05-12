@@ -12,9 +12,10 @@ import {
   fetchCategoriesTree,
   updateCategory,
   updateSection,
+  uploadCategoryCoverImage,
 } from "./adminSupabaseData.js";
 
-/** @typedef {{ id: number, nameAr: string, nameEn?: string|null, slug: string, descriptionAr?: string|null, sortOrder: number, isActive: number|boolean, sections?: SectionRow[] }} Cat */
+/** @typedef {{ id: number, nameAr: string, nameEn?: string|null, slug: string, descriptionAr?: string|null, imageUrl?: string|null, sortOrder: number, isActive: number|boolean, sections?: SectionRow[] }} Cat */
 /** @typedef {{ id: number, categoryId: number, nameAr: string, nameEn?: string|null, slug: string, sortOrder: number, isActive: number|boolean }} SectionRow */
 
 /** @type {Cat[]} */
@@ -30,6 +31,35 @@ function escapeHtml(s) {
 
 function isActiveVal(v) {
   return v === 1 || v === true;
+}
+
+function setCatImageUploadMsg(text, isError) {
+  const el = document.getElementById("cat-image-upload-msg");
+  if (!el) return;
+  if (!text) {
+    el.textContent = "";
+    el.classList.add("hidden");
+    el.classList.remove("text-error", "text-primary");
+    return;
+  }
+  el.textContent = text;
+  el.classList.remove("hidden");
+  el.classList.toggle("text-error", Boolean(isError));
+  el.classList.toggle("text-primary", !isError);
+}
+
+function syncCatImagePreview() {
+  const url = document.getElementById("cat-image-url")?.value?.trim() || "";
+  const wrap = document.getElementById("cat-image-preview-wrap");
+  const img = document.getElementById("cat-image-preview");
+  if (!wrap || !img) return;
+  if (!url) {
+    img.removeAttribute("src");
+    wrap.classList.add("hidden");
+    return;
+  }
+  img.src = url;
+  wrap.classList.remove("hidden");
 }
 
 function suggestSlug(text) {
@@ -57,6 +87,27 @@ function showBanner(msg) {
 
 function sortedCats(list) {
   return [...list].sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0) || a.id - b.id);
+}
+
+function countActiveCategories(list) {
+  return list.filter((c) => isActiveVal(c.isActive)).length;
+}
+
+/** منع إخفاء آخر تصنيف نشط */
+function assertCanDeactivateCategory(catId) {
+  const c = tree.find((x) => Number(x.id) === Number(catId));
+  if (!c || !isActiveVal(c.isActive)) return { ok: true };
+  if (countActiveCategories(tree) <= 1) {
+    return {
+      ok: false,
+      message: "لا يمكن إخفاء آخر تصنيف نشط — فعّل تصنيفاً آخراً أولاً أو أنشئ تصنيفاً جديداً ثم أخف هذا.",
+    };
+  }
+  return { ok: true };
+}
+
+function categoryHasActiveSections(c) {
+  return (c.sections || []).some((s) => isActiveVal(s.isActive));
 }
 
 function sortedSecs(list) {
@@ -107,12 +158,19 @@ function render() {
         </tr>`,
         )
         .join("");
+      const thumbBlock = c.imageUrl
+        ? `<div class="w-14 h-14 shrink-0 rounded border border-outline-variant overflow-hidden bg-surface-container"><img src="${escapeHtml(c.imageUrl)}" alt="" class="w-full h-full object-cover"/></div>`
+        : "";
+      const nameEnSuffix = c.nameEn ? ` · ${escapeHtml(c.nameEn)}` : "";
       return `
       <article class="bg-surface-container-low border border-outline-variant rounded-lg overflow-hidden" data-category-id="${c.id}">
         <div class="px-5 py-4 flex flex-wrap items-start justify-between gap-3 border-b border-outline-variant bg-surface-container-high/40">
-          <div>
+          <div class="flex gap-3 min-w-0 flex-1">
+            ${thumbBlock}
+            <div class="min-w-0">
             <h3 class="text-headline-sm font-headline-sm text-on-surface">${escapeHtml(c.nameAr)}</h3>
-            <p class="text-label-sm text-on-surface-variant mt-1"><span class="font-mono dir-ltr inline-block">${escapeHtml(c.slug)}</span>${c.nameEn ? ` · ${escapeHtml(c.nameEn)}` : ""}</p>
+            <p class="text-label-sm text-on-surface-variant mt-1"><span class="font-mono dir-ltr inline-block">${escapeHtml(c.slug)}</span>${nameEnSuffix}</p>
+            </div>
           </div>
           <div class="flex flex-wrap items-center gap-3">
             <label class="inline-flex items-center gap-2 cursor-pointer">
@@ -159,11 +217,30 @@ function bindListHandlers() {
       const id = Number(t.dataset.id);
       const on = t.checked;
       const label = t.closest("label")?.querySelector(".js-cat-active-label");
+      const cat = tree.find((x) => x.id === id);
+      if (!on) {
+        const guard = assertCanDeactivateCategory(id);
+        if (!guard.ok) {
+          showBanner(guard.message);
+          t.checked = true;
+          return;
+        }
+        if (cat && categoryHasActiveSections(cat)) {
+          const ok = window.confirm(
+            "هذا التصنيف يحتوي على أقسام فرعية ما زالت «ظاهرة». سيُخفى التصنيف من المتجر (رأس الهرم)؛ الأقسام تبقى في الإدارة ويمكنك إخفاءها لاحقاً من الجدول. هل تريد المتابعة؟",
+          );
+          if (!ok) {
+            t.checked = true;
+            return;
+          }
+        }
+      }
       try {
         await patchCategory(id, { isActive: on });
         const c = tree.find((x) => x.id === id);
         if (c) c.isActive = on ? 1 : 0;
         if (label) label.textContent = on ? "التصنيف ظاهر" : "مخفي";
+        showBanner("");
       } catch {
         t.checked = !on;
       }
@@ -265,6 +342,12 @@ function openCategoryModal(c) {
   document.getElementById("cat-name-en").value = c?.nameEn || "";
   document.getElementById("cat-slug").value = c?.slug || "";
   document.getElementById("cat-desc-ar").value = c?.descriptionAr || "";
+  const img = document.getElementById("cat-image-url");
+  if (img) img.value = c?.imageUrl || "";
+  const fileIn = document.getElementById("cat-image-file");
+  if (fileIn) fileIn.value = "";
+  setCatImageUploadMsg("", false);
+  syncCatImagePreview();
   document.getElementById("cat-sort").value = String(c?.sortOrder ?? 0);
   document.getElementById("cat-active").checked = c ? isActiveVal(c.isActive) : true;
   modal.classList.remove("hidden");
@@ -327,6 +410,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("section-modal-close-2")?.addEventListener("click", closeSectionModal);
   document.getElementById("section-modal-backdrop")?.addEventListener("click", closeSectionModal);
 
+  document.getElementById("cat-image-url")?.addEventListener("input", () => syncCatImagePreview());
+
+  document.getElementById("cat-image-file")?.addEventListener("change", async (ev) => {
+    const t = ev.target;
+    if (!(t instanceof HTMLInputElement) || !t.files?.length) return;
+    const file = t.files[0];
+    setCatImageUploadMsg("جاري الرفع…", false);
+    try {
+      const url = await uploadCategoryCoverImage(file);
+      const urlIn = document.getElementById("cat-image-url");
+      if (urlIn) urlIn.value = url;
+      syncCatImagePreview();
+      setCatImageUploadMsg("تم الرفع — اضغط «حفظ» لتخزين الرابط مع التصنيف.", false);
+    } catch (err) {
+      setCatImageUploadMsg(err instanceof Error ? err.message : "فشل الرفع", true);
+      t.value = "";
+    }
+  });
+
   document.getElementById("cat-suggest-slug")?.addEventListener("click", () => {
     const en = document.getElementById("cat-name-en")?.value || "";
     document.getElementById("cat-slug").value = suggestSlug(en);
@@ -345,21 +447,49 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     const editId = document.getElementById("category-edit-id")?.value;
     const nameAr = document.getElementById("cat-name-ar")?.value?.trim() || "";
+    const nameEn = document.getElementById("cat-name-en")?.value?.trim() || "";
     const slug = document.getElementById("cat-slug")?.value?.trim().toLowerCase() || "";
-    if (!nameAr || !slug) {
+    if (!nameAr || !nameEn || !slug) {
       if (errEl) {
-        errEl.textContent = "الاسم العربي و slug مطلوبان";
+        errEl.textContent = "الاسم العربي والإنجليزي و slug مطلوبان";
         errEl.classList.remove("hidden");
       }
       return;
     }
+    const editIdNum = editId ? Number(editId) : NaN;
+    const wantActive = document.getElementById("cat-active")?.checked !== false;
+    if (!editId && !wantActive && countActiveCategories(tree) === 0) {
+      if (errEl) {
+        errEl.textContent = "يجب أن يبقى تصنيف واحد على الأقل ظاهراً في المتجر — فعّل «ظاهر» أو أنشئ تصنيفاً نشطاً أولاً.";
+        errEl.classList.remove("hidden");
+      }
+      return;
+    }
+    if (editId && Number.isFinite(editIdNum) && !wantActive) {
+      const guard = assertCanDeactivateCategory(editIdNum);
+      if (!guard.ok) {
+        if (errEl) {
+          errEl.textContent = guard.message;
+          errEl.classList.remove("hidden");
+        }
+        return;
+      }
+      const cat = tree.find((x) => Number(x.id) === editIdNum);
+      if (cat && categoryHasActiveSections(cat)) {
+        const ok = window.confirm(
+          "يوجد أقسام فرعية نشطة تحت هذا التصنيف. سيُخفى التصنيف من المتجر؛ يمكنك لاحقاً إخفاء الأقسام من الجدول. متابعة الحفظ؟",
+        );
+        if (!ok) return;
+      }
+    }
     const body = {
       nameAr,
-      nameEn: document.getElementById("cat-name-en")?.value?.trim() || null,
+      nameEn,
       slug,
       descriptionAr: document.getElementById("cat-desc-ar")?.value?.trim() || null,
+      imageUrl: document.getElementById("cat-image-url")?.value?.trim() || null,
       sortOrder: Number(document.getElementById("cat-sort")?.value) || 0,
-      isActive: document.getElementById("cat-active")?.checked !== false,
+      isActive: wantActive,
     };
     try {
       if (editId) {

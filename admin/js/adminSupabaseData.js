@@ -272,6 +272,7 @@ function nestSections(cats, secs) {
       nameEn: c.name_en,
       slug: c.slug,
       descriptionAr: c.description_ar,
+      imageUrl: c.image_url ?? null,
       sortOrder: Number(c.sort_order) || 0,
       isActive: c.is_active,
       sections: [],
@@ -329,6 +330,7 @@ export async function createCategory(body) {
     name_en: body.nameEn != null && String(body.nameEn).trim() !== "" ? String(body.nameEn).trim() : null,
     slug,
     description_ar: body.descriptionAr != null && String(body.descriptionAr).trim() !== "" ? String(body.descriptionAr).trim() : null,
+    image_url: body.imageUrl != null && String(body.imageUrl).trim() !== "" ? String(body.imageUrl).trim() : null,
     sort_order: body.sortOrder != null ? Number(body.sortOrder) || 0 : 0,
     is_active: body.isActive === false || body.isActive === 0 ? 0 : 1,
   };
@@ -359,6 +361,9 @@ export async function updateCategory(id, body) {
   }
   if (body.sortOrder !== undefined) patch.sort_order = Number(body.sortOrder) || 0;
   if (body.isActive !== undefined) patch.is_active = body.isActive === false || body.isActive === 0 ? 0 : 1;
+  if (body.imageUrl !== undefined) {
+    patch.image_url = body.imageUrl == null || String(body.imageUrl).trim() === "" ? null : String(body.imageUrl).trim();
+  }
   const { error } = await sb.from("categories").update(patch).eq("id", id);
   if (error) {
     if (error.code === "23505") throw new Error("معرف slug مستخدم مسبقاً");
@@ -530,4 +535,75 @@ export async function deleteAdminUser(userId, selfId) {
     }
     throw new Error(msg || "فشل الحذف");
   }
+}
+
+const CATEGORY_IMAGES_BUCKET = "category-images";
+const CATEGORY_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
+const CATEGORY_IMAGE_MIME_TO_EXT = {
+  "image/jpeg": "jpg",
+  "image/jpg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif",
+};
+
+function categoryImageExtFromFile(file) {
+  const mime = String(file.type || "").toLowerCase();
+  if (CATEGORY_IMAGE_MIME_TO_EXT[mime]) return CATEGORY_IMAGE_MIME_TO_EXT[mime];
+  const name = String(file.name || "").toLowerCase();
+  if (name.endsWith(".png")) return "png";
+  if (name.endsWith(".webp")) return "webp";
+  if (name.endsWith(".gif")) return "gif";
+  if (name.endsWith(".jpg") || name.endsWith(".jpeg")) return "jpg";
+  return "jpg";
+}
+
+function normalizeCategoryImageMime(file) {
+  const mime = String(file.type || "").toLowerCase();
+  if (mime && Object.prototype.hasOwnProperty.call(CATEGORY_IMAGE_MIME_TO_EXT, mime)) return mime;
+  const name = String(file.name || "").toLowerCase();
+  if (name.endsWith(".png")) return "image/png";
+  if (name.endsWith(".webp")) return "image/webp";
+  if (name.endsWith(".gif")) return "image/gif";
+  if (name.endsWith(".jpg") || name.endsWith(".jpeg")) return "image/jpeg";
+  return "";
+}
+
+/**
+ * رفع صورة غلاف تصنيف إلى Supabase Storage وإرجاع الرابط العام (يُخزَّن في categories.image_url).
+ * @param {File} file
+ * @returns {Promise<string>}
+ */
+export async function uploadCategoryCoverImage(file) {
+  if (!(file instanceof File) || file.size === 0) {
+    throw new Error("اختر ملف صورة صالحاً");
+  }
+  if (file.size > CATEGORY_IMAGE_MAX_BYTES) {
+    throw new Error("حجم الصورة يتجاوز ٥ ميغابايت");
+  }
+  const mime = normalizeCategoryImageMime(file);
+  if (!mime || !Object.prototype.hasOwnProperty.call(CATEGORY_IMAGE_MIME_TO_EXT, mime)) {
+    throw new Error("الصيغ المسموحة: JPEG أو PNG أو WebP أو GIF");
+  }
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) throw new Error("انتهت الجلسة — سجّل الدخول مجدداً");
+  const { sb } = ctx;
+  const ext = categoryImageExtFromFile(file);
+  const path = `covers/${crypto.randomUUID()}.${ext}`;
+  const { error: upErr } = await sb.storage.from(CATEGORY_IMAGES_BUCKET).upload(path, file, {
+    cacheControl: "3600",
+    upsert: false,
+    contentType: mime,
+  });
+  if (upErr) {
+    const m = String(upErr.message || "");
+    if (m.includes("Bucket not found") || m.includes("not found")) {
+      throw new Error("دلو التخزين غير مُنشأ — نفّذ npm run db:push لهجرة التخزين.");
+    }
+    throw new Error(m || "فشل الرفع");
+  }
+  const { data } = sb.storage.from(CATEGORY_IMAGES_BUCKET).getPublicUrl(path);
+  const url = data?.publicUrl;
+  if (!url) throw new Error("تعذر الحصول على رابط الصورة");
+  return url;
 }
