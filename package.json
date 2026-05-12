@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "start": "node server/index.js",
     "server": "node server/index.js",
     "dev": "node scripts/dev.mjs",
     "dev:parallel": "concurrently \"node server/index.js\" \"vite\" --names api,web",

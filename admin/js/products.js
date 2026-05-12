@@ -1,6 +1,12 @@
-import { authFetch } from "./authFetch.js";
 import { getAdminToken } from "./session.js";
 import { isSupabaseAuthConfigured, syncAdminTokenFromSupabaseSession, clearAdminSessionAndSupabase } from "./supabaseAuth.js";
+import {
+  createProduct,
+  fetchCategoriesTree,
+  fetchProductsList,
+  fetchProductsStats,
+  updateProduct,
+} from "./adminSupabaseData.js";
 
 /** @typedef {{ id: number, nameAr: string, nameEn?: string|null, category?: string|null, sku?: string|null, priceIqd: number, stock: number, isActive: number|boolean, imageUrl?: string|null, categoryId?: number|null, sectionId?: number|null, categoryNameAr?: string|null, sectionNameAr?: string|null }} ProductRow */
 
@@ -128,8 +134,8 @@ function renderTable() {
         const p = productsCache.find((x) => x.id === id);
         if (p) p.isActive = isActive ? 1 : 0;
         if (label) label.textContent = isActive ? "نشط" : "مخفي";
-        const statsRes = await authFetch("/api/admin/products/stats");
-        if (statsRes.ok) renderStats(await statsRes.json());
+        const stats = await fetchProductsStats();
+        if (stats) renderStats(stats);
       } catch {
         t.checked = !isActive;
       }
@@ -229,30 +235,11 @@ function closeModal() {
 }
 
 async function patchProduct(id, body) {
-  const res = await authFetch(`/api/admin/products/${id}`, {
-    method: "PATCH",
-    body: JSON.stringify(body),
-  });
-  if (res.status === 401) {
-    await clearAdminSessionAndSupabase();
-    window.location.href = "./login.html";
-    throw new Error("unauth");
-  }
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || "فشل الحفظ");
-  }
+  await updateProduct(id, body);
 }
 
 async function reloadProducts() {
-  const res = await authFetch("/api/admin/products");
-  if (res.status === 401) {
-    await clearAdminSessionAndSupabase();
-    window.location.href = "./login.html";
-    return;
-  }
-  if (!res.ok) throw new Error("تعذر تحميل المنتجات");
-  productsCache = await res.json();
+  productsCache = await fetchProductsList();
   renderTable();
 }
 
@@ -318,21 +305,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (editId) {
         await patchProduct(Number(editId), body);
       } else {
-        const res = await authFetch("/api/admin/products", { method: "POST", body: JSON.stringify(body) });
-        if (res.status === 401) {
-          await clearAdminSessionAndSupabase();
-          window.location.href = "./login.html";
-          return;
-        }
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || "فشل الإنشاء");
-        }
+        await createProduct(body);
       }
       closeModal();
       await reloadProducts();
-      const statsRes = await authFetch("/api/admin/products/stats");
-      if (statsRes.ok) renderStats(await statsRes.json());
+      const stats = await fetchProductsStats();
+      if (stats) renderStats(stats);
     } catch (err) {
       if (errEl) {
         errEl.textContent = err instanceof Error ? err.message : "خطأ";
@@ -342,26 +320,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   try {
-    const [catRes, statsRes, prodRes] = await Promise.all([
-      authFetch("/api/admin/categories?activeOnly=true"),
-      authFetch("/api/admin/products/stats"),
-      authFetch("/api/admin/products"),
+    const [catTree, stats, prodList] = await Promise.all([
+      fetchCategoriesTree(true),
+      fetchProductsStats(),
+      fetchProductsList(),
     ]);
-    if (catRes.status === 401 || statsRes.status === 401 || prodRes.status === 401) {
-      await clearAdminSessionAndSupabase();
-      window.location.href = "./login.html";
-      return;
-    }
-    if (catRes.ok) categoriesTree = await catRes.json();
-    if (statsRes.ok) renderStats(await statsRes.json());
-    if (prodRes.ok) {
-      productsCache = await prodRes.json();
+    if (catTree) categoriesTree = catTree;
+    if (stats) renderStats(stats);
+    if (prodList) {
+      productsCache = prodList;
       renderTable();
     }
   } catch {
     const tbody = document.getElementById("products-tbody");
     if (tbody) {
-      tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-error">تعذر تحميل البيانات. شغّل الخادم (npm run dev).</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-error">تعذر تحميل البيانات من Supabase. نفّذ npm run db:push للهجرة 20260520140000.</td></tr>`;
     }
   }
 

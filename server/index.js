@@ -216,6 +216,32 @@ const app = express();
 app.disable("x-powered-by");
 app.use(express.json({ limit: "512kb" }));
 
+/** أصول مسموح بها للمتصفح (مفصولة بفاصلة) عند استضافة الواجهة على نطاق آخر مثل GitHub Pages. مثال: https://alialq93.github.io */
+function corsAllowedOrigins() {
+  const raw = process.env.CORS_ORIGINS || "";
+  return new Set(
+    raw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean),
+  );
+}
+app.use((req, res, next) => {
+  const allowed = corsAllowedOrigins();
+  const origin = req.headers.origin;
+  if (origin && allowed.has(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Allow-Methods", "GET, HEAD, POST, PATCH, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+    res.setHeader("Access-Control-Max-Age", "86400");
+  }
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+  next();
+});
+
 /** للتأكد أن الخادم يعمل (بدون مصادقة) — جرّب: GET http://127.0.0.1:<PORT>/api/health حيث PORT من .env (افتراضي 3000) */
 app.get("/api/health", (_req, res) => {
   const sb = getSupabaseAuthServerClient();

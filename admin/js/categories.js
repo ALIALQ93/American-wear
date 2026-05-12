@@ -1,10 +1,18 @@
-import { authFetch } from "./authFetch.js";
 import { getAdminToken } from "./session.js";
 import {
   isSupabaseAuthConfigured,
   syncAdminTokenFromSupabaseSession,
   clearAdminSessionAndSupabase,
 } from "./supabaseAuth.js";
+import {
+  createCategory,
+  createSection,
+  deleteCategory,
+  deleteSection,
+  fetchCategoriesTree,
+  updateCategory,
+  updateSection,
+} from "./adminSupabaseData.js";
 
 /** @typedef {{ id: number, nameAr: string, nameEn?: string|null, slug: string, descriptionAr?: string|null, sortOrder: number, isActive: number|boolean, sections?: SectionRow[] }} Cat */
 /** @typedef {{ id: number, categoryId: number, nameAr: string, nameEn?: string|null, slug: string, sortOrder: number, isActive: number|boolean }} SectionRow */
@@ -211,66 +219,36 @@ function bindListHandlers() {
       const c = tree.find((x) => x.id === id);
       if (!c) return;
       if (!confirm(`حذف التصنيف «${c.nameAr}» وجميع أقسامه الفرعية؟ يُسمح فقط إن لم تكن هناك منتجات مرتبطة به.`)) return;
-      const res = await authFetch(`/api/admin/categories/${id}`, { method: "DELETE" });
-      if (res.status === 401) {
-        await clearAdminSessionAndSupabase();
-        location.href = "./login.html";
-        return;
+      try {
+        await deleteCategory(id);
+        showBanner("");
+        await reloadTree();
+      } catch (err) {
+        showBanner(err instanceof Error ? err.message : "تعذر الحذف");
       }
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        showBanner(data.error || "تعذر الحذف");
-        return;
-      }
-      showBanner("");
-      await reloadTree();
     });
   });
   document.querySelectorAll(".js-sec-del").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const id = Number(btn.getAttribute("data-id"));
       if (!confirm("حذف هذا القسم الفرعي؟ مسموح فقط إن لم تكن منتجات مرتبطة به.")) return;
-      const res = await authFetch(`/api/admin/sections/${id}`, { method: "DELETE" });
-      if (res.status === 401) {
-        await clearAdminSessionAndSupabase();
-        location.href = "./login.html";
-        return;
+      try {
+        await deleteSection(id);
+        showBanner("");
+        await reloadTree();
+      } catch (err) {
+        showBanner(err instanceof Error ? err.message : "تعذر الحذف");
       }
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        showBanner(data.error || "تعذر الحذف");
-        return;
-      }
-      showBanner("");
-      await reloadTree();
     });
   });
 }
 
 async function patchCategory(id, body) {
-  const res = await authFetch(`/api/admin/categories/${id}`, { method: "PATCH", body: JSON.stringify(body) });
-  if (res.status === 401) {
-    await clearAdminSessionAndSupabase();
-    location.href = "./login.html";
-    throw new Error("unauth");
-  }
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || "فشل الحفظ");
-  }
+  await updateCategory(id, body);
 }
 
 async function patchSection(id, body) {
-  const res = await authFetch(`/api/admin/sections/${id}`, { method: "PATCH", body: JSON.stringify(body) });
-  if (res.status === 401) {
-    await clearAdminSessionAndSupabase();
-    location.href = "./login.html";
-    throw new Error("unauth");
-  }
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || "فشل الحفظ");
-  }
+  await updateSection(id, body);
 }
 
 function openCategoryModal(c) {
@@ -324,14 +302,7 @@ function closeSectionModal() {
 }
 
 async function reloadTree() {
-  const res = await authFetch("/api/admin/categories");
-  if (res.status === 401) {
-    await clearAdminSessionAndSupabase();
-    location.href = "./login.html";
-    return;
-  }
-  if (!res.ok) throw new Error("تعذر تحميل التصنيفات");
-  tree = await res.json();
+  tree = await fetchCategoriesTree(false);
   render();
 }
 
@@ -394,16 +365,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (editId) {
         await patchCategory(Number(editId), body);
       } else {
-        const res = await authFetch("/api/admin/categories", { method: "POST", body: JSON.stringify(body) });
-        if (res.status === 401) {
-          await clearAdminSessionAndSupabase();
-          location.href = "./login.html";
-          return;
-        }
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || "فشل الإنشاء");
-        }
+        await createCategory(body);
       }
       closeCategoryModal();
       showBanner("");
@@ -445,19 +407,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (editId) {
         await patchSection(Number(editId), { ...body, categoryId });
       } else {
-        const res = await authFetch(`/api/admin/categories/${categoryId}/sections`, {
-          method: "POST",
-          body: JSON.stringify(body),
-        });
-        if (res.status === 401) {
-          await clearAdminSessionAndSupabase();
-          location.href = "./login.html";
-          return;
-        }
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || "فشل الإنشاء");
-        }
+        await createSection(categoryId, body);
       }
       closeSectionModal();
       showBanner("");
@@ -477,7 +427,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   } catch {
     const root = document.getElementById("cats-root");
     if (root) {
-      root.innerHTML = `<p class="text-error text-center py-12">تعذر تحميل البيانات. تأكد من تشغيل الخادم (npm run dev).</p>`;
+      root.innerHTML = `<p class="text-error text-center py-12">تعذر تحميل البيانات من Supabase. نفّذ npm run db:push للهجرة 20260520140000.</p>`;
     }
   }
 

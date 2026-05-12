@@ -1,0 +1,28 @@
+# نشر خادم API فقط على Render (Blueprint).
+# الإعداد: Render → New → Blueprint → اربط هذا المستودع.
+# بعد التشغيل: انسخ عنوان الخدمة (مثل https://american-wear-api.onrender.com)
+#   1) GitHub → Settings → Secrets → Actions → أضف VITE_API_ORIGIN بهذا العنوان (بدون / في النهاية) ثم أعد تشغيل workflow صفحات GitHub.
+#   2) في نفس خدمة Render → Environment: CORS_ORIGINS = https://اسم_المستخدم.github.io (أصل الصفحة فقط، بدون مسار المستودع).
+
+services:
+  - type: web
+    name: american-wear-api
+    runtime: node
+    region: frankfurt
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: ADMIN_ALLOWED_EMAILS
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false

@@ -1,6 +1,6 @@
 # العمل مع Supabase (American wear)
 
-الخادم يتصل **فقط** بـ Postgres عبر `DATABASE_URL` (لا يوجد SQLite محلي). مسؤولو الإدارة يُنشأون في **Supabase Authentication**؛ ثم يُربَطون بجدول **`admin_profiles`** للصلاحيات (`super_admin` / `admin`)، مع إمكانية احتياطي **`ADMIN_ALLOWED_EMAILS`** في `.env` للدخول قبل إكمال الربط.
+الخادم يتصل **فقط** بـ Postgres عبر `DATABASE_URL` (لا يوجد SQLite محلي). مسؤولو الإدارة يُنشأون في **Supabase Authentication**؛ ثم يُربَطون بجدول **`admin_profiles`** للصلاحيات (`super_admin` / `admin`)، مع إمكانية احتياطي **`ADMIN_ALLOWED_EMAILS`** في `.env` للدخول قبل إكمال الربط **عند تشغيل خادم Node فقط** — واجهة الإدارة المنشورة على **GitHub Pages** تتصل بقاعدة البيانات عبر **Supabase من المتصفح** وتتطلب صفاً في `admin_profiles` (انظر هجرة `20260520140000_rls_github_pages_admin.sql`).
 
 ## المتطلبات
 
@@ -39,7 +39,7 @@ npm run db:push
 2. **`DATABASE_URL`**: إلزامي — من **Settings → Database** → URI (كلمة مرور قاعدة البيانات). إذا ظهر `ETIMEDOUT` مع عنوان يشبه IPv6، يفضّل المشروع الاتصال بـ IPv4 تلقائياً (`server/env.mjs`); إن استمر الفشل جرّب **Session pooler** من نفس صفحة الاتصالات في Supabase.
 3. **`VITE_SUPABASE_URL`** مع أحد المفتاحين **`VITE_SUPABASE_PUBLISHABLE_KEY`** أو **`VITE_SUPABASE_ANON_KEY`** (JWT): لصفحة `admin/login`. يمكن استخدام **`NEXT_PUBLIC_*`** بدلاً من **`VITE_*`**.
 4. **`SUPABASE_URL`** و **`SUPABASE_ANON_KEY`**: لخادم Node و`auth.getUser` — إن لم تُعرّفا يُقرأان من **`VITE_*`** / **`NEXT_PUBLIC_*`** تلقائياً إن وُجدتا؛ للإنتاج يُفضّل تعريف **`SUPABASE_*`** صراحةً.
-5. **`ADMIN_ALLOWED_EMAILS`**: اختياري كاحتياطي — مسموح بالدخول إن لم يكن للمستخدم صف في `admin_profiles` بعد (نفس البريد بعد نجاح Auth). للإدارة الكاملة وصفحة **المسؤولون** يلزم صف في `admin_profiles` بدور **`super_admin`** لمن يدير المستخدمين.
+5. **`ADMIN_ALLOWED_EMAILS`**: اختياري كاحتياطي — مسموح بالدخول عبر **خادم Node** إن لم يكن للمستخدم صف في `admin_profiles` بعد. **لا يُطبَّق** عند فتح لوحة الإدارة من GitHub Pages (لا يوجد Express هناك)؛ على Pages يلزم صف في **`admin_profiles`**.
 6. في **Authentication → Users** أنشئ مستخدماً، ثم من لوحة الإدارة **المسؤولون** (أو SQL أدناه) اربط `user_id` بالجدول.
 
 ## 5) أول مسؤول أعلى (SQL)
@@ -54,7 +54,7 @@ WHERE lower(email) = lower('you@example.com')
 ON CONFLICT (user_id) DO UPDATE SET role = excluded.role, is_active = true, email = excluded.email;
 ```
 
-يجب أن يكون **أول** صف في `admin_profiles` (أو أول ربط من واجهة المسؤولين) بدور **`super_admin`** ما دام لا يوجد مسؤول أعلى نشط؛ بعدها يُسمح بـ **`admin`**. لا يمكن إزالة أو تخفيض **آخر** `super_admin` نشط من الـ API.
+يجب أن يكون **أول** صف في `admin_profiles` (أو أول ربط من واجهة المسؤولين) بدور **`super_admin`** ما دام لا يوجد مسؤول أعلى **نشط**؛ بعدها يُسمح بـ **`admin`**. لا يمكن إزالة أو تخفيض **آخر** `super_admin` نشط (يُفرَض عبر محفّز في قاعدة البيانات بعد هجرة RLS).
 
 ## 6) التشغيل
 
@@ -65,6 +65,14 @@ npm run dev
 **دليل التشغيل السريع للمطور:** راجع **`README.md`** في جذر المشروع (متجر مقابل إدارة، عناوين التطوير، تسجيل الدخول).
 
 بدون `DATABASE_URL` يتوقف الخادم عند البدء برسالة توضيحية.
+
+## 6bis) GitHub Pages + Supabase (بدون Render)
+
+بعد تطبيق الهجرة **`20260520140000_rls_github_pages_admin.sql`** (`npm run db:push`):
+
+- لوحة الإدارة تقرأ وتكتب عبر **عميل Supabase** مع **RLS**.
+- لا حاجة إلى **`VITE_API_ORIGIN`** لصفحات الإدارة على Pages (يبقى اختياريً لأي استخدام آخر لاحقاً).
+- دوال مساعدة: **`admin_dashboard_stats`** (إحصائيات الرئيسية)، و**`is_active_admin` / `is_super_admin`** للسياسات.
 
 ## 7) الإنتاج
 

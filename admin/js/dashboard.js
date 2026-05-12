@@ -1,6 +1,6 @@
-import { authFetch } from "./authFetch.js";
 import { getAdminToken } from "./session.js";
 import { isSupabaseAuthConfigured, syncAdminTokenFromSupabaseSession, clearAdminSessionAndSupabase } from "./supabaseAuth.js";
+import { fetchDashboardPayload } from "./adminSupabaseData.js";
 
 function formatNumber(n) {
   return new Intl.NumberFormat("ar-IQ", { maximumFractionDigits: 0 }).format(Number(n) || 0);
@@ -101,32 +101,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   try {
-    const res = await authFetch("/api/admin/dashboard");
-    const data = await res.json().catch(() => ({}));
-
-    if (res.status === 401) {
-      console.warn("[admin] 401", data.code, data.error, data.debug ?? "");
-      statsGrid?.setAttribute("aria-busy", "false");
-      await clearAdminSessionAndSupabase();
-      window.location.href = "./login.html";
-      return;
-    }
-    if (res.status === 403) {
-      statsGrid?.setAttribute("aria-busy", "false");
-      showBanner(data.error || "ليس لديك صلاحية الدخول إلى لوحة الإدارة.");
-      return;
-    }
-    if (res.status === 503) {
-      statsGrid?.setAttribute("aria-busy", "false");
-      showBanner(data.error || "اضبط إعدادات الخادم (.env) ثم أعد التشغيل.");
-      return;
-    }
-    if (!res.ok) {
-      const msg = [data.detail, data.error].filter(Boolean).join(" — ") || "فشل تحميل لوحة التحكم";
-      statsGrid?.setAttribute("aria-busy", "false");
-      showBanner(msg);
-      throw new Error("dashboard fetch failed");
-    }
+    const data = await fetchDashboardPayload();
+    if (!data) return;
     hideBanner();
     renderStats(data.stats || {});
     renderOrdersTable(data.recentOrders || []);
@@ -134,9 +110,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   } catch (e) {
     console.error(e);
     statsGrid?.setAttribute("aria-busy", "false");
+    const msg = e instanceof Error ? e.message : String(e);
+    if (msg.includes("forbidden") || msg.includes("permission")) {
+      showBanner("ليس لديك صلاحية لوحة الإدارة — أضف صفاً في admin_profiles أو نفّذ npm run db:push للهجرة الأخيرة (RLS).");
+    } else if (msg.includes("admin_dashboard_stats") || msg.includes("Could not find")) {
+      showBanner("نفّذ على Supabase: npm run db:push — الهجرة 20260520140000 تضيف دالة admin_dashboard_stats وسياسات RLS.");
+    } else {
+      showBanner(msg || "فشل تحميل لوحة التحكم");
+    }
     const tbody = document.getElementById("recent-orders-tbody");
     if (tbody && !banner?.textContent) {
-      tbody.innerHTML = `<tr><td colspan="4" class="px-8 py-10 text-center text-error">تعذر الاتصال بالخادم. تأكد أن سطر [api] يعمل (npm run dev) وأن قيمة PORT في .env تطابق وكيل Vite إن غيّرت المنفذ.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4" class="px-8 py-10 text-center text-error">تعذر تحميل البيانات من Supabase.</td></tr>`;
     }
   }
 });

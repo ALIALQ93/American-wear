@@ -1,10 +1,10 @@
-import { authFetch } from "./authFetch.js";
 import { getAdminToken } from "./session.js";
 import {
   isSupabaseAuthConfigured,
   syncAdminTokenFromSupabaseSession,
   clearAdminSessionAndSupabase,
 } from "./supabaseAuth.js";
+import { fetchOrdersList, fetchOrdersStats } from "./adminSupabaseData.js";
 
 function formatNumber(n) {
   return new Intl.NumberFormat("ar-IQ", { maximumFractionDigits: 0 }).format(Number(n) || 0);
@@ -117,22 +117,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   try {
-    const [statsRes, listRes] = await Promise.all([authFetch("/api/admin/orders/stats"), authFetch("/api/admin/orders")]);
-    if (statsRes.status === 401 || listRes.status === 401) {
-      await clearAdminSessionAndSupabase();
-      window.location.href = "./login.html";
-      return;
-    }
-    if (statsRes.ok) renderStats(await statsRes.json());
-    if (listRes.ok) {
-      ordersCache = await listRes.json();
+    const [stats, list] = await Promise.all([fetchOrdersStats(), fetchOrdersList()]);
+    if (stats) renderStats(stats);
+    if (list) {
+      ordersCache = list;
       renderTable();
     }
   } catch (e) {
     console.error(e);
     const tbody = document.getElementById("orders-tbody");
     if (tbody) {
-      tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-error">تعذر تحميل الطلبات. شغّل الخادم (npm run dev).</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-error">تعذر تحميل الطلبات من Supabase. نفّذ npm run db:push إن لم تطبّق هجرة RLS بعد.</td></tr>`;
     }
   }
 });

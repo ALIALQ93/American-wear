@@ -116,6 +116,8 @@ npm run build
 npm run preview
 ```
 
+إن كنت تنشر الواجهة على **GitHub Pages** بينما الـ API على خادم آخر: عيّن وقت البناء المتغير **`VITE_API_ORIGIN`** (مثلاً في أسرار GitHub Actions) إلى عنوان الـ API العام بدون `/` في النهاية — التفاصيل في **`DEPLOY.md`**.
+
 ---
 
 ## ملفات مرجعية

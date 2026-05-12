@@ -1,10 +1,16 @@
-import { authFetch } from "./authFetch.js";
 import { getAdminToken } from "./session.js";
 import {
   isSupabaseAuthConfigured,
   syncAdminTokenFromSupabaseSession,
   clearAdminSessionAndSupabase,
 } from "./supabaseAuth.js";
+import {
+  deleteAdminUser,
+  ensureActiveAdminSession,
+  insertAdminUser,
+  listAdminUsers,
+  patchAdminUser,
+} from "./adminSupabaseData.js";
 
 function escapeHtml(s) {
   return String(s)
@@ -26,7 +32,7 @@ function render() {
     root.innerHTML = `<div class="max-w-xl mx-auto rounded-lg border border-outline-variant bg-surface-container-low p-8 text-center">
       <p class="text-on-surface font-body-md mb-2">صلاحية «مسؤول أعلى» مطلوبة</p>
       <p class="text-on-surface-variant text-sm leading-relaxed">إدارة المسؤولين متاحة فقط لحساب بصلاحية <strong class="text-primary">super_admin</strong> في جدول <code class="text-primary" dir="ltr">admin_profiles</code>. يجب أن يبقى في النظام مسؤول أعلى نشط واحد على الأقل.</p>
-      <p class="text-on-surface-variant text-sm mt-4">يمكنك مؤقتاً الدخول كمسؤول عبر <span dir="ltr">ADMIN_ALLOWED_EMAILS</span> (دور admin) حتى يُنشأ لك صف <strong>super_admin</strong> من SQL أو من مسؤول أعلى آخر.</p>
+      <p class="text-on-surface-variant text-sm mt-4">على GitHub Pages يلزم صف في <code class="text-primary" dir="ltr">admin_profiles</code>؛ قائمة <span dir="ltr">ADMIN_ALLOWED_EMAILS</span> تعمل فقط عند تشغيل خادم Node.</p>
     </div>`;
     return;
   }
@@ -135,17 +141,7 @@ function bindForm() {
     const email = document.getElementById("new-email")?.value?.trim() || "";
     const role = document.getElementById("new-role")?.value || "admin";
     try {
-      const res = await authFetch("/api/admin/users", {
-        method: "POST",
-        body: JSON.stringify({ userId, email: email || undefined, role }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.status === 401) {
-        await clearAdminSessionAndSupabase();
-        window.location.href = "./login.html";
-        return;
-      }
-      if (!res.ok) throw new Error(data.error || "فشل الإضافة");
+      await insertAdminUser({ userId, email: email || undefined, role });
       const uid = document.getElementById("new-user-id");
       const em = document.getElementById("new-email");
       if (uid) uid.value = "";
@@ -163,65 +159,39 @@ function bindForm() {
 async function saveRow(userId, tr) {
   const role = tr.querySelector('[data-field="role"]')?.value;
   const isActive = tr.querySelector('[data-field="active"]')?.checked === true;
-  const res = await authFetch(`/api/admin/users/${encodeURIComponent(userId)}`, {
-    method: "PATCH",
-    body: JSON.stringify({ role, isActive }),
-  });
-  if (res.status === 401) {
-    await clearAdminSessionAndSupabase();
-    window.location.href = "./login.html";
-    return;
+  try {
+    await patchAdminUser(userId, { role, isActive });
+    await reload();
+  } catch (e) {
+    alert(e instanceof Error ? e.message : "فشل الحفظ");
   }
-  if (!res.ok) {
-    const d = await res.json().catch(() => ({}));
-    alert(d.error || "فشل الحفظ");
-    return;
-  }
-  await reload();
 }
 
 async function deleteRow(userId) {
   if (!confirm("إزالة الصلاحية من الجدول؟ (لا يحذف المستخدم من Authentication)")) return;
-  const res = await authFetch(`/api/admin/users/${encodeURIComponent(userId)}`, { method: "DELETE" });
-  if (res.status === 401) {
-    await clearAdminSessionAndSupabase();
-    window.location.href = "./login.html";
-    return;
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return;
+  try {
+    await deleteAdminUser(userId, ctx.user.id);
+    await reload();
+  } catch (e) {
+    alert(e instanceof Error ? e.message : "فشل الحذف");
   }
-  if (!res.ok) {
-    const d = await res.json().catch(() => ({}));
-    alert(d.error || "فشل الحذف");
-    return;
-  }
-  await reload();
 }
 
 async function reload() {
   const token = getAdminToken();
   if (!token) return;
-  const res = await authFetch("/api/admin/users");
-  if (res.status === 401) {
-    await clearAdminSessionAndSupabase();
-    window.location.href = "./login.html";
-    return;
-  }
-  if (res.status === 503) {
-    const data = await res.json().catch(() => ({}));
+  try {
+    rows = await listAdminUsers();
+    render();
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
     const root = document.getElementById("users-root");
     if (root) {
-      root.innerHTML = `<p class="text-error text-center py-8 px-4">${escapeHtml(data.error || "الجدول غير جاهز — طبّق الهجرات.")}</p>`;
+      root.innerHTML = `<p class="text-error text-center py-8 px-4">${escapeHtml(msg || "فشل التحميل — نفّذ npm run db:push إن لم تطبّق هجرة RLS.")}</p>`;
     }
-    return;
   }
-  if (res.status === 403) {
-    myRole = "";
-    rows = [];
-    render();
-    return;
-  }
-  if (!res.ok) throw new Error("فشل التحميل");
-  rows = await res.json();
-  render();
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -238,15 +208,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!token) return;
 
   try {
-    const sRes = await authFetch("/api/admin/session");
-    if (sRes.status === 401) {
-      await clearAdminSessionAndSupabase();
-      window.location.href = "./login.html";
-      return;
-    }
-    if (!sRes.ok) throw new Error("session");
-    const session = await sRes.json();
-    myRole = session.role || "";
+    const ctx = await ensureActiveAdminSession();
+    if (!ctx) return;
+    myRole = ctx.role;
 
     if (myRole !== "super_admin") {
       render();
@@ -258,7 +222,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error(e);
     const root = document.getElementById("users-root");
     if (root) {
-      root.innerHTML = `<p class="text-error text-center py-12">تعذر التحميل. تأكد أن الهجرة admin_profiles مطبّقة وأن الخادم يعمل.</p>`;
+      root.innerHTML = `<p class="text-error text-center py-12">تعذر التحميل من Supabase.</p>`;
     }
   }
 });

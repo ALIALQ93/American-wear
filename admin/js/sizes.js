@@ -1,10 +1,10 @@
-import { authFetch } from "./authFetch.js";
 import { getAdminToken } from "./session.js";
 import {
   isSupabaseAuthConfigured,
   syncAdminTokenFromSupabaseSession,
   clearAdminSessionAndSupabase,
 } from "./supabaseAuth.js";
+import { fetchSizesList } from "./adminSupabaseData.js";
 
 function escapeHtml(s) {
   return String(s)
@@ -85,20 +85,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!token) return;
 
   try {
-    const res = await authFetch("/api/admin/sizes");
-    if (res.status === 401) {
-      await clearAdminSessionAndSupabase();
-      window.location.href = "./login.html";
-      return;
+    const data = await fetchSizesList(null);
+    if (data) {
+      rows = data;
+      render();
     }
-    if (!res.ok) throw new Error("فشل التحميل");
-    rows = await res.json();
-    render();
   } catch (e) {
     console.error(e);
     const root = document.getElementById("sizes-root");
     if (root) {
-      root.innerHTML = `<p class="text-error text-center py-12">تعذر تحميل المقاسات. تأكد أن الخادم يعمل.</p>`;
+      root.innerHTML = `<p class="text-error text-center py-12">تعذر تحميل المقاسات من Supabase.</p>`;
     }
   }
 });
