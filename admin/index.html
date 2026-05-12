@@ -2,20 +2,11 @@
 
 <html class="dark" dir="rtl" lang="ar"><head>
 <meta charset="utf-8"/>
-<script>
-(function () {
-  try {
-    if (!sessionStorage.getItem("aw_admin_jwt")) location.replace("./login.html");
-  } catch (e) {
-    location.replace("./login.html");
-  }
-})();
-</script>
+<script src="./js/guard.js"></script>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <link rel="icon" href="../favicon.svg" type="image/svg+xml"/>
 <link rel="stylesheet" href="../src/styles/tailwind.css"/>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <style>
         .material-symbols-outlined {
@@ -77,9 +68,18 @@
 </div>
 </aside>
 <!-- Main Canvas -->
+<!-- شريط تنقّل سريع للشاشات الصغيرة (الشريط الجانبي مخفي تحت md) -->
+<nav class="md:hidden sticky top-0 z-50 flex gap-1 overflow-x-auto whitespace-nowrap border-b border-outline-variant bg-surface-container-lowest px-2 py-2" aria-label="قائمة الإدارة">
+<a class="shrink-0 rounded px-3 py-2 text-label-sm bg-primary/15 text-primary font-medium" href="./index.html">لوحة التحكم</a>
+<a class="shrink-0 rounded px-3 py-2 text-label-sm text-on-surface-variant hover:bg-surface-container-high" href="./orders.html">الطلبات</a>
+<a class="shrink-0 rounded px-3 py-2 text-label-sm text-on-surface-variant hover:bg-surface-container-high" href="./products.html">المنتجات</a>
+<a class="shrink-0 rounded px-3 py-2 text-label-sm text-on-surface-variant hover:bg-surface-container-high" href="./categories.html">التصنيفات</a>
+<a class="shrink-0 rounded px-3 py-2 text-label-sm text-on-surface-variant hover:bg-surface-container-high" href="./sizes.html">المقاسات</a>
+<a class="shrink-0 rounded px-3 py-2 text-label-sm text-on-surface-variant hover:bg-surface-container-high" href="./users.html">المسؤولون</a>
+</nav>
 <main class="md:mr-64 min-h-screen">
 <!-- Top Action Bar -->
-<header class="h-20 px-8 flex items-center border-b border-primary/30 sticky top-0 bg-surface/85 backdrop-blur-md z-30">
+<header class="h-20 px-8 flex items-center border-b border-primary/30 bg-surface/85 backdrop-blur-md z-30 md:sticky md:top-0">
 <div>
 <h2 class="font-headline-sm text-headline-sm text-on-surface">لوحة التحكم العامة</h2>
 </div>
@@ -88,7 +88,7 @@
 <div class="p-8 max-w-container-max mx-auto">
 <p id="admin-api-banner" class="hidden mb-6 rounded border border-error/40 bg-error-container/15 px-4 py-3 text-label-sm text-error text-center" role="alert"></p>
 <!-- Stats Cards Grid -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mb-12">
+<div id="dashboard-stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mb-12" aria-live="polite">
 <!-- Card 1 -->
 <div class="bg-surface-container-low p-6 border border-outline-variant hover:border-primary/50 transition-colors group">
 <div class="flex justify-between items-start mb-4">
@@ -126,7 +126,7 @@
 <span class="material-symbols-outlined text-3xl" data-icon="person_add" data-weight="fill">person_add</span>
 </div>
 </div>
-<p class="text-on-surface-variant text-label-md mb-1">العملاء الجدد</p>
+<p class="text-on-surface-variant text-label-md mb-1">أسماء عملاء مميّزة في الطلبات</p>
 <h3 id="stat-customers" class="text-display-lg font-display-lg text-primary">—</h3>
 </div>
 </div>
@@ -147,10 +147,10 @@
 <table class="w-full text-right">
 <thead>
 <tr class="bg-surface-container-high">
-<th class="px-8 py-4 text-label-md text-primary font-bold uppercase tracking-wider">معرف الطلب</th>
-<th class="px-8 py-4 text-label-md text-primary font-bold uppercase tracking-wider">العميل</th>
-<th class="px-8 py-4 text-label-md text-primary font-bold uppercase tracking-wider">القيمة</th>
-<th class="px-8 py-4 text-label-md text-primary font-bold uppercase tracking-wider">الحالة</th>
+<th class="px-8 py-4 text-label-md text-primary font-bold tracking-wide">معرّف الطلب</th>
+<th class="px-8 py-4 text-label-md text-primary font-bold tracking-wide">العميل</th>
+<th class="px-8 py-4 text-label-md text-primary font-bold tracking-wide">القيمة</th>
+<th class="px-8 py-4 text-label-md text-primary font-bold tracking-wide">الحالة</th>
 </tr>
 </thead>
 <tbody id="recent-orders-tbody" class="divide-y divide-outline-variant">
@@ -168,7 +168,7 @@
 <a class="text-on-surface-variant font-body-md hover:text-primary underline-offset-4 hover:underline transition-all" href="#">اتصل بنا</a>
 <a class="text-on-surface-variant font-body-md hover:text-primary underline-offset-4 hover:underline transition-all" href="#">الفروع</a>
 </div>
-<p class="text-on-surface-variant font-body-md opacity-80">© ٢٠٢٤ American wear للفخامة. جميع الحقوق محفوظة.</p>
+<p class="text-on-surface-variant font-body-md opacity-80">© ٢٠٢٦ American wear للفخامة. جميع الحقوق محفوظة.</p>
 </footer>
 </main>
 <script type="module" src="./js/dashboard.js"></script>

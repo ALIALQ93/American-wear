@@ -39,9 +39,13 @@ const statusLabelAr = {
 };
 
 function mapStatusType(status) {
-  if (status === "delivered" || status === "cancelled") return status === "cancelled" ? "cancelled" : "done";
-  if (status === "shipped") return "shipping";
-  return "done";
+  const s = String(status || "");
+  if (s === "cancelled") return "cancelled";
+  if (s === "shipped") return "shipping";
+  if (s === "delivered") return "done";
+  if (s === "processing") return "processing";
+  if (s === "pending") return "pending";
+  return "pending";
 }
 
 function initialsFromName(name) {
@@ -209,6 +213,7 @@ try {
 }
 
 const app = express();
+app.disable("x-powered-by");
 app.use(express.json({ limit: "512kb" }));
 
 /** للتأكد أن الخادم يعمل (بدون مصادقة) — جرّب: GET http://127.0.0.1:<PORT>/api/health حيث PORT من .env (افتراضي 3000) */

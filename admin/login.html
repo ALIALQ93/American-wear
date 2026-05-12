@@ -7,7 +7,6 @@
 <link rel="stylesheet" href="../src/styles/tailwind.css"/>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;family=EB+Garamond:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <style>
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -40,7 +39,7 @@
 <div class="mb-8 text-center">
 <h2 class="font-headline-sm text-headline-sm text-on-surface mb-2">تسجيل دخول المسؤول</h2>
 <div class="w-12 h-[1px] bg-primary mx-auto opacity-50"></div>
-<p class="mt-4 text-center font-label-sm text-on-surface-variant/80 leading-relaxed">سجّل الدخول بحسابك من <strong class="text-on-surface font-medium">Supabase Authentication</strong> (نفس البريد وكلمة المرور التي أنشأتها في لوحة Supabase → Authentication → Users). يجب أن يكون بريدك مضمناً في المتغيّر <span dir="ltr" class="text-primary">ADMIN_ALLOWED_EMAILS</span> على خادم Node حتى يُقبل طلبات لوحة الإدارة.</p>
+<p class="mt-4 text-center font-label-sm text-on-surface-variant/80 leading-relaxed">سجّل الدخول بحسابك من <strong class="text-on-surface font-medium">Supabase Authentication</strong> (نفس البريد وكلمة المرور في لوحة Supabase → Authentication → Users). يجب أن يكون حسابك مفعّلاً في <strong class="text-on-surface font-medium">جدول admin_profiles</strong> أو مدرجاً مؤقتاً في <span dir="ltr" class="text-primary">ADMIN_ALLOWED_EMAILS</span> على خادم Node.</p>
 </div>
 <p id="login-error" class="hidden mb-4 rounded-sm border border-error/40 bg-error-container/20 px-4 py-3 text-center text-sm text-error" role="alert"></p>
 <form id="admin-login-form" class="space-y-6" autocomplete="on">
@@ -66,7 +65,7 @@
                             lock
                         </span>
 <input class="w-full bg-surface-container-high border border-outline-variant px-12 py-4 font-body-md text-body-md text-on-surface luxury-input-focus transition-all placeholder:text-on-surface-variant/30" id="password" name="password" placeholder="••••••••" type="password" autocomplete="current-password" required/>
-<button class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors" type="button">
+<button class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors" type="button" id="admin-password-toggle" aria-label="إظهار أو إخفاء كلمة المرور">
 <span class="material-symbols-outlined text-[20px]">visibility_off</span>
 </button>
 </div>
@@ -81,9 +80,7 @@
 </form>
 <!-- Footer Links -->
 <footer class="mt-8 flex flex-col items-center gap-4">
-<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-all underline-offset-8 hover:underline" href="#">
-                    نسيت كلمة المرور؟
-                </a>
+<p class="font-label-sm text-label-sm text-on-surface-variant text-center max-w-xs leading-relaxed">لإعادة تعيين كلمة المرور استخدم لوحة Supabase → Authentication → Users أو رابط «Forgot password» في مشروعك إن فعّلته.</p>
 </footer>
 </section>
 <!-- Security Badge -->
@@ -94,7 +91,7 @@
 </main>
 <!-- Side Image Decoration (Admin Concept) -->
 <div class="fixed left-0 top-0 h-full w-[25%] hidden xl:block border-r border-primary/10 overflow-hidden">
-<img alt="Secure Technology" class="h-full w-full object-cover grayscale brightness-[0.2] contrast-125" data-alt="A cinematic, low-key close-up of a high-end vintage professional workspace in a deep black setting. The visual features an expensive obsidian desk with minimal silver hardware accents and soft, warm golden rim lighting. The atmosphere is quiet, authoritative, and sophisticated, mirroring the luxury brand American wear's identity. The aesthetic is digital noir with razor-sharp focus and deep shadows that convey ultimate security and exclusivity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgYvi723uIS5T2RgLUP4XJGKY9jqnzTSx0xm0BgQvg_WxeZssOk6fGvNQ6MYmVSfuZXkm4RPG3DAsRh9G2jgq1tgTW8CTl21_4_CdlO6JQDKn-ENjG4KGn5bpPRIrT18aIA7lxGdVFy2LcZo8RJJ8TVv7Qoo89vCr5h3nAE_6LInLsL_v6-XOVzVvwxK7boTMRDkddrFfTrtbWkctTgV32alVB4nDEQvjL6FZMEE_xLm0LI2yKnuJ6F2z_DP8W3P4qUWuDhv6xVxY"/>
+<img alt="" referrerpolicy="no-referrer" class="h-full w-full object-cover grayscale brightness-[0.2] contrast-125" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgYvi723uIS5T2RgLUP4XJGKY9jqnzTSx0xm0BgQvg_WxeZssOk6fGvNQ6MYmVSfuZXkm4RPG3DAsRh9G2jgq1tgTW8CTl21_4_CdlO6JQDKn-ENjG4KGn5bpPRIrT18aIA7lxGdVFy2LcZo8RJJ8TVv7Qoo89vCr5h3nAE_6LInLsL_v6-XOVzVvwxK7boTMRDkddrFfTrtbWkctTgV32alVB4nDEQvjL6FZMEE_xLm0LI2yKnuJ6F2z_DP8W3P4qUWuDhv6xVxY"/>
 </div>
 <script type="module" src="./js/login.js"></script>
 </body></html>

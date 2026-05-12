@@ -1,4 +1,5 @@
 import { hasAdminToken, setAdminToken } from "./session.js";
+import { ADMIN_DASHBOARD_PATH, safeRedirectAfterLogin } from "./adminPaths.js";
 import { isSupabaseAuthConfigured, getSupabaseBrowser, syncAdminTokenFromSupabaseSession } from "./supabaseAuth.js";
 
 function normalizeEmail(value) {
@@ -10,12 +11,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     await syncAdminTokenFromSupabaseSession();
   }
   if (hasAdminToken()) {
-    window.location.replace("./index.html");
+    window.location.replace(ADMIN_DASHBOARD_PATH);
     return;
   }
 
   const form = document.getElementById("admin-login-form");
   const errorEl = document.getElementById("login-error");
+  const passwordInput = document.getElementById("password");
+  document.getElementById("admin-password-toggle")?.addEventListener("click", () => {
+    if (!(passwordInput instanceof HTMLInputElement)) return;
+    passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+  });
 
   if (!isSupabaseAuthConfigured()) {
     if (errorEl) {
@@ -50,7 +56,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       const token = data.session?.access_token;
       if (!token) throw new Error("لم يُرجع Supabase رمز الجلسة");
       setAdminToken(token);
-      window.location.replace("./index.html");
+      const next = new URLSearchParams(location.search).get("next");
+      window.location.replace(safeRedirectAfterLogin(next));
     } catch (err) {
       if (errorEl) {
         errorEl.textContent = err instanceof Error ? err.message : "خطأ في الاتصال بالخادم";

@@ -3,15 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <title>American wear | المقاسات</title>
-<script>
-(function () {
-  try {
-    if (!sessionStorage.getItem("aw_admin_jwt")) location.replace("./login.html");
-  } catch (e) {
-    location.replace("./login.html");
-  }
-})();
-</script>
+<script src="./js/guard.js"></script>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <link rel="icon" href="../favicon.svg" type="image/svg+xml"/>
 <link rel="stylesheet" href="../src/styles/tailwind.css"/>

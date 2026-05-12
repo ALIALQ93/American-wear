@@ -14,6 +14,10 @@ function statusBadgeClass(type) {
       return "px-3 py-1 bg-surface-container-highest text-on-surface-variant border border-outline-variant text-label-sm";
     case "cancelled":
       return "px-3 py-1 bg-error-container text-error border border-error/30 text-label-sm";
+    case "processing":
+      return "px-3 py-1 bg-primary/5 text-primary border border-primary/25 text-label-sm";
+    case "pending":
+      return "px-3 py-1 bg-surface-container-highest text-on-surface border border-outline-variant text-label-sm";
     default:
       return "px-3 py-1 bg-surface-container-highest text-on-surface-variant text-label-sm";
   }
@@ -81,6 +85,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const token = getAdminToken();
   if (!token) return;
 
+  const statsGrid = document.getElementById("dashboard-stats-grid");
+  statsGrid?.setAttribute("aria-busy", "true");
+
   const banner = document.getElementById("admin-api-banner");
   const showBanner = (msg) => {
     if (!banner) return;
@@ -99,28 +106,34 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (res.status === 401) {
       console.warn("[admin] 401", data.code, data.error, data.debug ?? "");
+      statsGrid?.setAttribute("aria-busy", "false");
       await clearAdminSessionAndSupabase();
       window.location.href = "./login.html";
       return;
     }
     if (res.status === 403) {
+      statsGrid?.setAttribute("aria-busy", "false");
       showBanner(data.error || "ليس لديك صلاحية الدخول إلى لوحة الإدارة.");
       return;
     }
     if (res.status === 503) {
+      statsGrid?.setAttribute("aria-busy", "false");
       showBanner(data.error || "اضبط إعدادات الخادم (.env) ثم أعد التشغيل.");
       return;
     }
     if (!res.ok) {
       const msg = [data.detail, data.error].filter(Boolean).join(" — ") || "فشل تحميل لوحة التحكم";
+      statsGrid?.setAttribute("aria-busy", "false");
       showBanner(msg);
       throw new Error("dashboard fetch failed");
     }
     hideBanner();
     renderStats(data.stats || {});
     renderOrdersTable(data.recentOrders || []);
+    statsGrid?.setAttribute("aria-busy", "false");
   } catch (e) {
     console.error(e);
+    statsGrid?.setAttribute("aria-busy", "false");
     const tbody = document.getElementById("recent-orders-tbody");
     if (tbody && !banner?.textContent) {
       tbody.innerHTML = `<tr><td colspan="4" class="px-8 py-10 text-center text-error">تعذر الاتصال بالخادم. تأكد أن سطر [api] يعمل (npm run dev) وأن قيمة PORT في .env تطابق وكيل Vite إن غيّرت المنفذ.</td></tr>`;
