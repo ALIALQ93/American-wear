@@ -1,4 +1,4 @@
-/** مفتاح تخزين JWT في المتصفح — يجب أن يطابق `public/admin/js/guard.js` */
+/** مفتاح تخزين JWT في المتصفح — يجب أن يطابق سكربت الحماية المضمّن في رؤوس صفحات admin/*.html */
 export const ADMIN_JWT_KEY = "aw_admin_jwt";
 
 export function hasAdminToken() {
