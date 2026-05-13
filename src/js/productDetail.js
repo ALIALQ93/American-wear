@@ -1,5 +1,7 @@
 import { getStorefrontSupabase } from "../lib/supabase/storefrontClient.js";
 import { addToCart } from "./cartStore.js";
+import { STOREFRONT } from "./storefrontPaths.js";
+import { isSafeStorefrontPath } from "./storefrontCommon.js";
 import { escapeHtml, parsePositiveInt } from "./storefrontCommon.js";
 import { formatPrice, formatPriceAlt } from "./currencyStore.js";
 
@@ -203,6 +205,12 @@ function showMsg(text, isError) {
   el.classList.add(isError ? "text-error" : "text-primary");
 }
 
+function resolveShoppingReturnHref() {
+  const fromQuery = new URLSearchParams(location.search).get("return");
+  if (fromQuery && isSafeStorefrontPath(fromQuery)) return fromQuery;
+  return STOREFRONT.home;
+}
+
 function bindHandlers() {
   document.querySelectorAll("[data-pick-color]").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -254,7 +262,10 @@ function bindHandlers() {
       qty,
       variantLabel: variantLabel(v),
     });
-    showMsg("تمت الإضافة إلى السلة", false);
+    showMsg("تمت الإضافة إلى السلة — جاري العودة للتسوق…", false);
+    window.setTimeout(() => {
+      window.location.href = resolveShoppingReturnHref();
+    }, 450);
   });
 }
 

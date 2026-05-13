@@ -1,11 +1,10 @@
 import { getStorefrontSupabase } from "../lib/supabase/storefrontClient.js";
-import { productStorefrontHref } from "./storefrontPaths.js";
 import { formatPrice, formatPriceAlt } from "./currencyStore.js";
-import { escapeHtml } from "./storefrontCommon.js";
+import { escapeHtml, productDetailHref } from "./storefrontCommon.js";
 
 function productCard(p) {
   const name = escapeHtml(p.name_ar || "");
-  const href = escapeHtml(productStorefrontHref(p.id));
+  const href = escapeHtml(productDetailHref(p.id));
   const img =
     p.image_url && String(p.image_url).trim()
       ? `<img alt="" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="${escapeHtml(String(p.image_url).trim())}" loading="lazy"/>`

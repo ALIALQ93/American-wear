@@ -14,8 +14,29 @@ export function formatIqd(n) {
   return `${new Intl.NumberFormat("ar-IQ", { maximumFractionDigits: 0 }).format(v)} د.ع`;
 }
 
-export function productDetailHref(productId) {
-  return productStorefrontHref(productId);
+export function isSafeStorefrontPath(path) {
+  const s = String(path || "").trim();
+  if (!s.startsWith("./") || s.includes("://") || s.includes("..") || s.includes("\\")) return false;
+  return /\.html(?:[#?]|$)/i.test(s);
+}
+
+/** مسار الصفحة الحالية نسبياً (للعودة بعد إضافة السلة). */
+export function currentStorefrontReturn() {
+  if (typeof location === "undefined") return "./home.html";
+  const page = location.pathname.split("/").filter(Boolean).pop() || "home.html";
+  return `./${page}${location.search}${location.hash}`;
+}
+
+export function productDetailHref(productId, returnTo) {
+  const base = productStorefrontHref(productId);
+  const ret =
+    returnTo != null && String(returnTo).trim() !== ""
+      ? String(returnTo).trim()
+      : typeof location !== "undefined"
+        ? currentStorefrontReturn()
+        : "";
+  if (!isSafeStorefrontPath(ret)) return base;
+  return `${base}&return=${encodeURIComponent(ret)}`;
 }
 
 export function parsePositiveInt(raw) {
