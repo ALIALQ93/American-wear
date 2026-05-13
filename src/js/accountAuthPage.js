@@ -1,5 +1,19 @@
-import { escapeHtml } from "./storefrontCommon.js";
-import { loginCustomer, registerCustomer } from "./customerSession.js";
+import { loginCustomer, registerCustomer, requestPasswordReset } from "./customerSession.js";
+
+function showMessage(el, msg, isSuccess = false) {
+  if (!el) return;
+  if (!msg) {
+    el.classList.add("hidden");
+    el.textContent = "";
+    return;
+  }
+  el.textContent = msg;
+  el.classList.remove("hidden");
+  if (isSuccess) {
+    el.classList.remove("text-error");
+    el.classList.add("text-primary");
+  }
+}
 
 function showError(el, msg) {
   if (!el) return;
@@ -15,6 +29,7 @@ function showError(el, msg) {
 function wireTabs() {
   const loginPanel = document.getElementById("auth-login-panel");
   const registerPanel = document.getElementById("auth-register-panel");
+  const forgotPanel = document.getElementById("auth-forgot-panel");
   const tabLogin = document.getElementById("auth-tab-login");
   const tabRegister = document.getElementById("auth-tab-register");
   if (!loginPanel || !registerPanel) return;
@@ -22,6 +37,9 @@ function wireTabs() {
   const showLogin = () => {
     loginPanel.classList.remove("hidden");
     registerPanel.classList.add("hidden");
+    forgotPanel?.classList.add("hidden");
+    tabLogin?.classList.remove("hidden");
+    tabRegister?.classList.remove("hidden");
     tabLogin?.classList.add("text-primary", "border-primary");
     tabLogin?.classList.remove("text-on-surface-variant", "border-transparent");
     tabRegister?.classList.remove("text-primary", "border-primary");
@@ -30,10 +48,27 @@ function wireTabs() {
   const showRegister = () => {
     registerPanel.classList.remove("hidden");
     loginPanel.classList.add("hidden");
+    forgotPanel?.classList.add("hidden");
+    tabLogin?.classList.remove("hidden");
+    tabRegister?.classList.remove("hidden");
     tabRegister?.classList.add("text-primary", "border-primary");
     tabRegister?.classList.remove("text-on-surface-variant", "border-transparent");
     tabLogin?.classList.remove("text-primary", "border-primary");
     tabLogin?.classList.add("text-on-surface-variant", "border-transparent");
+  };
+  const showForgot = () => {
+    forgotPanel?.classList.remove("hidden");
+    loginPanel.classList.add("hidden");
+    registerPanel.classList.add("hidden");
+    tabLogin?.classList.add("hidden");
+    tabRegister?.classList.add("hidden");
+    showMessage(document.getElementById("auth-forgot-success"), "");
+    showError(document.getElementById("auth-forgot-error"), "");
+    const loginPhone = document.getElementById("auth-login-phone");
+    const forgotPhone = document.getElementById("auth-forgot-phone");
+    if (loginPhone instanceof HTMLInputElement && forgotPhone instanceof HTMLInputElement && loginPhone.value) {
+      forgotPhone.value = loginPhone.value;
+    }
   };
 
   tabLogin?.addEventListener("click", (e) => {
@@ -44,6 +79,14 @@ function wireTabs() {
     e.preventDefault();
     showRegister();
   });
+  document.getElementById("auth-forgot-toggle")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    showForgot();
+  });
+  document.getElementById("auth-forgot-back")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    showLogin();
+  });
 
   if (new URLSearchParams(location.search).get("register") === "1") showRegister();
   else showLogin();
@@ -53,8 +96,11 @@ async function main() {
   wireTabs();
   const loginForm = document.getElementById("auth-login-form");
   const registerForm = document.getElementById("auth-register-form");
+  const forgotForm = document.getElementById("auth-forgot-form");
   const loginErr = document.getElementById("auth-login-error");
   const registerErr = document.getElementById("auth-register-error");
+  const forgotErr = document.getElementById("auth-forgot-error");
+  const forgotOk = document.getElementById("auth-forgot-success");
 
   loginForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -105,6 +151,29 @@ async function main() {
       if (btn instanceof HTMLButtonElement) {
         btn.disabled = false;
         btn.textContent = "إنشاء حساب";
+      }
+    }
+  });
+
+  forgotForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    showError(forgotErr, "");
+    showMessage(forgotOk, "");
+    const phone = document.getElementById("auth-forgot-phone")?.value;
+    const btn = forgotForm.querySelector('button[type="submit"]');
+    if (btn instanceof HTMLButtonElement) {
+      btn.disabled = true;
+      btn.textContent = "جاري الإرسال…";
+    }
+    try {
+      const msg = await requestPasswordReset({ phone });
+      showMessage(forgotOk, msg, true);
+    } catch (err) {
+      showError(forgotErr, err instanceof Error ? err.message : "تعذر إرسال الطلب");
+    } finally {
+      if (btn instanceof HTMLButtonElement) {
+        btn.disabled = false;
+        btn.textContent = "إرسال الطلب للإدارة";
       }
     }
   });

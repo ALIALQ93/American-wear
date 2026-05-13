@@ -41,6 +41,24 @@
 </div>
 <button type="submit" class="w-full bg-primary text-on-primary font-label-md py-3 hover:bg-primary-container">تسجيل الدخول</button>
 </form>
+<p class="text-center mt-4">
+<button type="button" id="auth-forgot-toggle" class="text-label-sm text-primary hover:underline">نسيت كلمة المرور؟</button>
+</p>
+</div>
+<div id="auth-forgot-panel" class="hidden">
+<p id="auth-forgot-success" class="hidden mb-4 text-primary text-label-sm text-center border border-primary/30 bg-primary/10 px-3 py-2 rounded" role="status"></p>
+<p id="auth-forgot-error" class="hidden mb-4 text-error text-label-sm text-center" role="alert"></p>
+<p class="text-on-surface-variant text-label-sm mb-4 text-center">أدخل رقم هاتفك المسجّل. سيصل طلبك للإدارة وستُرسل كلمة المرور عبر واتساب — بدون رسائل SMS.</p>
+<form id="auth-forgot-form" class="space-y-4">
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1" for="auth-forgot-phone">رقم الهاتف</label>
+<input id="auth-forgot-phone" required dir="ltr" type="tel" placeholder="07xxxxxxxx" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-left focus:border-primary outline-none"/>
+</div>
+<button type="submit" class="w-full bg-primary text-on-primary font-label-md py-3 hover:bg-primary-container">إرسال الطلب للإدارة</button>
+</form>
+<p class="text-center mt-4">
+<button type="button" id="auth-forgot-back" class="text-label-sm text-on-surface-variant hover:text-primary">العودة لتسجيل الدخول</button>
+</p>
 </div>
 <div id="auth-register-panel" class="hidden">
 <p id="auth-register-error" class="hidden mb-4 text-error text-label-sm text-center" role="alert"></p>

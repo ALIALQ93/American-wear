@@ -12,7 +12,7 @@ const RPC_ERROR_AR = {
   PHONE_EXISTS: "رقم الهاتف مسجّل مسبقاً — سجّل الدخول",
   INVALID_CREDENTIALS: "رقم الهاتف أو كلمة المرور غير صحيحة",
   LEGACY_PASSWORD_HASH: "يُرجى إعادة تعيين كلمة المرور من الإدارة أو التواصل معنا",
-  UNAUTHORIZED: "يجب تسجيل الدخول",
+  ACCOUNT_DISABLED: "الحساب معطّل — تواصل مع الإدارة",
 };
 
 function readRaw() {
@@ -106,6 +106,15 @@ export async function loginCustomer({ phone, password }) {
   );
   setCustomerSession(data);
   return data;
+}
+
+export async function requestPasswordReset({ phone }) {
+  const sb = getStorefrontSupabase();
+  if (!sb) {
+    throw new Error("لم يُضبط Supabase في البناء (VITE_SUPABASE_URL ومفتاح عام)");
+  }
+  const data = await customerRpc("store_customer_request_password_reset", { p_phone: phone });
+  return data?.message || "تم إرسال طلبك للإدارة.";
 }
 
 export async function logoutCustomer() {

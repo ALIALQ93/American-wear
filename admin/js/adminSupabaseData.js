@@ -144,6 +144,79 @@ export async function fetchOrdersList() {
   }));
 }
 
+const ORDER_STATUS_VALUES = ["pending", "processing", "shipped", "delivered", "cancelled"];
+
+export async function fetchOrderDetail(orderId) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const id = Number(orderId);
+  if (!Number.isFinite(id)) throw new Error("معرّف الطلب غير صالح");
+
+  const { data: order, error: oErr } = await sb
+    .from("orders")
+    .select(
+      `id, order_ref, customer_name, customer_phone, customer_city, customer_address,
+       subtotal_iqd, shipping_fee_iqd, total_iqd, summary, status, created_at,
+       payment_methods ( name_ar ),
+       shipping_governorates ( name_ar )`,
+    )
+    .eq("id", id)
+    .maybeSingle();
+  if (oErr) throw new Error(oErr.message);
+  if (!order) throw new Error("الطلب غير موجود");
+
+  const { data: items, error: iErr } = await sb
+    .from("order_items")
+    .select("id, product_name, variant_label, qty, unit_price_iqd, line_total_iqd")
+    .eq("order_id", id)
+    .order("id", { ascending: true });
+  if (iErr) throw new Error(iErr.message);
+
+  return {
+    id: Number(order.id),
+    orderRef: order.order_ref ?? "",
+    customerName: order.customer_name ?? "",
+    customerPhone: order.customer_phone ?? "",
+    customerCity: order.customer_city ?? "",
+    customerAddress: order.customer_address ?? "",
+    subtotalIqd: Number(order.subtotal_iqd) || 0,
+    shippingFeeIqd: Number(order.shipping_fee_iqd) || 0,
+    totalIqd: Number(order.total_iqd) || 0,
+    summary: order.summary ?? "",
+    status: order.status ?? "pending",
+    statusLabelAr: statusLabelAr[order.status] || order.status,
+    createdAt: order.created_at,
+    paymentMethodName: order.payment_methods?.name_ar ?? "",
+    governorateName: order.shipping_governorates?.name_ar ?? order.customer_city ?? "",
+    items: (items || []).map((it) => ({
+      id: Number(it.id),
+      productName: it.product_name ?? "",
+      variantLabel: it.variant_label ?? "",
+      qty: Number(it.qty) || 0,
+      unitPriceIqd: Number(it.unit_price_iqd) || 0,
+      lineTotalIqd: Number(it.line_total_iqd) || 0,
+    })),
+  };
+}
+
+export async function updateOrderStatus(orderId, status) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const id = Number(orderId);
+  const st = String(status || "");
+  if (!Number.isFinite(id)) throw new Error("معرّف الطلب غير صالح");
+  if (!ORDER_STATUS_VALUES.includes(st)) throw new Error("حالة الطلب غير صالحة");
+
+  const { data, error } = await sb.from("orders").update({ status: st }).eq("id", id).select("id, status").maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("الطلب غير موجود");
+  return { id: Number(data.id), status: data.status, statusLabelAr: statusLabelAr[data.status] || data.status };
+}
+
+export { ORDER_STATUS_VALUES };
+
 export async function fetchProductsStats() {
   const ctx = await ensureActiveAdminSession();
   if (!ctx) return null;
@@ -1466,5 +1539,51 @@ export async function updateStoreCustomerActive(id, isActive) {
     .from("store_customers")
     .update({ is_active: isActive === false || isActive === 0 ? 0 : 1 })
     .eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+export async function fetchPendingPasswordResetRequests() {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const { data, error } = await sb
+    .from("store_password_reset_requests")
+    .select("id, phone, customer_id, created_at, store_customers ( name_ar, password_plain )")
+    .eq("status", "pending")
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data || []).map((r) => ({
+    id: Number(r.id),
+    phone: r.phone ?? "",
+    customerId: Number(r.customer_id),
+    createdAt: r.created_at,
+    nameAr: r.store_customers?.name_ar ?? "",
+    passwordPlain: r.store_customers?.password_plain ?? "",
+  }));
+}
+
+export async function countPendingPasswordResetRequests() {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return 0;
+  const { sb } = ctx;
+  const { count, error } = await sb
+    .from("store_password_reset_requests")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "pending");
+  if (error) throw new Error(error.message);
+  return count ?? 0;
+}
+
+export async function resolvePasswordResetRequest(requestId) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const id = Number(requestId);
+  if (!Number.isFinite(id)) throw new Error("معرّف الطلب غير صالح");
+  const { error } = await sb
+    .from("store_password_reset_requests")
+    .update({ status: "resolved", resolved_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("status", "pending");
   if (error) throw new Error(error.message);
 }

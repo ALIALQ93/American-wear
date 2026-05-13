@@ -1,6 +1,6 @@
 import { getAdminToken } from "./session.js";
 import { isSupabaseAuthConfigured, syncAdminTokenFromSupabaseSession, clearAdminSessionAndSupabase } from "./supabaseAuth.js";
-import { fetchDashboardPayload } from "./adminSupabaseData.js";
+import { countPendingPasswordResetRequests, fetchDashboardPayload } from "./adminSupabaseData.js";
 
 function formatNumber(n) {
   return new Intl.NumberFormat("ar-IQ", { maximumFractionDigits: 0 }).format(Number(n) || 0);
@@ -107,6 +107,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderStats(data.stats || {});
     renderOrdersTable(data.recentOrders || []);
     statsGrid?.setAttribute("aria-busy", "false");
+    try {
+      const pending = await countPendingPasswordResetRequests();
+      const resetAlert = document.getElementById("admin-password-reset-alert");
+      if (resetAlert) {
+        if (pending > 0) {
+          resetAlert.classList.remove("hidden");
+          const link = resetAlert.querySelector("a");
+          if (link) link.textContent = `${pending} طلب استعادة كلمة مرور بانتظارك — افتح صفحة الزبائن`;
+        } else {
+          resetAlert.classList.add("hidden");
+        }
+      }
+    } catch {
+      /* تجاهل — الجدول قد لا يكون منشوراً بعد */
+    }
   } catch (e) {
     console.error(e);
     statsGrid?.setAttribute("aria-busy", "false");

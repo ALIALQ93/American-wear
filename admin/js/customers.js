@@ -3,13 +3,20 @@ import {
   isSupabaseAuthConfigured,
   syncAdminTokenFromSupabaseSession,
 } from "./supabaseAuth.js";
-import { fetchStoreCustomers, updateStoreCustomerActive } from "./adminSupabaseData.js";
+import {
+  fetchPendingPasswordResetRequests,
+  fetchStoreCustomers,
+  resolvePasswordResetRequest,
+  updateStoreCustomerActive,
+} from "./adminSupabaseData.js";
 import { authFetch } from "./authFetch.js";
 
 /** @typedef {{ id: number, phone: string, nameAr: string, passwordPlain: string, isActive: boolean, createdAt?: string }} CustomerRow */
 
 /** @type {CustomerRow[]} */
 let rows = [];
+/** @type {{ id: number, phone: string, customerId: number, nameAr: string, passwordPlain: string, createdAt?: string }[]} */
+let pendingResets = [];
 
 function escapeHtml(s) {
   return String(s)
@@ -46,6 +53,41 @@ function randomPassword() {
   let s = "";
   for (let i = 0; i < 8; i++) s += chars[Math.floor(Math.random() * chars.length)];
   return s;
+}
+
+function renderPendingResets() {
+  if (!pendingResets.length) return "";
+  const items = pendingResets
+    .map((req) => {
+      const row = rows.find((r) => r.id === req.customerId);
+      const pass = req.passwordPlain || row?.passwordPlain || "";
+      const waMsg = passwordWhatsAppMessage({
+        nameAr: req.nameAr || row?.nameAr || "",
+        passwordPlain: pass,
+      });
+      const waHref = waMeUrl(req.phone, waMsg);
+      const passNote = pass
+        ? `<code class="bg-surface-container px-2 py-0.5 rounded text-sm dir-ltr">${escapeHtml(pass)}</code>`
+        : `<span class="text-on-surface-variant">— أعد التعيين أولاً</span>`;
+      return `<li class="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-outline-variant/50 last:border-0" data-reset-id="${req.id}">
+        <div>
+          <p class="font-label-md text-on-surface">${escapeHtml(req.nameAr || row?.nameAr || "زبون")} <span class="font-mono text-sm dir-ltr text-on-surface-variant">${escapeHtml(req.phone)}</span></p>
+          <p class="text-label-sm text-on-surface-variant mt-1">طلب استعادة كلمة المرور · ${formatDate(req.createdAt)} · كلمة المرور: ${passNote}</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <a class="text-label-sm bg-[#25D366]/20 text-[#25D366] px-3 py-1.5 rounded ${pass ? "" : "opacity-40 pointer-events-none"}" href="${waHref}" target="_blank" rel="noopener noreferrer">واتساب</a>
+          <button type="button" class="resolve-reset text-label-sm text-primary border border-primary/40 px-3 py-1.5 rounded">تم الإرسال</button>
+        </div>
+      </li>`;
+    })
+    .join("");
+  return `<section class="mb-8 border border-primary/50 rounded-lg overflow-hidden bg-primary/5">
+    <div class="px-5 py-3 border-b border-primary/30 flex items-center gap-2">
+      <span class="material-symbols-outlined text-primary">notifications_active</span>
+      <h3 class="text-label-md text-primary font-semibold">طلبات نسيت كلمة المرور (${pendingResets.length})</h3>
+    </div>
+    <ul class="px-5">${items}</ul>
+  </section>`;
 }
 
 function render() {
@@ -101,6 +143,7 @@ function render() {
       </div>`;
 
   root.innerHTML = `
+    ${renderPendingResets()}
     <p class="text-label-sm text-on-surface-variant mb-6">عرض حسابات الزبائن المسجّلة في المتجر. أرسل كلمة المرور عبر واتساب عند نسيانها — لا يوجد إرسال SMS.</p>
     <p id="customers-msg" class="hidden text-label-sm mb-4"></p>
     ${table}`;
@@ -110,7 +153,9 @@ async function load() {
   const root = document.getElementById("customers-root");
   if (!root) return;
   try {
-    rows = (await fetchStoreCustomers()) || [];
+    const [customers, resets] = await Promise.all([fetchStoreCustomers(), fetchPendingPasswordResetRequests()]);
+    rows = customers || [];
+    pendingResets = resets || [];
     render();
   } catch (e) {
     root.innerHTML = `<p class="text-error text-center py-12">${escapeHtml(e?.message || "فشل التحميل")}</p>`;
@@ -164,6 +209,22 @@ function wireTable() {
   document.getElementById("customers-root")?.addEventListener("click", async (ev) => {
     const t = ev.target;
     if (!(t instanceof HTMLElement)) return;
+
+    const resetLi = t.closest("li[data-reset-id]");
+    if (resetLi && t.classList.contains("resolve-reset")) {
+      const rid = Number(resetLi.getAttribute("data-reset-id"));
+      if (!Number.isFinite(rid)) return;
+      try {
+        await resolvePasswordResetRequest(rid);
+        pendingResets = pendingResets.filter((r) => r.id !== rid);
+        render();
+        showMsg("تم تعليم الطلب كمُرسَل.");
+      } catch (e) {
+        showMsg(e?.message || "خطأ", true);
+      }
+      return;
+    }
+
     const tr = t.closest("tr[data-id]");
     if (!tr) return;
     const id = Number(tr.getAttribute("data-id"));

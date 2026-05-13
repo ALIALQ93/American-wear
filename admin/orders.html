@@ -14,6 +14,17 @@
 <style>
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
         body { background-color: #131313; }
+        @media print {
+          body * { visibility: hidden !important; }
+          #order-receipt-print, #order-receipt-print * { visibility: visible !important; }
+          #order-receipt-print {
+            position: fixed; inset: 0; margin: 0; padding: 24px;
+            background: #fff !important; color: #111 !important;
+            width: 100%; max-width: none; z-index: 99999;
+          }
+          #order-receipt-print .receipt-muted { color: #444 !important; }
+          #order-receipt-print .receipt-primary { color: #8b6914 !important; }
+        }
     </style>
 </head>
 <body class="bg-background text-on-background font-body-md overflow-x-hidden">
@@ -127,16 +138,51 @@
 <th class="px-6 py-3 text-label-md text-primary font-bold text-left">الإجمالي</th>
 <th class="px-6 py-3 text-label-md text-primary font-bold">الحالة</th>
 <th class="px-6 py-3 text-label-md text-primary font-bold">التاريخ</th>
+<th class="px-6 py-3 text-label-md text-primary font-bold">إجراءات</th>
 </tr>
 </thead>
 <tbody id="orders-tbody" class="divide-y divide-outline-variant/40">
-<tr><td colspan="6" class="px-6 py-10 text-center text-on-surface-variant">جاري التحميل…</td></tr>
+<tr><td colspan="7" class="px-6 py-10 text-center text-on-surface-variant">جاري التحميل…</td></tr>
 </tbody>
 </table>
 </div>
 </section>
 </div>
 </main>
+
+<div id="order-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+<div id="order-modal-backdrop" class="absolute inset-0 bg-black/75"></div>
+<div class="relative w-full max-w-3xl max-h-[92vh] overflow-y-auto bg-surface-container-low border border-outline-variant rounded-lg shadow-2xl">
+<div class="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-outline-variant bg-surface-container-high/95 backdrop-blur-sm">
+<h3 id="order-modal-title" class="text-headline-sm font-headline-sm text-on-surface">تفاصيل الطلب</h3>
+<div class="flex flex-wrap gap-2">
+<button type="button" id="order-print-btn" class="text-label-sm border border-primary/50 text-primary px-3 py-1.5 rounded hover:bg-primary/10">طباعة الوصل</button>
+<button type="button" id="order-wa-btn" class="text-label-sm bg-[#25D366]/20 text-[#25D366] px-3 py-1.5 rounded hidden">واتساب للزبون</button>
+<button type="button" id="order-modal-close" class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined">close</span></button>
+</div>
+</div>
+<div class="p-6 space-y-6" id="order-modal-body">
+<p class="text-on-surface-variant text-center py-8">جاري التحميل…</p>
+</div>
+<div class="sticky bottom-0 px-6 py-4 border-t border-outline-variant bg-surface-container-high/95 flex flex-wrap items-center justify-between gap-3">
+<div class="flex items-center gap-2">
+<label for="order-status-select" class="text-label-sm text-on-surface-variant">الحالة</label>
+<select id="order-status-select" class="bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none text-label-sm">
+<option value="pending">قيد المراجعة</option>
+<option value="processing">قيد التجهيز</option>
+<option value="shipped">تم الشحن</option>
+<option value="delivered">تم التسليم</option>
+<option value="cancelled">ملغى</option>
+</select>
+<button type="button" id="order-save-status-btn" class="bg-primary text-on-primary font-label-md px-4 py-2 hover:bg-primary-container">حفظ الحالة</button>
+</div>
+<p id="order-modal-msg" class="text-label-sm text-primary hidden"></p>
+</div>
+</div>
+</div>
+
+<div id="order-receipt-print" class="hidden fixed -left-[9999px] top-0 w-[210mm] bg-white text-black p-8 font-body-md" aria-hidden="true"></div>
+
 <script type="module" src="./js/orders.js"></script>
 </body>
 </html>
