@@ -1,6 +1,8 @@
 import { cartSubtotalIqd, readCart, removeFromCart, setCartLineQty } from "./cartStore.js";
 import { escapeHtml } from "./storefrontCommon.js";
 import { formatPrice } from "./currencyStore.js";
+import { getCustomerToken } from "./customerSession.js";
+import { STOREFRONT } from "./storefrontPaths.js";
 
 function render() {
   const root = document.getElementById("cart-page-root");
@@ -42,6 +44,9 @@ function render() {
     .join("");
 
   const subtotal = cartSubtotalIqd();
+  const checkoutHref = getCustomerToken()
+    ? STOREFRONT.checkout
+    : `${STOREFRONT.account}?next=${encodeURIComponent(STOREFRONT.checkout)}`;
   root.innerHTML = `
     <div class="space-y-4 mb-10">${rows}</div>
     <div class="border-t border-outline-variant pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -50,7 +55,7 @@ function render() {
         <p class="text-display-sm font-display-sm text-primary">${escapeHtml(formatPrice(subtotal))}</p>
         <p class="text-label-sm text-on-surface-variant mt-1">يُضاف أجر الشحن عند إتمام الطلب حسب المحافظة.</p>
       </div>
-      <a href="./checkout.html" class="inline-flex justify-center items-center bg-primary text-on-primary font-label-md px-8 py-3 hover:bg-primary-container transition-colors">إتمام الطلب</a>
+      <a href="${escapeHtml(checkoutHref)}" class="inline-flex justify-center items-center bg-primary text-on-primary font-label-md px-8 py-3 hover:bg-primary-container transition-colors">إتمام الطلب</a>
     </div>`;
 
   root.querySelectorAll(".js-cart-minus").forEach((btn) => {

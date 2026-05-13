@@ -3,6 +3,8 @@ import { cartSubtotalIqd, clearCart, readCart } from "./cartStore.js";
 import { fetchStorefrontPaymentMethods, formatPrice } from "./currencyStore.js";
 import { escapeHtml } from "./storefrontCommon.js";
 import { getCustomer, getCustomerToken } from "./customerSession.js";
+import { STOREFRONT } from "./storefrontPaths.js";
+import { isSafeStorefrontPath } from "./storefrontCommon.js";
 
 /** @type {{ id: number, nameAr: string, feeIqd: number }[]} */
 let governorates = [];
@@ -10,6 +12,16 @@ let governorates = [];
 let paymentMethods = [];
 let selectedGovId = null;
 let selectedPaymentId = null;
+
+function checkoutLoginHref() {
+  return `${STOREFRONT.account}?next=${encodeURIComponent(STOREFRONT.checkout)}`;
+}
+
+function requireLoggedInCustomer() {
+  if (getCustomerToken() && getCustomer()?.id) return true;
+  window.location.href = checkoutLoginHref();
+  return false;
+}
 
 function orderErrorMessage(err) {
   const msg = String(err?.message || err || "");
@@ -141,6 +153,7 @@ function renderForm() {
 
   document.getElementById("checkout-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (!requireLoggedInCustomer()) return;
     const errEl = document.getElementById("checkout-error");
     if (errEl) {
       errEl.classList.add("hidden");
@@ -193,6 +206,7 @@ async function main() {
     window.location.href = "./cart.html";
     return;
   }
+  if (!requireLoggedInCustomer()) return;
 
   const sb = getStorefrontSupabase();
   if (!sb) {

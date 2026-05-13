@@ -1,4 +1,18 @@
-import { loginCustomer, registerCustomer, requestPasswordReset } from "./customerSession.js";
+import { getCustomerToken, loginCustomer, registerCustomer, requestPasswordReset } from "./customerSession.js";
+import { STOREFRONT } from "./storefrontPaths.js";
+import { isSafeStorefrontPath } from "./storefrontCommon.js";
+
+function postAuthRedirectHref() {
+  const raw = new URLSearchParams(location.search).get("next");
+  if (raw && isSafeStorefrontPath(raw)) return raw;
+  return STOREFRONT.accountOrders;
+}
+
+function showCheckoutNotice() {
+  const next = new URLSearchParams(location.search).get("next");
+  const el = document.getElementById("auth-checkout-notice");
+  if (el && next === STOREFRONT.checkout) el.classList.remove("hidden");
+}
 
 function showMessage(el, msg, isSuccess = false) {
   if (!el) return;
@@ -93,7 +107,15 @@ function wireTabs() {
 }
 
 async function main() {
+  if (getCustomerToken()) {
+    const next = new URLSearchParams(location.search).get("next");
+    if (next && isSafeStorefrontPath(next)) {
+      window.location.href = next;
+      return;
+    }
+  }
   wireTabs();
+  showCheckoutNotice();
   const loginForm = document.getElementById("auth-login-form");
   const registerForm = document.getElementById("auth-register-form");
   const forgotForm = document.getElementById("auth-forgot-form");
@@ -114,8 +136,7 @@ async function main() {
     }
     try {
       await loginCustomer({ phone, password });
-      const next = new URLSearchParams(location.search).get("next");
-      window.location.href = next && next.startsWith("./") ? next : "./account-orders.html";
+      window.location.href = postAuthRedirectHref();
     } catch (err) {
       showError(loginErr, err instanceof Error ? err.message : "فشل تسجيل الدخول");
     } finally {
@@ -144,7 +165,7 @@ async function main() {
     }
     try {
       await registerCustomer({ phone, name, password });
-      window.location.href = "./account-orders.html";
+      window.location.href = postAuthRedirectHref();
     } catch (err) {
       showError(registerErr, err instanceof Error ? err.message : "فشل التسجيل");
     } finally {
