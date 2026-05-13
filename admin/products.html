@@ -31,9 +31,13 @@
 <span class="material-symbols-outlined">shopping_cart</span>
 <span>الطلبات</span>
 </a>
-<a class="bg-primary/10 text-primary border-r-4 border-primary px-4 py-3 flex items-center gap-3 font-label-md" href="./products.html">
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./products.html">
 <span class="material-symbols-outlined">inventory_2</span>
 <span>المنتجات</span>
+</a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./inventory.html">
+<span class="material-symbols-outlined">warehouse</span>
+<span>إدارة المخزون</span>
 </a>
 <a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./categories.html">
 <span class="material-symbols-outlined">category</span>
@@ -168,22 +172,7 @@
 <input id="product-price" min="0" step="1" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none" type="number" value="0"/>
 </div>
 </div>
-<div id="product-stock-wrap">
-<label class="block text-label-sm text-on-surface-variant mb-1">المخزون</label>
-<input id="product-stock" min="0" step="1" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none" type="number" value="0"/>
-<div id="product-stock-adjust" class="mt-2"></div>
-</div>
-<div>
-<label class="block text-label-sm text-on-surface-variant mb-1">نوع المتغيرات والمخزون</label>
-<select id="product-variant-mode" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none">
-<option value="none">بدون — منتج واحد (عطر / ساعة)</option>
-<option value="size_only">مقاسات فقط</option>
-<option value="color_only">ألوان فقط</option>
-<option value="color_size">لون + مقاس</option>
-</select>
-<p class="text-label-sm text-on-surface-variant mt-1">السعر أعلاه يطبّق على كل المقاسات والألوان.</p>
-</div>
-<div id="product-inventory-root" class="border border-outline-variant/60 rounded-lg p-4 bg-surface-container/30"></div>
+<p class="text-label-sm text-on-surface-variant rounded border border-outline-variant/60 bg-surface-container/30 px-3 py-2 mb-2">الألوان والمقاسات والكميات من <a href="./inventory.html" class="text-primary underline">إدارة المخزون</a>.</p>
 <div>
 <label class="block text-label-sm text-on-surface-variant mb-1">صورة المنتج</label>
 <div class="flex flex-wrap items-center gap-2 mb-2">
@@ -215,13 +204,6 @@
 <option value="">— بدون —</option>
 </select>
 <p class="text-label-sm text-on-surface-variant mt-1">اختياري — يظهر كفلتر في صفحة القسم بالمتجر.</p>
-</div>
-<div id="product-size-set-wrap" class="hidden">
-<label class="block text-label-sm text-on-surface-variant mb-1">مجموعة المقاسات الجاهزة</label>
-<select id="product-size-set-id" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none">
-<option value="">— اختر —</option>
-</select>
-<p class="text-label-sm text-on-surface-variant mt-1">تُعرَّف المجموعات من <a href="./sizes.html" class="text-primary underline">صفحة المقاسات</a>.</p>
 </div>
 <label class="flex items-center gap-2 cursor-pointer">
 <input id="product-is-active" type="checkbox" class="rounded border-outline-variant text-primary focus:ring-primary" checked/>

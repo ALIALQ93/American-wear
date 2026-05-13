@@ -64,6 +64,7 @@ export default ({ mode }) => {
           adminLogin: resolve(root, "admin/login.html"),
           adminDashboard: resolve(root, "admin/index.html"),
           adminProducts: resolve(root, "admin/products.html"),
+          adminInventory: resolve(root, "admin/inventory.html"),
           adminOrders: resolve(root, "admin/orders.html"),
           adminSizes: resolve(root, "admin/sizes.html"),
           adminColors: resolve(root, "admin/colors.html"),

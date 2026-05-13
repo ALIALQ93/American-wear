@@ -6,6 +6,7 @@ const ALLOWED_POST_LOGIN = new Set([
   "./index.html",
   "./orders.html",
   "./products.html",
+  "./inventory.html",
   "./categories.html",
   "./sizes.html",
   "./colors.html",

@@ -1,31 +1,17 @@
 import { getAdminToken } from "./session.js";
 import { isSupabaseAuthConfigured, syncAdminTokenFromSupabaseSession, clearAdminSessionAndSupabase } from "./supabaseAuth.js";
 import {
-  fetchColorPresets,
   fetchCategoriesTree,
-  fetchProductInventory,
   fetchProductsList,
   fetchProductsStats,
-  fetchSizeSets,
-  saveProductWithInventory,
+  createProduct,
   updateProduct,
   uploadProductCoverImage,
 } from "./adminSupabaseData.js";
-import {
-  getProductInventoryPayload,
-  initProductInventoryPanel,
-  loadSizeLabelsForSetId,
-  resetProductInventory,
-  setColorPresets,
-  setEditingProductId,
-  setProductInventoryState,
-} from "./productInventory.js";
 
 /** @typedef {{ id: number, nameAr: string, nameEn?: string|null, category?: string|null, sku?: string|null, priceIqd: number, stock: number, isActive: number|boolean, imageUrl?: string|null, categoryId?: number|null, sectionId?: number|null, subsectionId?: number|null, categoryNameAr?: string|null, sectionNameAr?: string|null, subsectionNameAr?: string|null, variantMode?: string, sizeSetId?: number|null }} ProductRow */
 
 let categoriesTree = [];
-/** @type {{ id: number, nameAr: string, slug: string }[]} */
-let sizeSetsCache = [];
 /** @type {ProductRow[]} */
 let productsCache = [];
 let searchQuery = "";
@@ -156,6 +142,7 @@ function rowHtml(p) {
       <td class="px-6 py-4">
         <div class="flex justify-center gap-1">
           <button type="button" class="p-2 rounded hover:bg-primary/10 text-on-surface-variant hover:text-primary js-prod-edit" data-id="${p.id}" title="تعديل"><span class="material-symbols-outlined text-xl">edit</span></button>
+          <a href="./inventory.html?product=${p.id}" class="p-2 rounded hover:bg-primary/10 text-on-surface-variant hover:text-primary" title="إدارة المخزون"><span class="material-symbols-outlined text-xl">warehouse</span></a>
           <button type="button" class="p-2 rounded hover:bg-surface-container-high text-on-surface-variant js-prod-view" data-url="${escapeHtml(p.imageUrl || "")}" title="معاينة الصورة"><span class="material-symbols-outlined text-xl">visibility</span></button>
         </div>
       </td>
@@ -203,7 +190,7 @@ function renderTable() {
   tbody.querySelectorAll(".js-prod-view").forEach((btn) => {
     btn.addEventListener("click", () => {
       const url = btn.getAttribute("data-url");
-      if (url) window.open(url, "_blank", "noopener,noreferrer");
+      if (url) window.open(url, "_blank", "noopener");
     });
   });
 }
@@ -211,9 +198,8 @@ function renderTable() {
 function fillCategorySelect() {
   const sel = document.getElementById("product-category-id");
   if (!sel) return;
-  sel.innerHTML = `<option value="">— بدون تصنيف مرتبط —</option>`;
+  sel.innerHTML = `<option value="">— بدون —</option>`;
   for (const c of categoriesTree) {
-    if (Number(c.isActive) === 0) continue;
     const opt = document.createElement("option");
     opt.value = String(c.id);
     opt.textContent = c.nameAr || c.slug;
@@ -223,88 +209,47 @@ function fillCategorySelect() {
 
 function fillSectionSelect(categoryId, preferredSectionId) {
   const sel = document.getElementById("product-section-id");
+  const subSel = document.getElementById("product-subsection-id");
   if (!sel) return;
-  sel.innerHTML = `<option value="">— بدون قسم فرعي —</option>`;
-  if (!categoryId) {
-    sel.disabled = true;
-    fillSubsectionSelect(null);
-    return;
-  }
-  sel.disabled = false;
+  sel.innerHTML = `<option value="">— بدون —</option>`;
+  sel.disabled = !categoryId;
   const cat = categoriesTree.find((c) => Number(c.id) === Number(categoryId));
-  if (!cat?.sections?.length) {
-    fillSubsectionSelect(null);
-    return;
-  }
-  for (const s of cat.sections) {
-    if (Number(s.isActive) === 0) continue;
+  const sections = cat?.sections || [];
+  for (const s of sections) {
     const opt = document.createElement("option");
     opt.value = String(s.id);
     opt.textContent = s.nameAr || s.slug;
     sel.appendChild(opt);
   }
-  if (preferredSectionId != null && cat.sections.some((s) => Number(s.id) === Number(preferredSectionId))) {
+  if (preferredSectionId != null && sections.some((s) => Number(s.id) === Number(preferredSectionId))) {
     sel.value = String(preferredSectionId);
   }
   fillSubsectionSelect(sel.value ? Number(sel.value) : null);
+  if (subSel) subSel.disabled = !sel.value;
 }
 
 function fillSubsectionSelect(sectionId, preferredSubId) {
   const sel = document.getElementById("product-subsection-id");
   if (!sel) return;
-  sel.innerHTML = `<option value="">— بدون تصنيف فرعي —</option>`;
-  if (!sectionId) {
-    sel.disabled = true;
-    return;
-  }
-  sel.disabled = false;
-  let section = null;
+  sel.innerHTML = `<option value="">— بدون —</option>`;
+  sel.disabled = !sectionId;
+  let subs = [];
   for (const c of categoriesTree) {
-    section = c.sections?.find((s) => Number(s.id) === Number(sectionId));
-    if (section) break;
+    const sec = (c.sections || []).find((s) => Number(s.id) === Number(sectionId));
+    if (sec) {
+      subs = sec.subsections || [];
+      break;
+    }
   }
-  if (!section?.subsections?.length) return;
-  for (const sub of section.subsections) {
-    if (Number(sub.isActive) === 0) continue;
+  for (const sub of subs) {
     const opt = document.createElement("option");
     opt.value = String(sub.id);
     opt.textContent = sub.nameAr || sub.slug;
     sel.appendChild(opt);
   }
-  if (preferredSubId != null && section.subsections.some((s) => Number(s.id) === Number(preferredSubId))) {
+  if (preferredSubId != null && subs.some((s) => Number(s.id) === Number(preferredSubId))) {
     sel.value = String(preferredSubId);
   }
-}
-
-function categorySlugById(categoryId) {
-  const cat = categoriesTree.find((c) => Number(c.id) === Number(categoryId));
-  return cat?.slug || "";
-}
-
-function syncSizeSetWrapVisibility() {
-  const mode = document.getElementById("product-variant-mode")?.value || "none";
-  const wrap = document.getElementById("product-size-set-wrap");
-  if (!wrap) return;
-  const show = mode === "size_only" || mode === "color_size";
-  wrap.classList.toggle("hidden", !show);
-}
-
-function fillSizeSetSelect(preferredId) {
-  const sel = document.getElementById("product-size-set-id");
-  if (!sel) return;
-  sel.innerHTML = `<option value="">— اختر مجموعة مقاسات —</option>`;
-  for (const s of sizeSetsCache) {
-    const opt = document.createElement("option");
-    opt.value = String(s.id);
-    opt.textContent = s.nameAr || s.slug;
-    sel.appendChild(opt);
-  }
-  const pref = Number(preferredId);
-  if (sizeSetsCache.some((s) => Number(s.id) === pref)) sel.value = String(pref);
-}
-
-async function refreshInventorySizes(setId) {
-  await loadSizeLabelsForSetId(setId ? Number(setId) : null);
 }
 
 async function openModal(product) {
@@ -317,15 +262,9 @@ async function openModal(product) {
     err.classList.add("hidden");
   }
   form.reset();
-  resetProductInventory();
   resetProductImageUploadUi();
-  setEditingProductId(null);
   const idInput = document.getElementById("product-edit-id");
   const title = document.getElementById("product-modal-title");
-  const finishOpen = async () => {
-    modal.classList.remove("hidden");
-    document.body.classList.add("overflow-hidden");
-  };
   if (product) {
     if (idInput) idInput.value = String(product.id);
     if (title) title.textContent = "تعديل منتج";
@@ -333,27 +272,14 @@ async function openModal(product) {
     document.getElementById("product-name-en").value = product.nameEn || "";
     document.getElementById("product-sku").value = product.sku || "";
     document.getElementById("product-price").value = String(product.priceIqd ?? 0);
-    document.getElementById("product-stock").value = String(product.stock ?? 0);
     document.getElementById("product-image-url").value = product.imageUrl || "";
     syncProductImagePreview();
     document.getElementById("product-is-active").checked = product.isActive === 1 || product.isActive === true;
     fillCategorySelect();
-    const catSel = document.getElementById("product-category-id");
-    catSel.value = product.categoryId != null ? String(product.categoryId) : "";
+    document.getElementById("product-category-id").value = product.categoryId != null ? String(product.categoryId) : "";
     fillSectionSelect(product.categoryId, product.sectionId);
     const subSel = document.getElementById("product-subsection-id");
     if (product.subsectionId != null && subSel) subSel.value = String(product.subsectionId);
-    fillSizeSetSelect(product.sizeSetId);
-    syncSizeSetWrapVisibility();
-    await refreshInventorySizes(product.sizeSetId);
-    try {
-      const inv = await fetchProductInventory(product.id);
-      if (inv) setProductInventoryState(inv);
-    } catch {
-      setProductInventoryState({ variantMode: product.variantMode || "none", colors: [], variants: [] });
-    }
-    setEditingProductId(product.id);
-    finishOpen();
   } else {
     if (idInput) idInput.value = "";
     if (title) title.textContent = "إضافة منتج";
@@ -361,11 +287,9 @@ async function openModal(product) {
     fillCategorySelect();
     fillSectionSelect(null);
     fillSubsectionSelect(null);
-    fillSizeSetSelect(null);
-    syncSizeSetWrapVisibility();
-    setProductInventoryState({ variantMode: "none", colors: [], variants: [] });
-    finishOpen();
   }
+  modal.classList.remove("hidden");
+  document.body.classList.add("overflow-hidden");
 }
 
 function closeModal() {
@@ -384,9 +308,7 @@ async function reloadProducts() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  if (isSupabaseAuthConfigured()) {
-    await syncAdminTokenFromSupabaseSession();
-  }
+  if (isSupabaseAuthConfigured()) await syncAdminTokenFromSupabaseSession();
 
   document.getElementById("admin-logout-btn")?.addEventListener("click", async () => {
     await clearAdminSessionAndSupabase();
@@ -395,20 +317,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const token = getAdminToken();
   if (!token) return;
-
-  initProductInventoryPanel({
-    root: document.getElementById("product-inventory-root"),
-    modeSelect: document.getElementById("product-variant-mode"),
-    stockWrap: document.getElementById("product-stock-wrap"),
-    onStockMessage: (msg) => {
-      const err = document.getElementById("product-form-error");
-      if (!err || !msg) return;
-      err.textContent = msg;
-      err.classList.remove("hidden");
-      window.setTimeout(() => err.classList.add("hidden"), 3500);
-    },
-  });
-  resetProductInventory();
 
   document.getElementById("sidebar-add-product")?.addEventListener("click", () => openModal(null));
   document.getElementById("header-add-product")?.addEventListener("click", () => openModal(null));
@@ -436,22 +344,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   document.getElementById("product-category-id")?.addEventListener("change", (e) => {
-    const v = e.target.value;
-    fillSectionSelect(v ? Number(v) : null);
-  });
-
-  document.getElementById("product-variant-mode")?.addEventListener("change", () => {
-    syncSizeSetWrapVisibility();
-  });
-
-  document.getElementById("product-size-set-id")?.addEventListener("change", async (e) => {
-    const v = e.target.value;
-    await refreshInventorySizes(v ? Number(v) : null);
+    fillSectionSelect(e.target.value ? Number(e.target.value) : null);
   });
 
   document.getElementById("product-section-id")?.addEventListener("change", (e) => {
-    const v = e.target.value;
-    fillSubsectionSelect(v ? Number(v) : null);
+    fillSubsectionSelect(e.target.value ? Number(e.target.value) : null);
   });
 
   document.getElementById("product-search")?.addEventListener("input", (e) => {
@@ -478,47 +375,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     const catVal = document.getElementById("product-category-id")?.value;
     const secVal = document.getElementById("product-section-id")?.value;
     const subVal = document.getElementById("product-subsection-id")?.value;
-    const sizeSetVal = document.getElementById("product-size-set-id")?.value;
-    const inventory = getProductInventoryPayload();
-    if (inventory.variantMode !== "none") {
-      if (inventory.variantMode === "color_only" || inventory.variantMode === "color_size") {
-        const named = (inventory.colors || []).filter((c) => String(c.nameAr || "").trim());
-        if (!named.length) {
-          if (errEl) {
-            errEl.textContent = "اختر لوناً واحداً على الأقل من لوحة الألوان";
-            errEl.classList.remove("hidden");
-          }
-          return;
-        }
-      }
-    }
-    if (
-      (inventory.variantMode === "size_only" || inventory.variantMode === "color_size") &&
-      !sizeSetVal
-    ) {
-      if (errEl) {
-        errEl.textContent = "اختر مجموعة المقاسات الجاهزة";
-        errEl.classList.remove("hidden");
-      }
-      return;
-    }
     const body = {
-      id: editId ? Number(editId) : undefined,
       nameAr,
       nameEn: document.getElementById("product-name-en")?.value?.trim() || null,
       sku: document.getElementById("product-sku")?.value?.trim() || null,
       priceIqd: Number(document.getElementById("product-price")?.value) || 0,
-      stock: Math.floor(Number(document.getElementById("product-stock")?.value) || 0),
       imageUrl: document.getElementById("product-image-url")?.value?.trim() || null,
       categoryId: catVal ? Number(catVal) : null,
       sectionId: secVal ? Number(secVal) : null,
       subsectionId: subVal ? Number(subVal) : null,
       isActive: document.getElementById("product-is-active")?.checked !== false,
-      variantMode: inventory.variantMode,
-      sizeSetId: sizeSetVal ? Number(sizeSetVal) : null,
     };
     try {
-      await saveProductWithInventory(body, inventory);
+      if (editId) {
+        await updateProduct(Number(editId), body);
+      } else {
+        await createProduct({ ...body, stock: 0, variantMode: "none" });
+      }
       closeModal();
       await reloadProducts();
       const stats = await fetchProductsStats();
@@ -532,27 +405,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   try {
-    const [catTree, stats, prodList, sizeSets, colorPresetList] = await Promise.all([
-      fetchCategoriesTree(true),
-      fetchProductsStats(),
-      fetchProductsList(),
-      fetchSizeSets(true),
-      fetchColorPresets(true),
-    ]);
+    const [catTree, stats, prodList] = await Promise.all([fetchCategoriesTree(true), fetchProductsStats(), fetchProductsList()]);
     if (catTree) categoriesTree = catTree;
-    if (sizeSets) sizeSetsCache = sizeSets.map((s) => ({ id: s.id, nameAr: s.nameAr, slug: s.slug }));
-    if (colorPresetList) setColorPresets(colorPresetList);
+    if (prodList) productsCache = prodList;
     if (stats) renderStats(stats);
-    if (prodList) {
-      productsCache = prodList;
-      renderTable();
-    }
+    renderTable();
   } catch {
     const tbody = document.getElementById("products-tbody");
-    if (tbody) {
-      tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-error">تعذر تحميل البيانات من Supabase. نفّذ npm run db:push للهجرة 20260520140000.</td></tr>`;
-    }
+    if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-error">تعذر تحميل المنتجات</td></tr>`;
   }
-
-  if (location.hash === "#add") openModal(null);
 });
