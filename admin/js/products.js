@@ -8,7 +8,7 @@ import {
   updateProduct,
 } from "./adminSupabaseData.js";
 
-/** @typedef {{ id: number, nameAr: string, nameEn?: string|null, category?: string|null, sku?: string|null, priceIqd: number, stock: number, isActive: number|boolean, imageUrl?: string|null, categoryId?: number|null, sectionId?: number|null, categoryNameAr?: string|null, sectionNameAr?: string|null }} ProductRow */
+/** @typedef {{ id: number, nameAr: string, nameEn?: string|null, category?: string|null, sku?: string|null, priceIqd: number, stock: number, isActive: number|boolean, imageUrl?: string|null, categoryId?: number|null, sectionId?: number|null, subsectionId?: number|null, categoryNameAr?: string|null, sectionNameAr?: string|null, subsectionNameAr?: string|null }} ProductRow */
 
 let categoriesTree = [];
 /** @type {ProductRow[]} */
@@ -32,6 +32,7 @@ function categoryDisplayLabel(p) {
   const parts = [];
   if (p.categoryNameAr) parts.push(p.categoryNameAr);
   if (p.sectionNameAr) parts.push(p.sectionNameAr);
+  if (p.subsectionNameAr) parts.push(p.subsectionNameAr);
   if (parts.length) return parts.join(" ← ");
   return p.category || "—";
 }
@@ -58,7 +59,7 @@ function filterProducts() {
   const q = searchQuery.trim().toLowerCase();
   if (!q) return productsCache;
   return productsCache.filter((p) => {
-    const blob = [p.nameAr, p.nameEn, p.sku, p.category, p.categoryNameAr, p.sectionNameAr].filter(Boolean).join(" ").toLowerCase();
+    const blob = [p.nameAr, p.nameEn, p.sku, p.category, p.categoryNameAr, p.sectionNameAr, p.subsectionNameAr].filter(Boolean).join(" ").toLowerCase();
     return blob.includes(q);
   });
 }
@@ -169,23 +170,58 @@ function fillCategorySelect() {
   }
 }
 
-function fillSectionSelect(categoryId) {
+function fillSectionSelect(categoryId, preferredSectionId) {
   const sel = document.getElementById("product-section-id");
   if (!sel) return;
   sel.innerHTML = `<option value="">— بدون قسم فرعي —</option>`;
   if (!categoryId) {
     sel.disabled = true;
+    fillSubsectionSelect(null);
     return;
   }
   sel.disabled = false;
   const cat = categoriesTree.find((c) => Number(c.id) === Number(categoryId));
-  if (!cat?.sections?.length) return;
+  if (!cat?.sections?.length) {
+    fillSubsectionSelect(null);
+    return;
+  }
   for (const s of cat.sections) {
     if (Number(s.isActive) === 0) continue;
     const opt = document.createElement("option");
     opt.value = String(s.id);
     opt.textContent = s.nameAr || s.slug;
     sel.appendChild(opt);
+  }
+  if (preferredSectionId != null && cat.sections.some((s) => Number(s.id) === Number(preferredSectionId))) {
+    sel.value = String(preferredSectionId);
+  }
+  fillSubsectionSelect(sel.value ? Number(sel.value) : null);
+}
+
+function fillSubsectionSelect(sectionId, preferredSubId) {
+  const sel = document.getElementById("product-subsection-id");
+  if (!sel) return;
+  sel.innerHTML = `<option value="">— بدون تصنيف فرعي —</option>`;
+  if (!sectionId) {
+    sel.disabled = true;
+    return;
+  }
+  sel.disabled = false;
+  let section = null;
+  for (const c of categoriesTree) {
+    section = c.sections?.find((s) => Number(s.id) === Number(sectionId));
+    if (section) break;
+  }
+  if (!section?.subsections?.length) return;
+  for (const sub of section.subsections) {
+    if (Number(sub.isActive) === 0) continue;
+    const opt = document.createElement("option");
+    opt.value = String(sub.id);
+    opt.textContent = sub.nameAr || sub.slug;
+    sel.appendChild(opt);
+  }
+  if (preferredSubId != null && section.subsections.some((s) => Number(s.id) === Number(preferredSubId))) {
+    sel.value = String(preferredSubId);
   }
 }
 
@@ -214,15 +250,16 @@ function openModal(product) {
     fillCategorySelect();
     const catSel = document.getElementById("product-category-id");
     catSel.value = product.categoryId != null ? String(product.categoryId) : "";
-    fillSectionSelect(product.categoryId);
-    const secSel = document.getElementById("product-section-id");
-    if (product.sectionId != null) secSel.value = String(product.sectionId);
+    fillSectionSelect(product.categoryId, product.sectionId);
+    const subSel = document.getElementById("product-subsection-id");
+    if (product.subsectionId != null && subSel) subSel.value = String(product.subsectionId);
   } else {
     if (idInput) idInput.value = "";
     if (title) title.textContent = "إضافة منتج";
     document.getElementById("product-is-active").checked = true;
     fillCategorySelect();
     fillSectionSelect(null);
+    fillSubsectionSelect(null);
   }
   modal.classList.remove("hidden");
   document.body.classList.add("overflow-hidden");
@@ -267,6 +304,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     fillSectionSelect(v ? Number(v) : null);
   });
 
+  document.getElementById("product-section-id")?.addEventListener("change", (e) => {
+    const v = e.target.value;
+    fillSubsectionSelect(v ? Number(v) : null);
+  });
+
   document.getElementById("product-search")?.addEventListener("input", (e) => {
     searchQuery = e.target.value || "";
     renderTable();
@@ -290,6 +332,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     const catVal = document.getElementById("product-category-id")?.value;
     const secVal = document.getElementById("product-section-id")?.value;
+    const subVal = document.getElementById("product-subsection-id")?.value;
     const body = {
       nameAr,
       nameEn: document.getElementById("product-name-en")?.value?.trim() || null,
@@ -299,6 +342,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       imageUrl: document.getElementById("product-image-url")?.value?.trim() || null,
       categoryId: catVal ? Number(catVal) : null,
       sectionId: secVal ? Number(secVal) : null,
+      subsectionId: subVal ? Number(subVal) : null,
       isActive: document.getElementById("product-is-active")?.checked !== false,
     };
     try {

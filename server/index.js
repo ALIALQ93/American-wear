@@ -16,6 +16,9 @@ import {
   updateSection,
   deleteCategory,
   deleteSection,
+  createSubsection,
+  updateSubsection,
+  deleteSubsection,
   getProductById,
   getCategoryNameArById,
   createProduct,
@@ -94,6 +97,30 @@ async function validateProductSection(categoryId, sectionId) {
   const cat = tree.find((c) => Number(c.id) === cid);
   if (!cat) return false;
   return cat.sections.some((s) => Number(s.id) === sid);
+}
+
+async function validateProductSubsection(categoryId, sectionId, subsectionId) {
+  if (subsectionId == null) return true;
+  const sid = sectionId != null ? Number(sectionId) : NaN;
+  const subId = Number(subsectionId);
+  if (!Number.isFinite(subId) || !Number.isFinite(sid)) return false;
+  if (!(await validateProductSection(categoryId, sectionId))) return false;
+  const tree = await listCategoriesTree(true);
+  for (const cat of tree) {
+    const sec = cat.sections?.find((s) => Number(s.id) === sid);
+    if (sec) return (sec.subsections || []).some((sub) => Number(sub.id) === subId);
+  }
+  return false;
+}
+
+function toSubsectionRow(body) {
+  return {
+    name_ar: String(body.nameAr ?? "").trim(),
+    name_en: body.nameEn != null && String(body.nameEn).trim() !== "" ? String(body.nameEn).trim() : null,
+    slug: String(body.slug ?? "").trim().toLowerCase(),
+    sort_order: body.sortOrder != null ? Number(body.sortOrder) || 0 : 0,
+    is_active: body.isActive === false || body.isActive === 0 ? 0 : 1,
+  };
 }
 
 /** بريد أو أكثر مسموح بدخول الإدارة بعد مصادقة Supabase (مفصولة بفاصلة إنجليزية في .env) */
@@ -495,10 +522,15 @@ app.post("/api/admin/products", requireAdmin, async (req, res) => {
     const image_url = b.imageUrl != null && String(b.imageUrl).trim() !== "" ? String(b.imageUrl).trim() : null;
     const category_id = b.categoryId != null && b.categoryId !== "" ? Number(b.categoryId) : null;
     const section_id = b.sectionId != null && b.sectionId !== "" ? Number(b.sectionId) : null;
+    const subsection_id = b.subsectionId != null && b.subsectionId !== "" ? Number(b.subsectionId) : null;
     if (category_id !== null && !Number.isFinite(category_id)) return res.status(400).json({ error: "تصنيف غير صالح" });
     if (section_id !== null && !Number.isFinite(section_id)) return res.status(400).json({ error: "قسم فرعي غير صالح" });
+    if (subsection_id !== null && !Number.isFinite(subsection_id)) return res.status(400).json({ error: "تصنيف فرعي غير صالح" });
     if (!(await validateProductSection(category_id, section_id))) {
       return res.status(400).json({ error: "القسم الفرعي لا يطابق التصنيف المختار" });
+    }
+    if (!(await validateProductSubsection(category_id, section_id, subsection_id))) {
+      return res.status(400).json({ error: "التصنيف الفرعي لا يطابق القسم المختار" });
     }
     const price_iqd = Math.max(0, Math.floor(Number(b.priceIqd ?? 0)));
     const stock = Math.max(0, Math.floor(Number(b.stock ?? 0)));
@@ -516,6 +548,7 @@ app.post("/api/admin/products", requireAdmin, async (req, res) => {
       image_url,
       category_id,
       section_id,
+      subsection_id,
     });
     res.status(201).json({ id });
   } catch (e) {
@@ -551,6 +584,12 @@ app.patch("/api/admin/products/:id", requireAdmin, async (req, res) => {
         return res.status(400).json({ error: "قسم فرعي غير صالح" });
       }
     }
+    if (b.subsectionId !== undefined) {
+      patch.subsection_id = b.subsectionId === null || b.subsectionId === "" ? null : Number(b.subsectionId);
+      if (patch.subsection_id !== null && !Number.isFinite(patch.subsection_id)) {
+        return res.status(400).json({ error: "تصنيف فرعي غير صالح" });
+      }
+    }
     if (b.category !== undefined) {
       patch.category = b.category == null || String(b.category).trim() === "" ? null : String(b.category).trim();
     }
@@ -560,19 +599,36 @@ app.patch("/api/admin/products/:id", requireAdmin, async (req, res) => {
 
     let categoryId = patch.category_id !== undefined ? patch.category_id : current.category_id;
     let sectionId = patch.section_id !== undefined ? patch.section_id : current.section_id;
+    let subsectionId = patch.subsection_id !== undefined ? patch.subsection_id : current.subsection_id;
     if (patch.category_id === null) {
       patch.section_id = null;
+      patch.subsection_id = null;
       if (patch.category === undefined) patch.category = null;
       categoryId = null;
       sectionId = null;
+      subsectionId = null;
     } else if (patch.category_id !== undefined && patch.section_id === undefined) {
       if (sectionId != null && !(await validateProductSection(patch.category_id, sectionId))) {
         patch.section_id = null;
+        patch.subsection_id = null;
         sectionId = null;
+        subsectionId = null;
+      }
+    }
+    if (patch.section_id === null) {
+      patch.subsection_id = null;
+      subsectionId = null;
+    } else if (patch.section_id !== undefined && patch.subsection_id === undefined) {
+      if (subsectionId != null && !(await validateProductSubsection(categoryId, sectionId, subsectionId))) {
+        patch.subsection_id = null;
+        subsectionId = null;
       }
     }
     if (!(await validateProductSection(categoryId, sectionId))) {
       return res.status(400).json({ error: "القسم الفرعي لا يطابق التصنيف المختار" });
+    }
+    if (!(await validateProductSubsection(categoryId, sectionId, subsectionId))) {
+      return res.status(400).json({ error: "التصنيف الفرعي لا يطابق القسم المختار" });
     }
     if (patch.category_id !== undefined && patch.category === undefined) {
       patch.category = categoryId != null ? await getCategoryNameArById(categoryId) : null;
@@ -729,6 +785,70 @@ app.delete("/api/admin/sections/:id", requireAdmin, async (req, res) => {
   } catch (e) {
     if (e.code === "HAS_PRODUCTS") {
       return res.status(409).json({ error: "لا يمكن حذف القسم: توجد منتجات مرتبطة به." });
+    }
+    console.error(e);
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+app.post("/api/admin/sections/:sectionId/subsections", requireAdmin, async (req, res) => {
+  try {
+    const sectionId = Number(req.params.sectionId);
+    if (!Number.isFinite(sectionId)) return res.status(400).json({ error: "معرف القسم غير صالح" });
+    const row = toSubsectionRow(req.body || {});
+    if (!row.name_ar) return res.status(400).json({ error: "اسم التصنيف الفرعي بالعربية مطلوب" });
+    if (!isValidSlug(row.slug)) return res.status(400).json({ error: "slug غير صالح" });
+    const id = await createSubsection(sectionId, row);
+    res.status(201).json({ id });
+  } catch (e) {
+    if (e.code === "23505" || e.message?.includes("UNIQUE")) {
+      return res.status(409).json({ error: "هذا slug مستخدم ضمن نفس القسم" });
+    }
+    console.error(e);
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+app.patch("/api/admin/subsections/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id)) return res.status(400).json({ error: "معرف غير صالح" });
+    const body = req.body || {};
+    const patch = {};
+    if (body.nameAr !== undefined) patch.name_ar = String(body.nameAr).trim();
+    if (body.nameEn !== undefined) patch.name_en = body.nameEn == null ? null : String(body.nameEn).trim();
+    if (body.slug !== undefined) {
+      const s = String(body.slug).trim().toLowerCase();
+      if (!isValidSlug(s)) return res.status(400).json({ error: "slug غير صالح" });
+      patch.slug = s;
+    }
+    if (body.sortOrder !== undefined) patch.sort_order = Number(body.sortOrder) || 0;
+    if (body.isActive !== undefined) patch.is_active = body.isActive === false || body.isActive === 0 ? 0 : 1;
+    if (body.sectionId !== undefined) {
+      const sid = Number(body.sectionId);
+      if (!Number.isFinite(sid)) return res.status(400).json({ error: "معرف القسم غير صالح" });
+      patch.section_id = sid;
+    }
+    await updateSubsection(id, patch);
+    res.json({ ok: true });
+  } catch (e) {
+    if (e.code === "23505" || e.message?.includes("UNIQUE")) {
+      return res.status(409).json({ error: "slug مكرر ضمن القسم" });
+    }
+    console.error(e);
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+app.delete("/api/admin/subsections/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id)) return res.status(400).json({ error: "معرف غير صالح" });
+    await deleteSubsection(id);
+    res.json({ ok: true });
+  } catch (e) {
+    if (e.code === "HAS_PRODUCTS") {
+      return res.status(409).json({ error: "لا يمكن حذف التصنيف الفرعي: توجد منتجات مرتبطة به." });
     }
     console.error(e);
     res.status(500).json({ error: "خطأ في الخادم" });

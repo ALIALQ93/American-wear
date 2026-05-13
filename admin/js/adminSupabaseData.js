@@ -172,14 +172,16 @@ export async function fetchProductsStats() {
   return { total: total ?? 0, inStock: inStock ?? 0, lowStock: lowStock ?? 0, inventoryValueIqd };
 }
 
-async function categorySectionNameMaps(sb) {
-  const [{ data: cats }, { data: secs }] = await Promise.all([
+async function categorySectionSubsectionNameMaps(sb) {
+  const [{ data: cats }, { data: secs }, { data: subs }] = await Promise.all([
     sb.from("categories").select("id,name_ar"),
     sb.from("category_sections").select("id,name_ar"),
+    sb.from("category_subsections").select("id,name_ar"),
   ]);
   const catMap = new Map((cats || []).map((c) => [Number(c.id), c.name_ar]));
   const secMap = new Map((secs || []).map((s) => [Number(s.id), s.name_ar]));
-  return { catMap, secMap };
+  const subMap = new Map((subs || []).map((s) => [Number(s.id), s.name_ar]));
+  return { catMap, secMap, subMap };
 }
 
 export async function fetchProductsList() {
@@ -188,7 +190,7 @@ export async function fetchProductsList() {
   const { sb } = ctx;
   const { data: products, error } = await sb.from("products").select("*").order("id", { ascending: false });
   if (error) throw new Error(error.message);
-  const { catMap, secMap } = await categorySectionNameMaps(sb);
+  const { catMap, secMap, subMap } = await categorySectionSubsectionNameMaps(sb);
   return (products || []).map((p) => ({
     id: Number(p.id),
     nameAr: p.name_ar ?? "",
@@ -201,8 +203,10 @@ export async function fetchProductsList() {
     imageUrl: p.image_url ?? null,
     categoryId: p.category_id != null ? Number(p.category_id) : null,
     sectionId: p.section_id != null ? Number(p.section_id) : null,
+    subsectionId: p.subsection_id != null ? Number(p.subsection_id) : null,
     categoryNameAr: p.category_id != null ? catMap.get(Number(p.category_id)) ?? null : null,
     sectionNameAr: p.section_id != null ? secMap.get(Number(p.section_id)) ?? null : null,
+    subsectionNameAr: p.subsection_id != null ? subMap.get(Number(p.subsection_id)) ?? null : null,
   }));
 }
 
@@ -221,6 +225,7 @@ export async function createProduct(body) {
     image_url: body.imageUrl != null && String(body.imageUrl).trim() !== "" ? String(body.imageUrl).trim() : null,
     category_id: body.categoryId != null ? Number(body.categoryId) : null,
     section_id: body.sectionId != null ? Number(body.sectionId) : null,
+    subsection_id: body.subsectionId != null ? Number(body.subsectionId) : null,
   };
   const { data, error } = await sb.from("products").insert(row).select("id").single();
   if (error) throw new Error(error.message);
@@ -242,6 +247,7 @@ export async function updateProduct(id, body) {
   if (body.imageUrl !== undefined) patch.image_url = body.imageUrl == null ? null : String(body.imageUrl).trim();
   if (body.categoryId !== undefined) patch.category_id = body.categoryId == null ? null : Number(body.categoryId);
   if (body.sectionId !== undefined) patch.section_id = body.sectionId == null ? null : Number(body.sectionId);
+  if (body.subsectionId !== undefined) patch.subsection_id = body.subsectionId == null ? null : Number(body.subsectionId);
   const { error } = await sb.from("products").update(patch).eq("id", id);
   if (error) throw new Error(error.message);
 }
@@ -263,7 +269,7 @@ export async function fetchSizesList(category) {
   }));
 }
 
-function nestSections(cats, secs) {
+function nestSections(cats, secs, subs = []) {
   const byCat = new Map();
   for (const c of cats) {
     byCat.set(Number(c.id), {
@@ -278,10 +284,11 @@ function nestSections(cats, secs) {
       sections: [],
     });
   }
+  const bySec = new Map();
   for (const s of secs) {
     const cid = Number(s.category_id);
     if (byCat.has(cid)) {
-      byCat.get(cid).sections.push({
+      const row = {
         id: Number(s.id),
         categoryId: cid,
         nameAr: s.name_ar,
@@ -290,6 +297,24 @@ function nestSections(cats, secs) {
         imageUrl: s.image_url ?? null,
         sortOrder: Number(s.sort_order) || 0,
         isActive: s.is_active,
+        subsections: [],
+      };
+      byCat.get(cid).sections.push(row);
+      bySec.set(row.id, row);
+    }
+  }
+  for (const sub of subs) {
+    const sid = Number(sub.section_id);
+    const sec = bySec.get(sid);
+    if (sec) {
+      sec.subsections.push({
+        id: Number(sub.id),
+        sectionId: sid,
+        nameAr: sub.name_ar,
+        nameEn: sub.name_en,
+        slug: sub.slug,
+        sortOrder: Number(sub.sort_order) || 0,
+        isActive: sub.is_active,
       });
     }
   }
@@ -317,7 +342,22 @@ export async function fetchCategoriesTree(activeOnly) {
   if (activeOnly) secQ = secQ.eq("is_active", 1);
   const { data: secs, error: se } = await secQ;
   if (se) throw new Error(se.message);
-  return nestSections(list, secs || []);
+  const secIds = (secs || []).map((s) => Number(s.id));
+  let subs = [];
+  if (secIds.length) {
+    let subQ = sb
+      .from("category_subsections")
+      .select("*")
+      .in("section_id", secIds)
+      .order("section_id")
+      .order("sort_order", { ascending: true })
+      .order("id", { ascending: true });
+    if (activeOnly) subQ = subQ.eq("is_active", 1);
+    const { data: subRows, error: subErr } = await subQ;
+    if (subErr) throw new Error(subErr.message);
+    subs = subRows || [];
+  }
+  return nestSections(list, secs || [], subs);
 }
 
 export async function createCategory(body) {
@@ -442,6 +482,64 @@ export async function deleteSection(id) {
   if (c1) throw new Error(c1.message);
   if ((count ?? 0) > 0) throw new Error("لا يمكن حذف القسم: توجد منتجات مرتبطة به.");
   const { error } = await sb.from("category_sections").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+export async function createSubsection(sectionId, body) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const slug = String(body.slug ?? "").trim().toLowerCase();
+  if (!isValidSlug(slug)) throw new Error("slug غير صالح");
+  const row = {
+    section_id: sectionId,
+    name_ar: String(body.nameAr ?? "").trim(),
+    name_en: body.nameEn != null && String(body.nameEn).trim() !== "" ? String(body.nameEn).trim() : null,
+    slug,
+    sort_order: body.sortOrder != null ? Number(body.sortOrder) || 0 : 0,
+    is_active: body.isActive === false || body.isActive === 0 ? 0 : 1,
+  };
+  const { data, error } = await sb.from("category_subsections").insert(row).select("id").single();
+  if (error) {
+    if (error.code === "23505") throw new Error("هذا slug مستخدم ضمن نفس القسم");
+    throw new Error(error.message);
+  }
+  return data?.id;
+}
+
+export async function updateSubsection(id, body) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const patch = {};
+  if (body.nameAr !== undefined) patch.name_ar = String(body.nameAr ?? "").trim();
+  if (body.nameEn !== undefined) patch.name_en = body.nameEn == null ? null : String(body.nameEn).trim();
+  if (body.slug !== undefined) {
+    const s = String(body.slug).trim().toLowerCase();
+    if (!isValidSlug(s)) throw new Error("slug غير صالح");
+    patch.slug = s;
+  }
+  if (body.sortOrder !== undefined) patch.sort_order = Number(body.sortOrder) || 0;
+  if (body.isActive !== undefined) patch.is_active = body.isActive === false || body.isActive === 0 ? 0 : 1;
+  if (body.sectionId !== undefined) patch.section_id = Number(body.sectionId);
+  const { error } = await sb.from("category_subsections").update(patch).eq("id", id);
+  if (error) {
+    if (error.code === "23505") throw new Error("هذا slug مستخدم ضمن نفس القسم");
+    throw new Error(error.message);
+  }
+  if (body.sectionId !== undefined) {
+    await sb.from("products").update({ section_id: patch.section_id }).eq("subsection_id", id);
+  }
+}
+
+export async function deleteSubsection(id) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const { count, error: c1 } = await sb.from("products").select("id", { count: "exact", head: true }).eq("subsection_id", id);
+  if (c1) throw new Error(c1.message);
+  if ((count ?? 0) > 0) throw new Error("لا يمكن حذف التصنيف الفرعي: توجد منتجات مرتبطة به.");
+  const { error } = await sb.from("category_subsections").delete().eq("id", id);
   if (error) throw new Error(error.message);
 }
 

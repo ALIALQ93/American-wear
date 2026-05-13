@@ -225,10 +225,12 @@ export async function getProducts() {
   const { rows } = await getPool().query(
     `SELECT p.id, p.name_ar AS "nameAr", p.name_en AS "nameEn", p.category, p.sku, p.price_iqd AS "priceIqd", p.stock,
             p.is_active AS "isActive", p.image_url AS "imageUrl", p.category_id AS "categoryId", p.section_id AS "sectionId",
-            c.name_ar AS "categoryNameAr", s.name_ar AS "sectionNameAr"
+            p.subsection_id AS "subsectionId",
+            c.name_ar AS "categoryNameAr", s.name_ar AS "sectionNameAr", ss.name_ar AS "subsectionNameAr"
      FROM products p
      LEFT JOIN categories c ON p.category_id = c.id
      LEFT JOIN category_sections s ON p.section_id = s.id
+     LEFT JOIN category_subsections ss ON p.subsection_id = ss.id
      ORDER BY p.id DESC`,
   );
   return rows;
@@ -238,7 +240,7 @@ export async function getProductById(id) {
   const pid = Number(id);
   if (!Number.isFinite(pid)) return null;
   const { rows } = await getPool().query(
-    `SELECT id, name_ar, name_en, category, sku, price_iqd, stock, is_active, image_url, category_id, section_id FROM products WHERE id = $1`,
+    `SELECT id, name_ar, name_en, category, sku, price_iqd, stock, is_active, image_url, category_id, section_id, subsection_id FROM products WHERE id = $1`,
     [pid],
   );
   return rows[0] || null;
@@ -276,11 +278,12 @@ export async function createProduct(row) {
     image_url = null,
     category_id = null,
     section_id = null,
+    subsection_id = null,
   } = row;
   const { rows } = await getPool().query(
-    `INSERT INTO products (name_ar, name_en, category, sku, price_iqd, stock, is_active, image_url, category_id, section_id)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id`,
-    [name_ar, name_en, category, sku, price_iqd, stock, is_active, image_url, category_id, section_id],
+    `INSERT INTO products (name_ar, name_en, category, sku, price_iqd, stock, is_active, image_url, category_id, section_id, subsection_id)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING id`,
+    [name_ar, name_en, category, sku, price_iqd, stock, is_active, image_url, category_id, section_id, subsection_id],
   );
   return rows[0].id;
 }
@@ -301,6 +304,7 @@ export async function updateProduct(id, patch) {
     ["image_url", patch.image_url],
     ["category_id", patch.category_id],
     ["section_id", patch.section_id],
+    ["subsection_id", patch.subsection_id],
   ].filter(([, v]) => v !== undefined);
   if (!pairs.length) return;
   const sets = pairs.map(([k], idx) => `${k} = $${idx + 1}`).join(", ");
@@ -341,17 +345,37 @@ export async function listCategoriesTree(includeInactive = true) {
     : `SELECT id, category_id AS "categoryId", name_ar AS "nameAr", name_en AS "nameEn", slug, image_url AS "imageUrl", sort_order AS "sortOrder", is_active AS "isActive"
          FROM category_sections WHERE category_id = ANY($1::bigint[]) AND is_active = 1 ORDER BY category_id, sort_order, id`;
   const { rows: secs } = await getPool().query(secSql, [ids]);
-  return nestSections(cats, secs);
+  const secIds = secs.map((s) => s.id);
+  let subs = [];
+  if (secIds.length) {
+    const subSql = includeInactive
+      ? `SELECT id, section_id AS "sectionId", name_ar AS "nameAr", name_en AS "nameEn", slug, sort_order AS "sortOrder", is_active AS "isActive"
+           FROM category_subsections WHERE section_id = ANY($1::bigint[]) ORDER BY section_id, sort_order, id`
+      : `SELECT id, section_id AS "sectionId", name_ar AS "nameAr", name_en AS "nameEn", slug, sort_order AS "sortOrder", is_active AS "isActive"
+           FROM category_subsections WHERE section_id = ANY($1::bigint[]) AND is_active = 1 ORDER BY section_id, sort_order, id`;
+    const { rows: subRows } = await getPool().query(subSql, [secIds]);
+    subs = subRows;
+  }
+  return nestSections(cats, secs, subs);
 }
 
-function nestSections(cats, secs) {
+function nestSections(cats, secs, subs = []) {
   const byCat = new Map();
   for (const c of cats) {
     byCat.set(c.id, { ...c, sections: [] });
   }
+  const bySec = new Map();
   for (const s of secs) {
     const cid = s.categoryId ?? s.categoryid;
-    if (byCat.has(cid)) byCat.get(cid).sections.push(s);
+    if (byCat.has(cid)) {
+      const row = { ...s, subsections: [] };
+      byCat.get(cid).sections.push(row);
+      bySec.set(row.id, row);
+    }
+  }
+  for (const sub of subs) {
+    const sid = sub.sectionId ?? sub.sectionid;
+    if (bySec.has(sid)) bySec.get(sid).subsections.push(sub);
   }
   return Array.from(byCat.values());
 }
@@ -448,6 +472,54 @@ export async function deleteSection(id) {
   const { rows } = await getPool().query("SELECT COUNT(*)::int AS c FROM products WHERE section_id = $1", [sid]);
   if (rows[0].c > 0) throw Object.assign(new Error("HAS_PRODUCTS"), { code: "HAS_PRODUCTS" });
   await getPool().query("DELETE FROM category_sections WHERE id = $1", [sid]);
+}
+
+export async function createSubsection(sectionId, row) {
+  const { name_ar, name_en, slug, sort_order, is_active } = row;
+  const { rows } = await getPool().query(
+    `INSERT INTO category_subsections (section_id, name_ar, name_en, slug, sort_order, is_active)
+     VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
+    [sectionId, name_ar, name_en ?? null, slug, sort_order ?? 0, is_active ?? 1],
+  );
+  return rows[0].id;
+}
+
+export async function updateSubsection(id, patch) {
+  const pairs = [
+    ["name_ar", patch.name_ar],
+    ["name_en", patch.name_en],
+    ["slug", patch.slug],
+    ["sort_order", patch.sort_order],
+    ["is_active", patch.is_active],
+    ["section_id", patch.section_id],
+  ].filter(([, v]) => v !== undefined);
+  if (!pairs.length) return;
+  const sectionMoved = patch.section_id !== undefined;
+  const client = await getPool().connect();
+  try {
+    await client.query("BEGIN");
+    const sets = pairs.map(([k], idx) => `${k} = $${idx + 1}`).join(", ");
+    const vals = pairs.map(([, v]) => v);
+    vals.push(id);
+    await client.query(`UPDATE category_subsections SET ${sets}, updated_at = now() WHERE id = $${vals.length}`, vals);
+    if (sectionMoved) {
+      await client.query(`UPDATE products SET section_id = $1 WHERE subsection_id = $2`, [patch.section_id, id]);
+    }
+    await client.query("COMMIT");
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+
+export async function deleteSubsection(id) {
+  const subId = Number(id);
+  if (!Number.isFinite(subId)) throw Object.assign(new Error("bad_id"), { code: "BAD_ID" });
+  const { rows } = await getPool().query("SELECT COUNT(*)::int AS c FROM products WHERE subsection_id = $1", [subId]);
+  if (rows[0].c > 0) throw Object.assign(new Error("HAS_PRODUCTS"), { code: "HAS_PRODUCTS" });
+  await getPool().query("DELETE FROM category_subsections WHERE id = $1", [subId]);
 }
 
 const ADMIN_ROLES = new Set(["super_admin", "admin"]);

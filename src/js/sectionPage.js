@@ -20,7 +20,39 @@ function paramsFromLocation() {
   return {
     categorySlug: (q.get("category") || "").trim().toLowerCase(),
     sectionSlug: (q.get("section") || "").trim().toLowerCase(),
+    subsectionSlug: (q.get("subsection") || "").trim().toLowerCase(),
   };
+}
+
+function sectionPageHref(categorySlug, sectionSlug, subsectionSlug) {
+  const params = new URLSearchParams();
+  params.set("category", categorySlug);
+  params.set("section", sectionSlug);
+  if (subsectionSlug) params.set("subsection", subsectionSlug);
+  return `./section.html?${params.toString()}`;
+}
+
+function subsectionFilterHtml(categorySlug, sectionSlug, subsections, activeSubSlug) {
+  const baseCls =
+    "inline-flex items-center px-4 py-2 rounded-full border text-label-sm transition-colors";
+  const allActive = !activeSubSlug;
+  const allCls = allActive
+    ? `${baseCls} bg-primary text-black border-primary`
+    : `${baseCls} border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary`;
+  const links = [
+    `<a href="${escapeHtml(sectionPageHref(categorySlug, sectionSlug, ""))}" class="${allCls}">الكل</a>`,
+  ];
+  for (const sub of subsections) {
+    const slug = String(sub.slug || "").toLowerCase();
+    const active = activeSubSlug === slug;
+    const cls = active
+      ? `${baseCls} bg-primary text-black border-primary`
+      : `${baseCls} border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary`;
+    links.push(
+      `<a href="${escapeHtml(sectionPageHref(categorySlug, sectionSlug, slug))}" class="${cls}">${escapeHtml(sub.name_ar || slug)}</a>`,
+    );
+  }
+  return `<div class="flex flex-wrap gap-2 mt-8" role="navigation" aria-label="تصفية حسب التصنيف الفرعي">${links.join("")}</div>`;
 }
 
 function productCard(p) {
@@ -47,7 +79,7 @@ async function main() {
   const crumbSec = document.getElementById("section-crumb-current");
   if (!root) return;
 
-  const { categorySlug, sectionSlug } = paramsFromLocation();
+  const { categorySlug, sectionSlug, subsectionSlug } = paramsFromLocation();
   if (!categorySlug || !sectionSlug) {
     root.innerHTML =
       '<p class="text-on-surface-variant text-body-md">رابط غير مكتمل. استخدم الرابط من صفحة التصنيف أو <a class="text-primary underline" href="./home.html">الرئيسية</a>.</p>';
@@ -105,12 +137,37 @@ async function main() {
 
   if (crumbSec) crumbSec.textContent = sec.name_ar || sectionSlug;
 
-  const { data: products, error: pErr } = await sb
+  const { data: subsections, error: subErr } = await sb
+    .from("category_subsections")
+    .select("id,name_ar,slug")
+    .eq("section_id", sec.id)
+    .eq("is_active", 1)
+    .order("sort_order", { ascending: true })
+    .order("id", { ascending: true });
+
+  if (subErr) {
+    root.innerHTML = `<p class="text-error text-body-md">${escapeHtml(subErr.message)}</p>`;
+    return;
+  }
+
+  const subs = subsections || [];
+  let activeSub = null;
+  if (subsectionSlug) {
+    activeSub = subs.find((s) => String(s.slug).toLowerCase() === subsectionSlug) || null;
+  }
+
+  let prodQuery = sb
     .from("products")
-    .select("id,name_ar,name_en,price_iqd,image_url,sku")
+    .select("id,name_ar,name_en,price_iqd,image_url,sku,subsection_id")
     .eq("section_id", sec.id)
     .eq("is_active", 1)
     .order("id", { ascending: true });
+
+  if (activeSub) {
+    prodQuery = prodQuery.eq("subsection_id", activeSub.id);
+  }
+
+  const { data: products, error: pErr } = await prodQuery;
 
   if (pErr) {
     root.innerHTML = `<p class="text-error text-body-md">${escapeHtml(pErr.message)}</p>`;
@@ -128,16 +185,32 @@ async function main() {
       ? `<div class="mt-8 max-w-3xl aspect-[21/9] rounded border border-outline-variant overflow-hidden"><img src="${escapeHtml(String(sec.image_url).trim())}" alt="" class="w-full h-full object-cover"/></div>`
       : "";
 
+  const filters =
+    subs.length > 0
+      ? subsectionFilterHtml(categorySlug, sectionSlug, subs, activeSub ? String(activeSub.slug).toLowerCase() : "")
+      : "";
+
+  const productsHeading = activeSub
+    ? `المنتجات — ${escapeHtml(activeSub.name_ar || activeSub.slug)}`
+    : "المنتجات";
+
+  const unknownFilter =
+    subsectionSlug && !activeSub
+      ? '<p class="text-on-surface-variant text-label-sm mt-4">التصنيف الفرعي في الرابط غير معروف — عُرضت كل منتجات القسم.</p>'
+      : "";
+
   const grid =
     list.length > 0
       ? `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter mt-10">${list.map((p) => productCard(p)).join("")}</div>`
-      : '<p class="text-on-surface-variant text-body-md mt-8">لا توجد منتجات ظاهرة في هذا القسم بعد.</p>';
+      : `<p class="text-on-surface-variant text-body-md mt-8">${activeSub ? "لا توجد منتجات في هذا التصنيف الفرعي بعد." : "لا توجد منتجات ظاهرة في هذا القسم بعد."}</p>`;
 
   root.innerHTML = `
     <h1 class="text-primary font-display-lg text-display-lg">${title}</h1>
     ${sub}
     ${secHero}
-    <h2 class="text-headline-md font-headline-md text-on-surface mt-10">المنتجات</h2>
+    ${filters}
+    ${unknownFilter}
+    <h2 class="text-headline-md font-headline-md text-on-surface mt-10">${productsHeading}</h2>
     ${grid}
   `;
 }

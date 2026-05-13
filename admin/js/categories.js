@@ -7,17 +7,21 @@ import {
 import {
   createCategory,
   createSection,
+  createSubsection,
   deleteCategory,
   deleteSection,
+  deleteSubsection,
   fetchCategoriesTree,
   updateCategory,
   updateSection,
+  updateSubsection,
   uploadCategoryCoverImage,
   uploadSectionCoverImage,
 } from "./adminSupabaseData.js";
 
 /** @typedef {{ id: number, nameAr: string, nameEn?: string|null, slug: string, descriptionAr?: string|null, imageUrl?: string|null, sortOrder: number, isActive: number|boolean, sections?: SectionRow[] }} Cat */
-/** @typedef {{ id: number, categoryId: number, nameAr: string, nameEn?: string|null, slug: string, imageUrl?: string|null, sortOrder: number, isActive: number|boolean }} SectionRow */
+/** @typedef {{ id: number, categoryId: number, nameAr: string, nameEn?: string|null, slug: string, imageUrl?: string|null, sortOrder: number, isActive: number|boolean, subsections?: SubsectionRow[] }} SectionRow */
+/** @typedef {{ id: number, sectionId: number, nameAr: string, nameEn?: string|null, slug: string, sortOrder: number, isActive: number|boolean }} SubsectionRow */
 
 /** @type {Cat[]} */
 let tree = [];
@@ -144,6 +148,81 @@ function sortedSecs(list) {
   return [...(list || [])].sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0) || a.id - b.id);
 }
 
+function sortedSubs(list) {
+  return [...(list || [])].sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0) || a.id - b.id);
+}
+
+function findSectionById(sectionId) {
+  for (const c of tree) {
+    const s = c.sections?.find((x) => Number(x.id) === Number(sectionId));
+    if (s) return { cat: c, section: s };
+  }
+  return { cat: null, section: null };
+}
+
+function findSubsectionById(subId) {
+  for (const c of tree) {
+    for (const s of c.sections || []) {
+      const sub = s.subsections?.find((x) => Number(x.id) === Number(subId));
+      if (sub) return { cat: c, section: s, subsection: sub };
+    }
+  }
+  return { cat: null, section: null, subsection: null };
+}
+
+function renderSubsectionBlock(catId, sec) {
+  const subs = sortedSubs(sec.subsections);
+  const subRows = subs
+    .map(
+      (sub) => `
+        <tr class="border-b border-outline-variant/30" data-subsection-id="${sub.id}">
+          <td class="px-3 py-2 font-body-sm text-on-surface">${escapeHtml(sub.nameAr)}</td>
+          <td class="px-3 py-2 text-label-sm text-on-surface-variant font-mono dir-ltr text-left">${escapeHtml(sub.slug)}</td>
+          <td class="px-3 py-2 text-label-sm text-on-surface-variant">${Number(sub.sortOrder) || 0}</td>
+          <td class="px-3 py-2">
+            <label class="inline-flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" class="rounded border-outline-variant text-primary js-sub-active" data-id="${sub.id}" ${isActiveVal(sub.isActive) ? "checked" : ""}/>
+              <span class="text-label-sm text-on-surface-variant js-sub-active-label">${isActiveVal(sub.isActive) ? "ظاهر" : "مخفي"}</span>
+            </label>
+          </td>
+          <td class="px-3 py-2">
+            <div class="flex flex-wrap gap-1 justify-end">
+              <button type="button" class="p-1 rounded hover:bg-primary/10 text-on-surface-variant hover:text-primary js-sub-edit" data-cat-id="${catId}" data-sec-id="${sec.id}" data-id="${sub.id}" title="تعديل"><span class="material-symbols-outlined text-base">edit</span></button>
+              <button type="button" class="p-1 rounded hover:bg-error/10 text-on-surface-variant hover:text-error js-sub-del" data-id="${sub.id}" title="حذف"><span class="material-symbols-outlined text-base">delete</span></button>
+            </div>
+          </td>
+        </tr>`,
+    )
+    .join("");
+  return `
+    <tr class="bg-surface-container/30">
+      <td colspan="5" class="px-4 py-3">
+        <div class="mr-6 pr-4 border-r-2 border-primary/25">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <span class="text-label-sm text-primary font-medium">تصنيفات فرعية (خط / نوع)</span>
+            <button type="button" class="px-2 py-1 text-label-sm bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 js-sub-add" data-cat-id="${catId}" data-sec-id="${sec.id}">+ تصنيف فرعي</button>
+          </div>
+          <div class="overflow-x-auto rounded border border-outline-variant/40">
+            <table class="w-full text-right min-w-[480px] text-sm">
+              <thead>
+                <tr class="text-label-sm text-on-surface-variant bg-surface-container-high/60">
+                  <th class="px-3 py-2 font-bold">الاسم</th>
+                  <th class="px-3 py-2 font-bold">slug</th>
+                  <th class="px-3 py-2 font-bold">ترتيب</th>
+                  <th class="px-3 py-2 font-bold">الظهور</th>
+                  <th class="px-3 py-2 font-bold text-left w-24">إجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${subRows || `<tr><td colspan="5" class="px-3 py-4 text-center text-on-surface-variant text-label-sm">لا توجد تصنيفات فرعية بعد.</td></tr>`}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </td>
+    </tr>`;
+}
+
 /** تعبئة قائمة التصنيف الرئيسي للقسم (كل قسم تابع لتصنيف واحد) */
 function fillSecParentCategorySelect(preferredId) {
   const sel = document.getElementById("sec-parent-category");
@@ -194,7 +273,8 @@ function render() {
               <button type="button" class="p-1.5 rounded hover:bg-error/10 text-on-surface-variant hover:text-error js-sec-del" data-id="${s.id}" title="حذف"><span class="material-symbols-outlined text-lg">delete</span></button>
             </div>
           </td>
-        </tr>`;
+        </tr>
+        ${renderSubsectionBlock(c.id, s)}`;
           },
         )
         .join("");
@@ -358,6 +438,50 @@ function bindListHandlers() {
       }
     });
   });
+  document.querySelectorAll(".js-sub-active").forEach((el) => {
+    el.addEventListener("change", async (ev) => {
+      const t = ev.target;
+      if (!(t instanceof HTMLInputElement)) return;
+      const id = Number(t.dataset.id);
+      const on = t.checked;
+      const label = t.closest("label")?.querySelector(".js-sub-active-label");
+      try {
+        await patchSubsection(id, { isActive: on });
+        const found = findSubsectionById(id);
+        if (found.subsection) found.subsection.isActive = on ? 1 : 0;
+        if (label) label.textContent = on ? "ظاهر" : "مخفي";
+      } catch {
+        t.checked = !on;
+      }
+    });
+  });
+  document.querySelectorAll(".js-sub-add").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const cid = Number(btn.getAttribute("data-cat-id"));
+      const sid = Number(btn.getAttribute("data-sec-id"));
+      openSubsectionModal(cid, sid, null);
+    });
+  });
+  document.querySelectorAll(".js-sub-edit").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const subId = Number(btn.getAttribute("data-id"));
+      const found = findSubsectionById(subId);
+      if (found.subsection && found.cat) openSubsectionModal(found.cat.id, found.section.id, found.subsection);
+    });
+  });
+  document.querySelectorAll(".js-sub-del").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const id = Number(btn.getAttribute("data-id"));
+      if (!confirm("حذف هذا التصنيف الفرعي؟ مسموح فقط إن لم تكن منتجات مرتبطة به.")) return;
+      try {
+        await deleteSubsection(id);
+        showBanner("");
+        await reloadTree();
+      } catch (err) {
+        showBanner(err instanceof Error ? err.message : "تعذر الحذف");
+      }
+    });
+  });
 }
 
 async function patchCategory(id, body) {
@@ -366,6 +490,10 @@ async function patchCategory(id, body) {
 
 async function patchSection(id, body) {
   await updateSection(id, body);
+}
+
+async function patchSubsection(id, body) {
+  await updateSubsection(id, body);
 }
 
 function openCategoryModal(c) {
@@ -430,6 +558,37 @@ function closeSectionModal() {
   document.body.classList.remove("overflow-hidden");
 }
 
+function openSubsectionModal(categoryId, sectionId, sub) {
+  const modal = document.getElementById("subsection-modal");
+  const err = document.getElementById("subsection-form-error");
+  if (!modal) return;
+  if (err) {
+    err.textContent = "";
+    err.classList.add("hidden");
+  }
+  const { cat, section } = findSectionById(sectionId);
+  const catName = cat?.nameAr || "—";
+  const secName = section?.nameAr || "—";
+  document.getElementById("subsection-modal-title").textContent = sub ? "تعديل تصنيف فرعي" : "تصنيف فرعي جديد";
+  document.getElementById("subsection-edit-id").value = sub ? String(sub.id) : "";
+  document.getElementById("subsection-parent-section-id").value = String(sectionId);
+  document.getElementById("subsection-parent-category-id").value = String(categoryId);
+  const lbl = document.getElementById("subsection-parent-label");
+  if (lbl) lbl.textContent = `ضمن: ${catName} ← ${secName}`;
+  document.getElementById("sub-name-ar").value = sub?.nameAr || "";
+  document.getElementById("sub-name-en").value = sub?.nameEn || "";
+  document.getElementById("sub-slug").value = sub?.slug || "";
+  document.getElementById("sub-sort").value = String(sub?.sortOrder ?? 0);
+  document.getElementById("sub-active").checked = sub ? isActiveVal(sub.isActive) : true;
+  modal.classList.remove("hidden");
+  document.body.classList.add("overflow-hidden");
+}
+
+function closeSubsectionModal() {
+  document.getElementById("subsection-modal")?.classList.add("hidden");
+  document.body.classList.remove("overflow-hidden");
+}
+
 async function reloadTree() {
   tree = await fetchCategoriesTree(false);
   render();
@@ -455,6 +614,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("section-modal-close")?.addEventListener("click", closeSectionModal);
   document.getElementById("section-modal-close-2")?.addEventListener("click", closeSectionModal);
   document.getElementById("section-modal-backdrop")?.addEventListener("click", closeSectionModal);
+  document.getElementById("subsection-modal-close")?.addEventListener("click", closeSubsectionModal);
+  document.getElementById("subsection-modal-close-2")?.addEventListener("click", closeSubsectionModal);
+  document.getElementById("subsection-modal-backdrop")?.addEventListener("click", closeSubsectionModal);
 
   document.getElementById("cat-image-url")?.addEventListener("input", () => syncCatImagePreview());
 
@@ -482,6 +644,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("sec-suggest-slug")?.addEventListener("click", () => {
     const en = document.getElementById("sec-name-en")?.value || "";
     document.getElementById("sec-slug").value = suggestSlug(en);
+  });
+  document.getElementById("sub-suggest-slug")?.addEventListener("click", () => {
+    const en = document.getElementById("sub-name-en")?.value || "";
+    document.getElementById("sub-slug").value = suggestSlug(en);
   });
 
   document.getElementById("sec-image-url")?.addEventListener("input", () => syncSecImagePreview());
@@ -606,6 +772,48 @@ document.addEventListener("DOMContentLoaded", async () => {
         await createSection(categoryId, body);
       }
       closeSectionModal();
+      showBanner("");
+      await reloadTree();
+    } catch (err) {
+      if (errEl) {
+        errEl.textContent = err instanceof Error ? err.message : "خطأ";
+        errEl.classList.remove("hidden");
+      }
+    }
+  });
+
+  document.getElementById("subsection-form")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const errEl = document.getElementById("subsection-form-error");
+    if (errEl) {
+      errEl.textContent = "";
+      errEl.classList.add("hidden");
+    }
+    const editId = document.getElementById("subsection-edit-id")?.value;
+    const sectionId = Number(document.getElementById("subsection-parent-section-id")?.value);
+    const nameAr = document.getElementById("sub-name-ar")?.value?.trim() || "";
+    const slug = document.getElementById("sub-slug")?.value?.trim().toLowerCase() || "";
+    if (!nameAr || !slug || !Number.isFinite(sectionId)) {
+      if (errEl) {
+        errEl.textContent = "أدخل الاسم و slug";
+        errEl.classList.remove("hidden");
+      }
+      return;
+    }
+    const body = {
+      nameAr,
+      nameEn: document.getElementById("sub-name-en")?.value?.trim() || null,
+      slug,
+      sortOrder: Number(document.getElementById("sub-sort")?.value) || 0,
+      isActive: document.getElementById("sub-active")?.checked !== false,
+    };
+    try {
+      if (editId) {
+        await patchSubsection(Number(editId), body);
+      } else {
+        await createSubsection(sectionId, body);
+      }
+      closeSubsectionModal();
       showBanner("");
       await reloadTree();
     } catch (err) {

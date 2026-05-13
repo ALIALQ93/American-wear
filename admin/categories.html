@@ -214,6 +214,53 @@
 </div>
 </div>
 
+<!-- Modal: تصنيف فرعي (خط/نوع داخل القسم) -->
+<div id="subsection-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+<div id="subsection-modal-backdrop" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+<div class="relative w-full max-w-lg bg-surface-container-low border border-outline-variant shadow-2xl max-h-[90vh] overflow-y-auto">
+<div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant">
+<h3 id="subsection-modal-title" class="text-headline-sm font-headline-sm text-on-surface">تصنيف فرعي</h3>
+<button type="button" id="subsection-modal-close" class="p-2 text-on-surface-variant hover:text-primary" aria-label="إغلاق"><span class="material-symbols-outlined">close</span></button>
+</div>
+<form id="subsection-form" class="p-6 space-y-4">
+<input type="hidden" id="subsection-edit-id" value=""/>
+<input type="hidden" id="subsection-parent-section-id" value=""/>
+<input type="hidden" id="subsection-parent-category-id" value=""/>
+<p id="subsection-form-error" class="hidden text-label-sm text-error bg-error-container/20 border border-error/30 px-3 py-2"></p>
+<p id="subsection-parent-label" class="text-label-sm text-on-surface-variant"></p>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">الاسم بالعربية *</label>
+<input id="sub-name-ar" required class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none" type="text" placeholder="رسمي"/>
+</div>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">الاسم بالإنجليزية</label>
+<div class="flex gap-2">
+<input id="sub-name-en" class="flex-1 bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none" type="text" placeholder="Formal"/>
+<button type="button" id="sub-suggest-slug" class="shrink-0 px-3 py-2 text-label-sm border border-outline-variant hover:border-primary text-on-surface-variant">اقتراح slug</button>
+</div>
+</div>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">المعرف slug * <span class="font-normal">(فريد داخل نفس القسم)</span></label>
+<input id="sub-slug" required dir="ltr" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none text-left font-mono text-sm" type="text" placeholder="formal"/>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">ترتيب العرض</label>
+<input id="sub-sort" type="number" step="1" value="0" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none"/>
+</div>
+<label class="flex items-center gap-2 cursor-pointer self-end pb-2">
+<input id="sub-active" type="checkbox" class="rounded border-outline-variant text-primary" checked/>
+<span class="text-body-md text-on-surface">ظاهر</span>
+</label>
+</div>
+<div class="flex justify-end gap-3 pt-4 border-t border-outline-variant">
+<button type="button" id="subsection-modal-close-2" class="px-4 py-2 text-label-md text-on-surface-variant border border-outline-variant hover:border-primary">إلغاء</button>
+<button type="submit" class="px-6 py-2 bg-primary text-black font-label-md">حفظ</button>
+</div>
+</form>
+</div>
+</div>
+
 <script type="module" src="./js/categories.js"></script>
 </body>
 </html>
