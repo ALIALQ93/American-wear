@@ -2,7 +2,7 @@ import { getStorefrontSupabase } from "../lib/supabase/storefrontClient.js";
 import { cartCount } from "./cartStore.js";
 import { currencyToggleLabel, loadCurrencySettings, toggleDisplayCurrency } from "./currencyStore.js";
 import { accountPageHref } from "./customerSession.js";
-import { categoryStorefrontHref, searchStorefrontHref } from "./storefrontPaths.js";
+import { categoryStorefrontHref, searchStorefrontHref, categoriesAnchorHref } from "./storefrontPaths.js";
 import { escapeHtml } from "./storefrontCommon.js";
 
 function renderBadge(count) {
@@ -73,13 +73,14 @@ async function populateNavCategories(sb) {
     })
     .join("");
 
-  const mobileLinks = (data || [])
-    .map((c) => {
+  const mobileLinks = [
+    `<a class="${mobileCls}" href="${escapeHtml(categoriesAnchorHref())}">المجموعات</a>`,
+    ...(data || []).map((c) => {
       const slug = String(c.slug || "").trim().toLowerCase();
       const href = categoryStorefrontHref(slug);
       return `<a class="${mobileCls}" href="${escapeHtml(href)}">${escapeHtml(c.name_ar || slug)}</a>`;
-    })
-    .join("");
+    }),
+  ].join("");
 
   desktop.forEach((el) => {
     el.innerHTML = desktopLinks;

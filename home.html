@@ -28,66 +28,66 @@
             transition: all 0.3s ease;
         }
         .home-anchor-target {
-            scroll-margin-top: 6rem;
+            scroll-margin-top: 7.5rem;
+        }
+        @media (min-width: 768px) {
+            .home-anchor-target {
+                scroll-margin-top: 6rem;
+            }
+        }
+        .home-nav-categories {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .home-nav-categories::-webkit-scrollbar {
+            display: none;
         }
     </style>
 <title>American wear | الرئيسية</title>
 </head>
 <body class="overflow-x-hidden">
 <!-- Top Navigation Bar -->
-<nav class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-md border-b border-primary/30 h-20">
-<div class="flex flex-row-reverse justify-between items-center px-margin-desktop h-full max-w-container-max mx-auto">
-<!-- Left Actions (Arabic Context: Far Left) -->
-<div class="flex items-center gap-6">
-<button class="text-on-surface hover:text-primary transition-colors flex items-center gap-1 font-label-md text-label-md">
-<span class="material-symbols-outlined" data-icon="language">language</span>
-<span>EN</span>
-</button>
-<div class="h-4 w-[1px] bg-outline-variant"></div>
-<button type="button" data-currency-toggle class="text-on-surface hover:text-primary transition-colors flex items-center gap-1 font-label-md text-label-md">
-<span class="material-symbols-outlined" data-icon="payments">payments</span>
-<span data-currency-label>IQD</span>
-</button>
-<div class="h-4 w-[1px] bg-outline-variant"></div>
-<div class="flex items-center gap-4">
-<a href="./cart.html" data-cart-link class="material-symbols-outlined text-on-surface hover:text-primary transition-all duration-200 relative" data-icon="shopping_bag" title="السلة">shopping_bag</a>
-<a href="./account.html" data-account-link data-home-link="account" class="material-symbols-outlined text-on-surface hover:text-primary transition-all duration-200" data-icon="person" title="حسابي">person</a>
-</div>
-</div>
-<!-- Logo (Center) -->
-<a href="./home.html" class="absolute left-1/2 -translate-x-1/2 text-headline-md font-headline-md text-primary tracking-widest uppercase hover:opacity-90 transition-opacity">
-                American wear
-            </a>
-<!-- Right Links & Search (Arabic Context: Far Right) -->
-<div class="flex items-center gap-8 min-w-0">
-<form data-storefront-search class="relative flex items-center">
-<span class="material-symbols-outlined absolute right-3 text-on-surface-variant pointer-events-none" data-icon="search">search</span>
-<input name="q" class="bg-surface-container border-none text-on-surface text-label-md font-label-md pr-10 pl-4 py-2 w-48 focus:ring-1 focus:ring-primary/50 transition-all" placeholder="بحث..." type="search"/>
+<nav class="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-md border-b border-primary/30" aria-label="التنقل الرئيسي">
+<div class="max-w-container-max mx-auto px-margin-desktop h-20 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:gap-4">
+<div class="flex items-center justify-end gap-2 sm:gap-4 min-w-0">
+<form data-storefront-search class="relative hidden sm:flex items-center min-w-0 max-w-[10rem] md:max-w-xs w-full shrink">
+<span class="material-symbols-outlined absolute right-2.5 text-on-surface-variant pointer-events-none text-[18px]" data-icon="search">search</span>
+<input name="q" aria-label="بحث في المتجر" class="w-full bg-surface-container border border-outline-variant/50 text-on-surface text-label-sm pr-9 pl-3 py-1.5 rounded focus:ring-1 focus:ring-primary/50 outline-none" placeholder="بحث..." type="search"/>
 </form>
-<div class="hidden lg:flex items-center gap-6" data-nav-categories></div>
-<div class="hidden md:flex items-center gap-6">
-<a class="text-on-surface opacity-50 hover:opacity-100 transition-opacity font-headline-sm text-headline-sm" data-home-link="newArrivals" href="#home-new-arrivals">وصلنا حديثاً</a>
-<a class="text-primary font-bold border-b-2 border-primary pb-1 font-headline-sm text-headline-sm" data-home-link="categories" href="#home-categories-section">المجموعات</a>
+<a href="./search.html" class="sm:hidden material-symbols-outlined text-on-surface-variant hover:text-primary p-1" title="بحث" aria-label="بحث">search</a>
+<div class="hidden xl:flex items-center gap-4 home-nav-categories overflow-x-auto max-w-[min(100%,22rem)]" data-nav-categories></div>
+<div class="hidden md:flex xl:hidden items-center gap-4 shrink-0">
+<a class="text-on-surface-variant hover:text-primary transition-colors font-headline-sm text-headline-sm whitespace-nowrap" data-home-link="newArrivals" href="#home-new-arrivals">وصلنا حديثاً</a>
+<a class="text-primary font-bold border-b-2 border-primary pb-0.5 font-headline-sm text-headline-sm whitespace-nowrap" data-home-link="categories" href="#home-categories-section">المجموعات</a>
 </div>
+</div>
+<a href="./home.html" class="text-headline-sm sm:text-headline-md font-headline-md text-primary tracking-widest uppercase hover:opacity-90 transition-opacity text-center px-2 shrink-0" aria-current="page">American wear</a>
+<div class="flex items-center justify-start gap-1 sm:gap-3">
+<button type="button" data-currency-toggle class="text-on-surface hover:text-primary transition-colors inline-flex items-center gap-1 font-label-sm sm:font-label-md text-label-sm sm:text-label-md px-1" aria-label="تبديل العملة">
+<span class="material-symbols-outlined text-[20px]" data-icon="payments">payments</span>
+<span data-currency-label class="hidden sm:inline">IQD</span>
+</button>
+<a href="./cart.html" data-cart-link class="material-symbols-outlined text-on-surface hover:text-primary transition-colors relative p-1 text-[22px]" data-icon="shopping_bag" title="السلة" aria-label="السلة">shopping_bag</a>
+<a href="./account.html" data-account-link data-home-link="account" class="material-symbols-outlined text-on-surface hover:text-primary transition-colors p-1 text-[22px]" data-icon="person" title="حسابي" aria-label="حسابي">person</a>
 </div>
 </div>
 </nav>
 <div class="fixed top-20 inset-x-0 z-40 md:hidden bg-surface/95 border-b border-outline-variant/60 backdrop-blur-sm">
-<div class="flex gap-4 overflow-x-auto px-margin-desktop py-2 text-label-sm whitespace-nowrap" data-nav-categories-mobile></div>
+<div class="flex gap-2 overflow-x-auto px-margin-desktop py-2.5 text-label-sm whitespace-nowrap home-nav-categories" data-nav-categories-mobile></div>
 </div>
 <!-- Hero Section -->
-<header class="relative w-full h-[921px] overflow-hidden mt-20 md:mt-20">
+<header class="relative w-full min-h-[70vh] md:h-[921px] overflow-hidden mt-[7.5rem] md:mt-20">
 <img alt="High-end luxury fashion banner" class="w-full h-full object-cover" data-alt="A cinematic, high-fashion editorial shot of a luxury model in a minimalist desert landscape at sunset. The lighting is warm and dramatic, highlighting the fine golden textures of silk fabric. The color palette is dominated by deep blacks, charcoal greys, and shimmering desert gold. The composition is wide, evoking a sense of space and timeless Middle Eastern prestige." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFAvGxe_IG7n0Fq9JGuKeHWOmp6Xs1j2Jj_DZKcbGRMux4bcvo28EHClzd9lCEl01dar7NiqHSJXHNmGNJBU1KOW54uyhvaGg3xhmsX2IWpJXaaX_VhOgPdLioZWpLP0vJWoL-bXKQtjAwX89YO3omf-W3d-E6xs-pf7y0KCLmuwhSVIniZW_6fTcQuGpV1wNubnys0Iy8oz0TtQ4GemgLA4_zYaAUUkAOFcUSxtx_NzU5ioN0xOCvpQGsO1YfsjM2_KJsqp9MFrU"/>
 <div class="absolute inset-0 hero-gradient flex flex-col justify-end items-center pb-24 px-margin-desktop text-center">
-<h1 class="text-primary font-display-lg text-display-lg max-w-4xl mb-6">تعريف الفخامة العصرية للأناقة العربية</h1>
-<p class="text-on-surface-variant font-body-lg text-body-lg max-w-2xl mb-10">استكشف مجموعتنا الحصرية من الأزياء والملحقات الفاخرة التي تجسد التراث والابتكار</p>
-<button type="button" data-scroll-to="#home-categories-section" class="bg-primary text-on-primary font-label-md text-label-md px-12 py-4 tracking-widest hover:bg-primary-container transition-all uppercase shadow-lg">تسوق الآن</button>
+<h1 class="text-primary font-display-lg text-display-lg max-w-4xl mb-6" data-site-field="homepage_hero_title">تعريف الفخامة العصرية للأناقة العربية</h1>
+<p class="text-on-surface-variant font-body-lg text-body-lg max-w-2xl mb-10" data-site-field="homepage_hero_subtitle">استكشف مجموعتنا الحصرية من الأزياء والملحقات الفاخرة التي تجسد التراث والابتكار</p>
+<button type="button" data-scroll-to="#home-categories-section" data-site-field="homepage_hero_cta" class="bg-primary text-on-primary font-label-md text-label-md px-12 py-4 tracking-widest hover:bg-primary-container transition-all uppercase shadow-lg">تسوق الآن</button>
 </div>
 </header>
 <!-- Categories Grid (يُملأ من Supabase: تصنيفات نشطة) -->
 <section id="home-categories-section" class="home-anchor-target max-w-container-max mx-auto px-margin-desktop py-24">
 <div class="flex justify-between items-end mb-16 border-b border-outline-variant pb-6">
-<h2 class="text-primary font-headline-md text-headline-md">التصنيفات الراقية</h2>
+<h2 class="text-primary font-headline-md text-headline-md" data-site-field="homepage_categories_title">التصنيفات الراقية</h2>
 <a class="text-on-surface-variant font-label-md text-label-md hover:text-primary transition-colors flex items-center gap-2" data-home-link="search" href="./search.html">تصفح الكل <span class="material-symbols-outlined text-[18px]" data-icon="chevron_left">chevron_left</span></a>
 </div>
 <div id="home-categories-grid" class="grid grid-cols-1 md:grid-cols-4 gap-gutter min-h-[12rem]">
@@ -98,8 +98,8 @@
 <section id="home-new-arrivals" class="home-anchor-target bg-surface-container-lowest py-24">
 <div class="max-w-container-max mx-auto px-margin-desktop">
 <div class="text-center mb-12 md:mb-20 flex flex-col items-center gap-4">
-<span class="text-primary font-label-md text-label-md tracking-[0.3em] uppercase">المجموعة الجديدة</span>
-<h2 class="text-on-surface font-display-lg text-display-lg">إبداعات مختارة بعناية</h2>
+<span class="text-primary font-label-md text-label-md tracking-[0.3em] uppercase" data-site-field="homepage_new_arrivals_label">المجموعة الجديدة</span>
+<h2 class="text-on-surface font-display-lg text-display-lg" data-site-field="homepage_new_arrivals_title">إبداعات مختارة بعناية</h2>
 <a class="text-on-surface-variant hover:text-primary text-label-md border border-outline-variant px-4 py-2" data-home-link="search" href="./search.html">عرض المزيد من المنتجات</a>
 </div>
 <div id="home-new-arrivals-grid" class="grid grid-cols-1 md:grid-cols-3 gap-x-gutter gap-y-16 min-h-[8rem]">
@@ -108,7 +108,7 @@
 </div>
 </section>
 <!-- Floating WhatsApp Button -->
-<a class="fixed bottom-10 right-10 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform duration-200 flex items-center justify-center" href="#">
+<a id="home-whatsapp-btn" class="fixed bottom-10 right-10 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform duration-200 flex items-center justify-center hidden" href="#" aria-label="واتساب">
 <svg fill="currentColor" height="32" viewbox="0 0 24 24" width="32" xmlns="http://www.w3.org/2000/svg">
 <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"></path>
 </svg>
@@ -117,7 +117,8 @@
 <footer class="w-full py-16 px-margin-desktop flex flex-col items-center gap-8 bg-surface-container-low border-t border-outline-variant">
 <div class="flex flex-col items-center gap-4">
 <span class="text-headline-sm font-headline-sm text-primary tracking-[0.2em]">American wear</span>
-<p class="text-on-surface-variant font-body-md text-body-md text-center max-w-lg">وجهتكم الأولى للأناقة العالمية والرفاهية التي لا تضاهى في قلب العراق.</p>
+<p class="text-on-surface-variant font-body-md text-body-md text-center max-w-lg" data-site-field="footer_tagline">وجهتكم الأولى للأناقة العالمية والرفاهية التي لا تضاهى في قلب العراق.</p>
+<p id="home-contact-phones" class="text-on-surface-variant font-body-md text-body-md text-center hidden"></p>
 </div>
 <div class="flex flex-wrap justify-center gap-8 md:gap-16">
 <a class="text-on-surface-variant hover:text-primary underline-offset-4 hover:underline font-body-md text-body-md transition-all" data-home-link="categories" href="#home-categories-section">التصنيفات</a>
@@ -126,9 +127,10 @@
 <a class="text-on-surface-variant hover:text-primary underline-offset-4 hover:underline font-body-md text-body-md transition-all" data-home-link="cart" href="./cart.html">السلة</a>
 </div>
 <div class="flex gap-6 mt-4">
-<a class="text-on-surface-variant hover:text-primary transition-all" href="#"><span class="material-symbols-outlined" data-icon="public">public</span></a>
-<a class="text-on-surface-variant hover:text-primary transition-all" href="#"><span class="material-symbols-outlined" data-icon="share">share</span></a>
-<a class="text-on-surface-variant hover:text-primary transition-all" href="#"><span class="material-symbols-outlined" data-icon="mail">mail</span></a>
+<a id="home-social-instagram" class="text-on-surface-variant hover:text-primary transition-all hidden" href="#" aria-label="إنستغرام"><span class="material-symbols-outlined" data-icon="photo_camera">photo_camera</span></a>
+<a id="home-social-facebook" class="text-on-surface-variant hover:text-primary transition-all hidden" href="#" aria-label="فيسبوك"><span class="material-symbols-outlined" data-icon="public">public</span></a>
+<a id="home-social-tiktok" class="text-on-surface-variant hover:text-primary transition-all hidden" href="#" aria-label="تيك توك"><span class="material-symbols-outlined" data-icon="share">share</span></a>
+<a id="home-social-telegram" class="text-on-surface-variant hover:text-primary transition-all hidden" href="#" aria-label="تيليغرام"><span class="material-symbols-outlined" data-icon="send">send</span></a>
 </div>
 <div class="flex gap-4 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
 <img alt="Visa" class="h-6" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4x7UQpMdqkQWj6b-CCgoqFpMvN6fBr1mFdbouAWlzWORuI4uKyAlgbEoWhLCuCYuiBDkxYbv7FMGZIodzfbXMaHXihjeL_Ptx-eD9lwUWRx6spIad1uBPjRmqrfePfrhs_MgbDS6nzaYO3nJL9qWivI84EjTGruz1YVX0DRmeYiYRCrRGI7TpY36Jmo5dl16X8sh9fa5f5E8_eR7VFyterYNLcgigK6yLNWThW9JUtPPR4YIKtVNqxInhEpxBhRZ46eeN743qtlY"/>

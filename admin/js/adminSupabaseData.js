@@ -1389,3 +1389,82 @@ export async function uploadProductCoverImage(file) {
   if (!url) throw new Error("تعذر الحصول على رابط الصورة");
   return url;
 }
+
+export const SITE_CONTENT_SETTING_KEYS = [
+  "homepage_hero_title",
+  "homepage_hero_subtitle",
+  "homepage_hero_cta",
+  "homepage_categories_title",
+  "homepage_new_arrivals_label",
+  "homepage_new_arrivals_title",
+  "footer_tagline",
+  "contact_phone",
+  "contact_phone_2",
+  "whatsapp_number",
+  "social_instagram",
+  "social_facebook",
+  "social_tiktok",
+  "social_telegram",
+];
+
+export async function fetchSiteContentSettings() {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const { data, error } = await sb.from("store_settings").select("key, value").in("key", SITE_CONTENT_SETTING_KEYS);
+  if (error) throw new Error(error.message);
+  /** @type {Record<string, string>} */
+  const out = {};
+  for (const k of SITE_CONTENT_SETTING_KEYS) out[k] = "";
+  for (const row of data || []) {
+    if (row?.key) out[row.key] = row.value != null ? String(row.value) : "";
+  }
+  return out;
+}
+
+export async function upsertSiteContentSettings(values) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const now = new Date().toISOString();
+  const rows = SITE_CONTENT_SETTING_KEYS.map((key) => ({
+    key,
+    value: values?.[key] != null ? String(values[key]) : "",
+    updated_at: now,
+  }));
+  const { error } = await sb.from("store_settings").upsert(rows, { onConflict: "key" });
+  if (error) throw new Error(error.message);
+  return values;
+}
+
+export async function fetchStoreCustomers() {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const { data, error } = await sb
+    .from("store_customers")
+    .select("id, phone, name_ar, password_plain, is_active, created_at")
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
+    .limit(500);
+  if (error) throw new Error(error.message);
+  return (data || []).map((r) => ({
+    id: Number(r.id),
+    phone: r.phone ?? "",
+    nameAr: r.name_ar ?? "",
+    passwordPlain: r.password_plain ?? "",
+    isActive: r.is_active === 1,
+    createdAt: r.created_at,
+  }));
+}
+
+export async function updateStoreCustomerActive(id, isActive) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const { error } = await sb
+    .from("store_customers")
+    .update({ is_active: isActive === false || isActive === 0 ? 0 : 1 })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+}

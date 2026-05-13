@@ -1,5 +1,6 @@
 import { categoriesAnchorHref, newArrivalsHref, STOREFRONT } from "./storefrontPaths.js";
 import { accountPageHref } from "./customerSession.js";
+import { applySiteContentToDom, fetchPublicSiteContent } from "./siteContent.js";
 
 function scrollToHash(hash, behavior = "smooth") {
   const id = String(hash || "").replace(/^#/, "");
@@ -43,6 +44,7 @@ function wireQuickLinks() {
 document.addEventListener("DOMContentLoaded", () => {
   wireHomeAnchors();
   wireQuickLinks();
+  fetchPublicSiteContent().then(applySiteContentToDom).catch(() => {});
 });
 
 window.addEventListener("aw-customer-updated", () => {

@@ -2,7 +2,7 @@
 <html class="dark" dir="rtl" lang="ar">
 <head>
 <meta charset="utf-8"/>
-<title>American wear | طرق الدفع والعملة</title>
+<title>American wear | إعدادات الموقع</title>
 <script>
 (function(){var k="aw_admin_jwt";try{var p=location.pathname||"";if(/admin\/login\.html$/i.test(p))return;if(!sessionStorage.getItem(k))location.replace("./login.html");}catch(e){location.replace("./login.html");}})();
 </script>
@@ -26,13 +26,14 @@
 <a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./index.html"><span class="material-symbols-outlined">dashboard</span><span>لوحة التحكم</span></a>
 <a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./orders.html"><span class="material-symbols-outlined">shopping_cart</span><span>الطلبات</span></a>
 <a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./products.html"><span class="material-symbols-outlined">inventory_2</span><span>المنتجات</span></a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./inventory.html"><span class="material-symbols-outlined">warehouse</span><span>إدارة المخزون</span></a>
 <a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./categories.html"><span class="material-symbols-outlined">category</span><span>التصنيفات</span></a>
 <a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./sizes.html"><span class="material-symbols-outlined">straighten</span><span>المقاسات</span></a>
 <a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./colors.html"><span class="material-symbols-outlined">palette</span><span>الألوان</span></a>
 <a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./shipping.html"><span class="material-symbols-outlined">local_shipping</span><span>أجور الشحن</span></a>
-<a class="bg-primary/10 text-primary border-r-4 border-primary px-4 py-3 flex items-center gap-3 font-label-md" href="./payments.html"><span class="material-symbols-outlined">payments</span><span>طرق الدفع</span></a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./payments.html"><span class="material-symbols-outlined">payments</span><span>طرق الدفع</span></a>
 <a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./customers.html"><span class="material-symbols-outlined">group</span><span>الزبائن</span></a>
-<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./site-settings.html"><span class="material-symbols-outlined">storefront</span><span>إعدادات الموقع</span></a>
+<a class="bg-primary/10 text-primary border-r-4 border-primary px-4 py-3 flex items-center gap-3 font-label-md" href="./site-settings.html"><span class="material-symbols-outlined">storefront</span><span>إعدادات الموقع</span></a>
 <a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./users.html"><span class="material-symbols-outlined">manage_accounts</span><span>المسؤولون</span></a>
 </nav>
 <div class="px-4 mt-auto">
@@ -48,59 +49,14 @@
 <main class="md:mr-64 min-h-screen">
 <header class="h-20 px-6 md:px-8 flex items-center border-b border-primary/30 sticky top-0 bg-surface/90 backdrop-blur-md z-30">
 <div>
-<h2 class="font-headline-sm text-headline-sm text-on-surface">طرق الدفع وسعر الصرف</h2>
-<p class="text-label-sm text-on-surface-variant mt-1">إدارة طرق الدفع المتاحة للزبائن وسعر تحويل الدولار للدينار في المتجر.</p>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">إعدادات الموقع</h2>
+<p class="text-label-sm text-on-surface-variant mt-1">نصوص الصفحة الرئيسية والتواصل ووسائل التواصل الاجتماعي.</p>
 </div>
 </header>
-<div class="p-6 md:p-8 max-w-container-max mx-auto" id="payments-root">
+<div class="p-6 md:p-8 max-w-container-max mx-auto" id="site-settings-root">
 <p class="text-on-surface-variant text-center py-12">جاري التحميل…</p>
 </div>
 </main>
-
-<div id="pay-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-<div id="pay-modal-backdrop" class="absolute inset-0 bg-black/70"></div>
-<div class="relative w-full max-w-lg bg-surface-container-low border border-outline-variant rounded-lg shadow-xl max-h-[90vh] overflow-y-auto">
-<div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant">
-<h3 id="pay-modal-title" class="text-headline-sm font-headline-sm text-on-surface">طريقة دفع</h3>
-<button type="button" id="pay-modal-close" class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined">close</span></button>
-</div>
-<form id="pay-form" class="p-6 space-y-4">
-<input type="hidden" id="pay-edit-id"/>
-<div>
-<label class="block text-label-sm text-on-surface-variant mb-1">الاسم (عربي) *</label>
-<input id="pay-name-ar" required class="w-full bg-surface-container border border-outline-variant px-3 py-2 focus:border-primary outline-none"/>
-</div>
-<div>
-<label class="block text-label-sm text-on-surface-variant mb-1">الاسم (إنجليزي)</label>
-<input id="pay-name-en" dir="ltr" class="w-full bg-surface-container border border-outline-variant px-3 py-2 focus:border-primary outline-none text-left"/>
-</div>
-<div>
-<label class="block text-label-sm text-on-surface-variant mb-1">slug *</label>
-<div class="flex gap-2">
-<input id="pay-slug" required dir="ltr" class="flex-1 bg-surface-container border border-outline-variant px-3 py-2 font-mono text-sm text-left focus:border-primary outline-none"/>
-<button type="button" id="pay-suggest-slug" class="text-label-sm text-primary border border-primary/40 px-3">اقتراح</button>
-</div>
-</div>
-<div>
-<label class="block text-label-sm text-on-surface-variant mb-1">وصف للزبون</label>
-<textarea id="pay-desc" rows="2" class="w-full bg-surface-container border border-outline-variant px-3 py-2 focus:border-primary outline-none resize-y"></textarea>
-</div>
-<div class="grid grid-cols-2 gap-3">
-<div>
-<label class="block text-label-sm text-on-surface-variant mb-1">الترتيب</label>
-<input id="pay-sort" type="number" value="0" class="w-full bg-surface-container border border-outline-variant px-3 py-2 focus:border-primary outline-none"/>
-</div>
-<label class="flex items-center gap-2 self-end pb-2 cursor-pointer">
-<input id="pay-active" type="checkbox" class="rounded border-outline-variant text-primary" checked/>
-<span class="text-body-md">متاحة في المتجر</span>
-</label>
-</div>
-<p id="pay-form-error" class="hidden text-error text-label-sm"></p>
-<button type="submit" class="w-full bg-primary text-on-primary font-label-md py-3">حفظ</button>
-</form>
-</div>
-</div>
-
-<script type="module" src="./js/payments.js"></script>
+<script type="module" src="./js/siteSettings.js"></script>
 </body>
 </html>

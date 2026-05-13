@@ -37,6 +37,8 @@ import {
   resolveStoreCustomerSession,
   listStoreCustomerOrders,
   extractBearerToken,
+  listStoreCustomersAdmin,
+  updateStoreCustomerAdmin,
 } from "./storeCustomers.js";
 
 const PORT = Number(process.env.PORT) || 3000;
@@ -939,6 +941,46 @@ app.get("/api/store/orders", requireStoreCustomer, async (req, res) => {
     const orders = await listStoreCustomerOrders(req.storeCustomer.id);
     res.json({ orders });
   } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+app.get("/api/admin/store-customers", requireAdmin, async (_req, res) => {
+  try {
+    const customers = await listStoreCustomersAdmin();
+    res.json({ customers });
+  } catch (e) {
+    if (e?.code === "42P01") {
+      return res.status(503).json({
+        error: "جدول حسابات الزبائن غير موجود. نفّذ npm run db:push.",
+        code: "TABLE_MISSING",
+      });
+    }
+    console.error(e);
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+app.patch("/api/admin/store-customers/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id)) return res.status(400).json({ error: "معرف غير صالح" });
+    const { isActive, password } = req.body || {};
+    const customer = await updateStoreCustomerAdmin(id, { isActive, password });
+    res.json({ customer });
+  } catch (e) {
+    const code = e?.code;
+    if (code === "NOT_FOUND") return res.status(404).json({ error: e.message, code });
+    if (code === "WEAK_PASSWORD" || code === "INVALID_ID") {
+      return res.status(400).json({ error: e.message, code });
+    }
+    if (e?.code === "42P01") {
+      return res.status(503).json({
+        error: "جدول حسابات الزبائن غير موجود. نفّذ npm run db:push.",
+        code: "TABLE_MISSING",
+      });
+    }
     console.error(e);
     res.status(500).json({ error: "خطأ في الخادم" });
   }

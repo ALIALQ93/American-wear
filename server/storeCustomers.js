@@ -53,10 +53,10 @@ export async function registerStoreCustomer({ phone, name, password }) {
 
   const passwordHash = hashPassword(pass);
   const { rows } = await pool.query(
-    `insert into public.store_customers (phone, name_ar, password_hash)
-     values ($1, $2, $3)
+    `insert into public.store_customers (phone, name_ar, password_hash, password_plain)
+     values ($1, $2, $3, $4)
      returning id, phone, name_ar`,
-    [phoneNorm, nameAr, passwordHash],
+    [phoneNorm, nameAr, passwordHash, pass],
   );
   return rows[0];
 }
@@ -147,4 +147,63 @@ export function extractBearerToken(req) {
   if (!h || typeof h !== "string") return null;
   const m = /^Bearer\s+(.+)$/i.exec(h.trim());
   return m ? m[1].trim() : null;
+}
+
+export async function listStoreCustomersAdmin() {
+  const pool = getPool();
+  const { rows } = await pool.query(
+    `select id, phone, name_ar, password_plain, is_active, created_at
+     from public.store_customers
+     order by created_at desc, id desc
+     limit 500`,
+  );
+  return rows.map((r) => ({
+    id: Number(r.id),
+    phone: r.phone,
+    nameAr: r.name_ar,
+    passwordPlain: r.password_plain ?? "",
+    isActive: r.is_active === 1,
+    createdAt: r.created_at,
+  }));
+}
+
+export async function updateStoreCustomerAdmin(id, { isActive, password } = {}) {
+  const customerId = Number(id);
+  if (!Number.isFinite(customerId) || customerId < 1) {
+    throw Object.assign(new Error("معرّف الزبون غير صالح"), { code: "INVALID_ID" });
+  }
+  const pool = getPool();
+  const patches = [];
+  const values = [];
+  let idx = 1;
+
+  if (isActive !== undefined) {
+    patches.push(`is_active = $${idx++}`);
+    values.push(isActive === false || isActive === 0 ? 0 : 1);
+  }
+  if (password !== undefined) {
+    const pass = String(password || "");
+    if (pass.length < 6) throw Object.assign(new Error("كلمة المرور 6 أحرف على الأقل"), { code: "WEAK_PASSWORD" });
+    patches.push(`password_hash = $${idx++}`);
+    values.push(hashPassword(pass));
+    patches.push(`password_plain = $${idx++}`);
+    values.push(pass);
+  }
+  if (!patches.length) return null;
+
+  values.push(customerId);
+  const { rows } = await pool.query(
+    `update public.store_customers set ${patches.join(", ")} where id = $${idx} returning id, phone, name_ar, password_plain, is_active, created_at`,
+    values,
+  );
+  const row = rows[0];
+  if (!row) throw Object.assign(new Error("الزبون غير موجود"), { code: "NOT_FOUND" });
+  return {
+    id: Number(row.id),
+    phone: row.phone,
+    nameAr: row.name_ar,
+    passwordPlain: row.password_plain ?? "",
+    isActive: row.is_active === 1,
+    createdAt: row.created_at,
+  };
 }
