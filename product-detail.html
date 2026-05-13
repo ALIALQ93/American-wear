@@ -1,271 +1,39 @@
 <!DOCTYPE html>
-
-<html class="dark" dir="rtl" lang="ar"><head>
+<html class="dark" dir="rtl" lang="ar">
+<head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <link rel="icon" href="./favicon.svg" type="image/svg+xml"/>
 <link rel="stylesheet" href="./src/styles/tailwind.css"/>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&amp;family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
-        }
-        body {
-            font-family: 'IBM+Plex+Sans+Arabic', sans-serif;
-            background-color: #131313;
-        }
-        .luxury-underline {
-            position: relative;
-        }
-        .luxury-underline::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            right: 0;
-            width: 0;
-            height: 1px;
-            background-color: #e6c364;
-            transition: width 0.3s ease;
-        }
-        .luxury-underline:hover::after {
-            width: 100%;
-        }
-    </style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+  body { background-color: #131313; color: #e5e2e1; font-family: 'IBM Plex Sans Arabic', sans-serif; }
+</style>
+<title>American wear | المنتج</title>
 </head>
-<body class="bg-background text-on-surface selection:bg-primary selection:text-on-primary overflow-x-hidden">
-<!-- Top Navigation Shell -->
-<nav class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-md border-b border-primary/30">
-<div class="flex flex-row-reverse justify-between items-center px-margin-desktop h-20 max-w-container-max mx-auto">
-<!-- Brand Logo -->
-<div class="text-headline-md font-headline-md text-primary tracking-widest">American wear</div>
-<!-- Navigation Links -->
-<div class="hidden md:flex gap-gutter items-center">
-<a class="font-headline-sm text-headline-sm text-on-surface opacity-50 hover:opacity-100 transition-opacity luxury-underline" href="#">المجموعات</a>
-<a class="font-headline-sm text-headline-sm text-primary font-bold border-b-2 border-primary pb-1" href="#">وصلنا حديثاً</a>
-<a class="font-headline-sm text-headline-sm text-on-surface opacity-50 hover:opacity-100 transition-opacity luxury-underline" href="#">المصممون</a>
-<a class="font-headline-sm text-headline-sm text-on-surface opacity-50 hover:opacity-100 transition-opacity luxury-underline" href="#">الحصريات</a>
-</div>
-<!-- Actions -->
+<body class="overflow-x-hidden">
+<nav class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-md border-b border-primary/30 h-20">
+<div class="flex flex-row-reverse justify-between items-center px-margin-desktop h-full max-w-container-max mx-auto">
+<a class="text-headline-md font-headline-md text-primary tracking-widest uppercase" href="./home.html">American wear</a>
 <div class="flex items-center gap-6">
-<div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-110 transition-transform" data-icon="person">person</span>
-<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-110 transition-transform" data-icon="shopping_bag">shopping_bag</span>
-<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-110 transition-transform" data-icon="payments">payments</span>
-<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-110 transition-transform" data-icon="language">language</span>
-</div>
+<a class="text-label-md text-on-surface-variant hover:text-primary" href="./home.html">الرئيسية</a>
+<a href="./cart.html" data-cart-link class="relative material-symbols-outlined text-primary hover:opacity-80" title="السلة">shopping_bag</a>
 </div>
 </div>
 </nav>
-<main class="pt-32 pb-24 max-w-container-max mx-auto px-margin-desktop">
-<!-- Product Detail Bento Layout -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-<!-- Left Side: Image Gallery (RTL: Left is secondary content) -->
-<div class="lg:col-span-7 grid grid-cols-1 md:grid-cols-5 gap-4">
-<!-- Thumbnails Column -->
-<div class="md:col-span-1 flex md:flex-col gap-4 order-2 md:order-1">
-<div class="border border-primary bg-surface-container aspect-[3/4] overflow-hidden cursor-pointer hover:opacity-80 transition-opacity">
-<img class="w-full h-full object-cover" data-alt="Close-up photograph of a luxury gold embroidered black silk garment focusing on the intricate thread work and fabric texture. The image is set against a dark, moody background with dramatic spotlighting to emphasize the shimmer of the gold thread." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCw0Pb7kZocBOXjNlbW-HblbK8PLbyIgErZAkAXyOS5rreoeaHdSULcdFHW7MBPALlT3SUbJ1vizUnZE7DbW4ce0mrVBerEqhM3GvE1LhW7i_jHvjjxtHA4d4zyLAws4enjBEZNeDZ1Lt9h7QLoSF8-Wm45KoTqJO2CszPWHuVKXVJ1u6cRKw3OsRpXQvYXWOmlUVjFpy2Cue-S359XJftOnVN1SsFDr4kjHkOqwOn7KzDVbmcjfaOaUdmQYCKAvp6C5X1-mbxwhoE"/>
+<main class="pt-28 pb-20 max-w-container-max mx-auto px-margin-desktop min-h-[60vh]">
+<nav class="mb-8 flex items-center gap-2 text-on-surface-variant font-label-md text-label-md flex-wrap" aria-label="مسار التنقل">
+<a class="hover:text-primary" href="./home.html">الرئيسية</a>
+<span class="material-symbols-outlined text-[14px]" aria-hidden="true">chevron_left</span>
+<span class="text-primary" id="pd-crumb-name">المنتج</span>
+</nav>
+<div id="product-detail-root">
+<p class="text-on-surface-variant text-body-md">جاري التحميل…</p>
 </div>
-<div class="border border-outline-variant bg-surface-container aspect-[3/4] overflow-hidden cursor-pointer hover:opacity-80 transition-opacity">
-<img class="w-full h-full object-cover" data-alt="A sophisticated fashion photography shot of a model wearing a premium black cloak with gold accents, captured from the side to show the fluid drape of the fabric. The lighting is cinematic with warm amber tones reflecting off the metallic details in a dark minimalist studio setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDffSe_cCHGSvaUnYNOIrU5jxLW00F9RmB6e4U0_Y9v77w_x_E6mSad5fLenOyEXE-ZAydzkLMhSW5xtRgSD30h6S624ur9KZR11Q3dpTJaX-zYlcdHvv_NetbwHTtGmBrxo5BrOyt4IuM8z9VbK5KC34ui4ElhNfcIpMjIpVfdvWTiCBIWljr1iswK2ro0scpQMCnBWEcJ82mo37VXn-JbIRJoK6UN9TRtlsH0TFAgapreZRMcvGQ7imLoyarcAVkIQZBc1zmcKbc"/>
-</div>
-<div class="border border-outline-variant bg-surface-container aspect-[3/4] overflow-hidden cursor-pointer hover:opacity-80 transition-opacity">
-<img class="w-full h-full object-cover" data-alt="Full length architectural shot of a luxury kaftan hanging on a minimalist brass rack in a high-end boutique. The environment features dark grey stone walls and polished marble floors, exuding an atmosphere of elite exclusivity and Middle Eastern heritage." src="https://lh3.googleusercontent.com/aida-public/AB6AXuATG3kYxkebZcQmAbjfuMTKbf9dVBj9S8HEsTptMsYVR9k21R97iIY5hWBihQDDzkvZWH14N-q6CGG2TRYyZA4UpuU9ZAW8t0nuENm_CrZg6LoxmeYNd8VHJ-2RC1dWG2TubiZwBfzzYqPNeUQuDznf_qeaFzgk_0O2E1rap6eQC0mkLDdtLXuDoDoUxZYeTNU0F-n7oIjoFsY5xeJEGLDxSnBGdrBJSWrPg-VLq0wQXMG0U0q5oCa30F01bscqCKfQJzqYte5KmjQ"/>
-</div>
-</div>
-<!-- Main Image -->
-<div class="md:col-span-4 order-1 md:order-2 border border-primary/20 aspect-[3/4] overflow-hidden group">
-<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Centerpiece editorial fashion photo of a regal gold-trimmed garment. The composition is artistic and minimalist, with a single subject bathed in high-contrast directional light that highlights the exquisite craftsmanship of the embroidery. The color palette is strictly limited to obsidian black and champagne gold." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnGAtOFMV5797Z6LZUr6QXeo9BzRCx_2HouRLbi8xMFvNyGDsgBVayqCmiRGAlcApyR8pn4YGIv_L4Fxg4txK9e8VMUGVlQ7dH2CQcsoSCIzG839gnAiiXs4cYb486Cg1FAzsEkyA4JMuw_SZowhfmqhkQ6T4QsdsNm_QQoBBWIxmxX_MxeX5Auo5SATSDCld1e-Hc_uTmMqEuoGkYNtcfxJWQ0HqiZ43B96ShN_oDkNZdW4K-FR48VbyyqV7jTHjeYWRbzyQNrRY"/>
-</div>
-</div>
-<!-- Right Side: Details (RTL: Right is primary focus) -->
-<div class="lg:col-span-5 sticky top-32">
-<div class="flex flex-col gap-8">
-<!-- Header Info -->
-<div>
-<span class="font-label-md text-label-md text-primary tracking-widest uppercase mb-2 block">مجموعة التراث</span>
-<h1 class="font-headline-md text-headline-md text-on-surface mb-2 tracking-tight">بشت ملكي مطرز بخيوط الذهب السويسري</h1>
-<div class="flex items-center gap-4 mt-4">
-<div class="flex items-center text-primary">
-<span class="material-symbols-outlined" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined" data-icon="star">star</span>
-<span class="text-on-surface-variant text-label-sm mr-2 font-label-sm">(٢٤ مراجعة)</span>
-</div>
-</div>
-</div>
-<!-- Pricing -->
-<div class="border-y border-outline-variant py-6 flex justify-between items-baseline">
-<div class="flex flex-col">
-<span class="font-display-lg text-display-lg text-primary">٧٥٠,٠٠٠ د.ع</span>
-<span class="font-body-md text-body-md text-on-surface-variant opacity-70">≈ $٥٧٥.٠٠</span>
-</div>
-<span class="font-label-md text-label-md px-3 py-1 bg-primary/10 text-primary border border-primary/20">متوفر في المخزون</span>
-</div>
-<!-- Size Selector -->
-<div>
-<div class="flex justify-between items-center mb-4">
-<label class="font-label-md text-label-md text-on-surface">المقاس المتاح</label>
-<a class="text-primary text-label-sm underline underline-offset-4" href="#">دليل المقاسات</a>
-</div>
-<div class="flex flex-wrap gap-3">
-<button class="w-14 h-14 flex items-center justify-center border border-primary bg-primary text-on-primary font-label-md text-label-md">٥٨</button>
-<button class="w-14 h-14 flex items-center justify-center border border-outline-variant hover:border-primary transition-colors text-on-surface-variant font-label-md text-label-md">٦٠</button>
-<button class="w-14 h-14 flex items-center justify-center border border-outline-variant hover:border-primary transition-colors text-on-surface-variant font-label-md text-label-md">٦٢</button>
-<button class="w-14 h-14 flex items-center justify-center border border-outline-variant opacity-30 cursor-not-allowed font-label-md text-label-md">٦٤</button>
-</div>
-</div>
-<!-- Quantity & Interaction -->
-<div class="flex flex-col gap-4">
-<label class="font-label-md text-label-md text-on-surface">الكمية</label>
-<div class="flex gap-4">
-<div class="flex items-center border border-outline-variant h-14 px-4 bg-surface-container-low">
-<button class="text-primary hover:text-white transition-colors"><span class="material-symbols-outlined" data-icon="remove">remove</span></button>
-<span class="mx-6 font-label-md text-label-md">١</span>
-<button class="text-primary hover:text-white transition-colors"><span class="material-symbols-outlined" data-icon="add">add</span></button>
-</div>
-<button class="flex-1 bg-primary text-on-primary font-label-md text-label-md h-14 flex items-center justify-center gap-2 hover:bg-primary-container transition-all active:scale-95 duration-200">
-<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
-                                إضافة إلى الحقيبة
-                            </button>
-</div>
-<button class="w-full border border-primary text-primary font-label-md text-label-md h-14 flex items-center justify-center gap-2 hover:bg-primary/5 transition-all">
-<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
-                            إضافة إلى قائمة الأمنيات
-                        </button>
-</div>
-<!-- Short Description -->
-<div class="mt-4">
-<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-                            قطعة فنية تجسد الفخامة العراقية الأصيلة، منسوجة من الحرير الطبيعي الأسود ومزينة بنقوش القصب المذهب يدوياً. صُمم هذا البشت ليكون رفيقك في أرقى المناسبات والمجالس.
-                        </p>
-</div>
-</div>
-</div>
-</div>
-<!-- Details Tabs -->
-<div class="mt-24 border-t border-outline-variant pt-12">
-<div class="flex gap-12 border-b border-outline-variant/30 mb-8">
-<button class="font-label-md text-label-md text-primary border-b-2 border-primary pb-4">تفاصيل المنتج</button>
-<button class="font-label-md text-label-md text-on-surface-variant/50 hover:text-on-surface pb-4 transition-colors">العناية والنسيج</button>
-<button class="font-label-md text-label-md text-on-surface-variant/50 hover:text-on-surface pb-4 transition-colors">الشحن والإرجاع</button>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-12">
-<div class="flex flex-col gap-2">
-<span class="font-label-md text-label-md text-primary">المواد</span>
-<p class="font-body-md text-body-md text-on-surface-variant">حرير طبيعي ١٠٠٪، خيوط ذهب سويسري عيار ١٨.</p>
-</div>
-<div class="flex flex-col gap-2">
-<span class="font-label-md text-label-md text-primary">بلد المنشأ</span>
-<p class="font-body-md text-body-md text-on-surface-variant">صناعة يدوية - النجف الأشرف، العراق.</p>
-</div>
-<div class="flex flex-col gap-2">
-<span class="font-label-md text-label-md text-primary">رقم المنتج</span>
-<p class="font-body-md text-body-md text-on-surface-variant">ALMJ-2024-K003</p>
-</div>
-</div>
-</div>
-<!-- Similar Products Section -->
-<section class="mt-32">
-<div class="flex justify-between items-end mb-12">
-<div>
-<h2 class="font-headline-md text-headline-md text-on-surface tracking-tight">قد يعجبك أيضاً</h2>
-<p class="font-body-md text-body-md text-on-surface-variant mt-2">مجموعة مختارة بعناية لتكمل إطلالتك</p>
-</div>
-<a class="text-primary font-label-md text-label-md flex items-center gap-2 luxury-underline" href="#">عرض الكل <span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span></a>
-</div>
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-gutter">
-<!-- Card 1 -->
-<div class="group cursor-pointer">
-<div class="aspect-[3/4] relative overflow-hidden bg-surface-container-low mb-6 border border-transparent group-hover:border-primary/50 transition-all duration-500">
-<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Luxury handcrafted leather footwear display in a high-end boutique setting. The lighting is soft and ambient, focusing on the refined textures of the dark brown leather and the subtle branding. The atmosphere is one of timeless elegance and superior quality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5LsZvGX-zxtB_By-lvbTJCsa76TZa4PmXaYVGXAazUtkP08NaaFaMQvgeKlVlIuTZ8wGMml7pdnKY6IgxHK7STfs6zgB5OW6ao7gXJJFdq4wxM-P4Wa9eocctRqErohe-Cn46L3Z6LZaLRI6AF2AvioPmuLQMxhIMZhKPV1jScsRd5T4Wzc0I85O_2wdYHO6ehDnMw0cxobUaMlSviICPuy0CcQCgMfgU54kiOi2_22Oqig1Y5L-JtJ3dGtQvGz9gnCA_TM1JV4o"/>
-<button class="absolute bottom-4 left-4 bg-background/80 backdrop-blur-md p-2 text-primary opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">
-<span class="material-symbols-outlined" data-icon="add_shopping_cart">add_shopping_cart</span>
-</button>
-</div>
-<div class="flex justify-between items-start">
-<div>
-<h3 class="font-label-md text-label-md text-on-surface group-hover:text-primary transition-colors">حذاء جلد إيطالي فاخر</h3>
-<p class="text-on-surface-variant text-label-sm mt-1">المجموعة الكلاسيكية</p>
-</div>
-<span class="font-label-md text-label-md text-primary">٢٨٠,٠٠٠ د.ع</span>
-</div>
-</div>
-<!-- Card 2 -->
-<div class="group cursor-pointer">
-<div class="aspect-[3/4] relative overflow-hidden bg-surface-container-low mb-6 border border-transparent group-hover:border-primary/50 transition-all duration-500">
-<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="An exquisite designer perfume bottle resting on a black marble surface. The glass is crystal clear with a golden liquid inside, catching the light from a single source. Minimalist environment with deep shadows that emphasize the prestige and luxury of the brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZBheZRWgwF7z9DVw8HAEKbggULQoeiZKMITW2Uo32HEygQYqKiHbIDVI7zcjkBoEhh3CuKTL0_oZ1YC-lDp9jIPfEng8YlH1hOJgM92eYij2FvJ-n3CUHOQFtbdtjDyblP2oS4S-ISQ2HYoVNj_orAmTDZRIj1zorw8xhnT4wmEfwYkp3owg0R2eDQaKYDYD5YK-q4dOgOSjhgJkHkM0EeOxVF7QyMsEWFbq5nQ_ir4zFxy5FXg_e8ZZKGvl9Q9dV99VmOJ-isIA"/>
-<button class="absolute bottom-4 left-4 bg-background/80 backdrop-blur-md p-2 text-primary opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">
-<span class="material-symbols-outlined" data-icon="add_shopping_cart">add_shopping_cart</span>
-</button>
-</div>
-<div class="flex justify-between items-start">
-<div>
-<h3 class="font-label-md text-label-md text-on-surface group-hover:text-primary transition-colors">عطر American wear نوار - ١٠٠ مل</h3>
-<p class="text-on-surface-variant text-label-sm mt-1">حصريات American wear</p>
-</div>
-<span class="font-label-md text-label-md text-primary">١٩٥,٠٠٠ د.ع</span>
-</div>
-</div>
-<!-- Card 3 -->
-<div class="group cursor-pointer">
-<div class="aspect-[3/4] relative overflow-hidden bg-surface-container-low mb-6 border border-transparent group-hover:border-primary/50 transition-all duration-500">
-<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A pair of high-end gold-rimmed sunglasses placed on a dark reflective surface. The lenses have a sophisticated gradient, and the frame details show exceptional craftsmanship. The overall mood is high-fashion editorial, focused on the sharp lines and golden accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBF45umQPO1IHPa84s8WI_E2JD8tIfbdpNsF2hggcBE6n6cbKZTtdj-ncB1eqzzBTNtJL6doO1xAj1FPYabceZjzdCZr1cLz_VFGofIvdnQ_xVhD6nD1yVJU1gp_mhIy_HFVHaPAUjv_rjegQjXFv-MAaMqo4UnVSDGnJzXzy-X_RixyOxdbdF5zgJS7GbMFfc0w6q2wRlbGKwfOvYhw7YFHwWhsyYPf-ESo6O6nyP_SUjSQxqBTEZtHTXqbU2pEueQ1eKuk9_pn1A"/>
-<button class="absolute bottom-4 left-4 bg-background/80 backdrop-blur-md p-2 text-primary opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">
-<span class="material-symbols-outlined" data-icon="add_shopping_cart">add_shopping_cart</span>
-</button>
-</div>
-<div class="flex justify-between items-start">
-<div>
-<h3 class="font-label-md text-label-md text-on-surface group-hover:text-primary transition-colors">نظارة شمسية مطلية بالذهب</h3>
-<p class="text-on-surface-variant text-label-sm mt-1">الإكسسوارات الفاخرة</p>
-</div>
-<span class="font-label-md text-label-md text-primary">٤٥٠,٠٠٠ د.ع</span>
-</div>
-</div>
-<!-- Card 4 -->
-<div class="group cursor-pointer">
-<div class="aspect-[3/4] relative overflow-hidden bg-surface-container-low mb-6 border border-transparent group-hover:border-primary/50 transition-all duration-500">
-<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Close-up of a premium leather belt with a polished brass buckle, displayed on a textured dark background. The image highlights the fine stitching and the quality of the materials. The lighting is elegant, creating a high-end commercial aesthetic for a luxury accessory." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTlwutQPmd5q8CreOG6sYb-0jWdodJus4pQf4tqZ5b-Qg6A9V644WfOmWL0hku5xprIb2lA_U_U6C8eYKjxP7nO1_YQcHwGMc00Ca0lXgAz3eb1nKTi3B65PDUPc4FJM2RqdUlXaDcXzXOO5F7O3jIXoXb4z9Mg6YZlEjSPndQREpZyeNeRzp_qCnG2dAhKt4XerJFiKav7qg8kURsc9wn8C-huUNJtv8VGMAmPzh8Xi08JKsJQRV1FDsN7LbxT-7lEWJuRE7aoos"/>
-<button class="absolute bottom-4 left-4 bg-background/80 backdrop-blur-md p-2 text-primary opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">
-<span class="material-symbols-outlined" data-icon="add_shopping_cart">add_shopping_cart</span>
-</button>
-</div>
-<div class="flex justify-between items-start">
-<div>
-<h3 class="font-label-md text-label-md text-on-surface group-hover:text-primary transition-colors">حزام جلد طبيعي بمشبك ذهبي</h3>
-<p class="text-on-surface-variant text-label-sm mt-1">المجموعة الشتوية</p>
-</div>
-<span class="font-label-md text-label-md text-primary">١٢٥,٠٠٠ د.ع</span>
-</div>
-</div>
-</div>
-</section>
 </main>
-<!-- Footer Shell -->
-<footer class="w-full py-16 px-margin-desktop flex flex-col items-center gap-8 bg-surface-container-low border-t border-outline-variant">
-<div class="text-headline-sm font-headline-sm text-primary tracking-widest">American wear</div>
-<div class="flex flex-wrap justify-center gap-12">
-<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary underline-offset-4 hover:underline transition-all" href="#">سياسة الخصوصية</a>
-<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary underline-offset-4 hover:underline transition-all" href="#">الشروط والأحكام</a>
-<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary underline-offset-4 hover:underline transition-all" href="#">اتصل بنا</a>
-<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary underline-offset-4 hover:underline transition-all" href="#">الفروع</a>
-</div>
-<div class="flex gap-6">
-<a class="w-10 h-10 border border-outline-variant flex items-center justify-center rounded-full hover:border-primary hover:text-primary transition-colors" href="#">
-<span class="material-symbols-outlined" data-icon="share">share</span>
-</a>
-<a class="w-10 h-10 border border-outline-variant flex items-center justify-center rounded-full hover:border-primary hover:text-primary transition-colors" href="#">
-<span class="material-symbols-outlined" data-icon="public">public</span>
-</a>
-<a class="w-10 h-10 border border-outline-variant flex items-center justify-center rounded-full hover:border-primary hover:text-primary transition-colors" href="#">
-<span class="material-symbols-outlined" data-icon="mail">mail</span>
-</a>
-</div>
-<p class="font-body-md text-body-md text-on-surface-variant opacity-60">© ٢٠٢٤ American wear للفخامة. جميع الحقوق محفوظة.</p>
-</footer>
-</body></html>
+<script type="module" src="./src/js/storefrontNav.js"></script>
+<script type="module" src="./src/js/productDetail.js"></script>
+</body>
+</html>
