@@ -16,6 +16,7 @@ import {
   loadSizeLabelsForSetId,
   resetProductInventory,
   setColorPresets,
+  setEditingProductId,
   setProductInventoryState,
 } from "./productInventory.js";
 
@@ -280,6 +281,7 @@ async function openModal(product) {
   }
   form.reset();
   resetProductInventory();
+  setEditingProductId(null);
   const idInput = document.getElementById("product-edit-id");
   const title = document.getElementById("product-modal-title");
   const finishOpen = async () => {
@@ -311,6 +313,7 @@ async function openModal(product) {
     } catch {
       setProductInventoryState({ variantMode: product.variantMode || "none", colors: [], variants: [] });
     }
+    setEditingProductId(product.id);
     finishOpen();
   } else {
     if (idInput) idInput.value = "";
@@ -358,6 +361,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     root: document.getElementById("product-inventory-root"),
     modeSelect: document.getElementById("product-variant-mode"),
     stockWrap: document.getElementById("product-stock-wrap"),
+    onStockMessage: (msg) => {
+      const err = document.getElementById("product-form-error");
+      if (!err || !msg) return;
+      err.textContent = msg;
+      err.classList.remove("hidden");
+      window.setTimeout(() => err.classList.add("hidden"), 3500);
+    },
   });
   resetProductInventory();
 

@@ -296,11 +296,146 @@ export async function fetchProductInventory(productId) {
   return { variantMode: prod.variant_mode || "none", colors, variants };
 }
 
-export async function saveProductInventory(productId, inventory) {
+async function syncProductStockTotal(sb, productId) {
+  const { data, error } = await sb.from("product_variants").select("stock").eq("product_id", productId);
+  if (error) throw new Error(error.message);
+  const total = (data || []).reduce((sum, r) => sum + (Number(r.stock) || 0), 0);
+  const { error: uerr } = await sb.from("products").update({ stock: total }).eq("id", productId);
+  if (uerr) throw new Error(uerr.message);
+  return total;
+}
+
+/**
+ * تعديل مخزون متغير: delta موجب = إضافة (restock)، delta سالب أو reason adjustment_down = خصم.
+ * @param {number} variantId
+ * @param {number} delta
+ * @param {'restock'|'adjustment_down'} reason
+ * @param {string|null} [note]
+ */
+export async function adjustVariantStock(variantId, delta, reason, note = null) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const vid = Number(variantId);
+  const qty = Math.floor(Math.abs(Number(delta) || 0));
+  if (!qty) throw new Error("أدخل كمية أكبر من صفر");
+  const appliedDelta = reason === "adjustment_down" ? -qty : qty;
+  const { data: v, error: verr } = await sb
+    .from("product_variants")
+    .select("id, product_id, stock")
+    .eq("id", vid)
+    .maybeSingle();
+  if (verr) throw new Error(verr.message);
+  if (!v) throw new Error("المتغير غير موجود");
+  const current = Number(v.stock) || 0;
+  const next = current + appliedDelta;
+  if (next < 0) throw new Error(`المخزون الحالي ${current} — لا يمكن خصم ${qty}`);
+  const { error: uerr } = await sb.from("product_variants").update({ stock: next }).eq("id", vid);
+  if (uerr) throw new Error(uerr.message);
+  const { error: merr } = await sb.from("stock_movements").insert({
+    product_id: Number(v.product_id),
+    variant_id: vid,
+    delta: appliedDelta,
+    reason: reason === "adjustment_down" ? "adjustment_down" : "restock",
+    note: note != null && String(note).trim() !== "" ? String(note).trim() : null,
+  });
+  if (merr) throw new Error(merr.message);
+  await syncProductStockTotal(sb, Number(v.product_id));
+  return next;
+}
+
+function variantStockKey(variantMode, presetId, sizeLabel) {
+  const mode = String(variantMode || "none");
+  if (mode === "none") return "__none__";
+  if (mode === "size_only") return `size:${sizeLabel || ""}`;
+  if (mode === "color_only") return `color:${presetId ?? ""}`;
+  if (mode === "color_size") return `cs:${presetId ?? ""}|${sizeLabel || ""}`;
+  return "unknown";
+}
+
+async function saveProductInventoryPreserveStock(sb, pid, inventory) {
+  const variantMode = String(inventory?.variantMode || "none");
+  const colors = Array.isArray(inventory?.colors) ? inventory.colors : [];
+  const variants = Array.isArray(inventory?.variants) ? inventory.variants : [];
+
+  const [{ data: prod }, { data: oldColors }, { data: oldVariants }] = await Promise.all([
+    sb.from("products").select("variant_mode").eq("id", pid).maybeSingle(),
+    sb.from("product_colors").select("id, preset_id").eq("product_id", pid),
+    sb.from("product_variants").select("color_id, size_label, stock").eq("product_id", pid),
+  ]);
+  const oldMode = prod?.variant_mode || "none";
+  const oldColorIdToPreset = new Map(
+    (oldColors || []).map((c) => [Number(c.id), c.preset_id != null ? Number(c.preset_id) : null]),
+  );
+  const stockByKey = new Map();
+  for (const v of oldVariants || []) {
+    const preset = v.color_id != null ? oldColorIdToPreset.get(Number(v.color_id)) ?? null : null;
+    const key = variantStockKey(oldMode, preset, v.size_label ?? null);
+    stockByKey.set(key, Number(v.stock) || 0);
+  }
+
+  const { error: modeErr } = await sb.from("products").update({ variant_mode: variantMode }).eq("id", pid);
+  if (modeErr) throw new Error(modeErr.message);
+
+  const { error: delVarErr } = await sb.from("product_variants").delete().eq("product_id", pid);
+  if (delVarErr) throw new Error(delVarErr.message);
+  const { error: delColErr } = await sb.from("product_colors").delete().eq("product_id", pid);
+  if (delColErr) throw new Error(delColErr.message);
+
+  const colorIdByIndex = [];
+  for (let i = 0; i < colors.length; i++) {
+    const c = colors[i];
+    const nameAr = String(c.nameAr ?? "").trim();
+    if (!nameAr) continue;
+    const row = {
+      product_id: pid,
+      preset_id: c.presetId != null ? Number(c.presetId) : null,
+      name_ar: nameAr,
+      name_en: c.nameEn != null && String(c.nameEn).trim() !== "" ? String(c.nameEn).trim() : null,
+      hex_code: c.hexCode != null && String(c.hexCode).trim() !== "" ? String(c.hexCode).trim() : null,
+      image_url: c.imageUrl != null && String(c.imageUrl).trim() !== "" ? String(c.imageUrl).trim() : null,
+      sort_order: i,
+      is_active: 1,
+    };
+    const { data, error } = await sb.from("product_colors").insert(row).select("id").single();
+    if (error) throw new Error(error.message);
+    colorIdByIndex[i] = Number(data.id);
+  }
+
+  const variantRows = [];
+  for (const v of variants) {
+    const colorIndex = v.colorIndex != null ? Number(v.colorIndex) : null;
+    const presetId = colorIndex != null && colors[colorIndex] ? colors[colorIndex].presetId ?? null : null;
+    const sizeLabel = v.sizeLabel != null && String(v.sizeLabel).trim() !== "" ? String(v.sizeLabel).trim() : null;
+    const key = variantStockKey(variantMode, presetId, sizeLabel);
+    const stock = stockByKey.has(key) ? stockByKey.get(key) : 0;
+    const colorId = colorIndex != null && colorIdByIndex[colorIndex] != null ? colorIdByIndex[colorIndex] : null;
+    variantRows.push({
+      product_id: pid,
+      color_id: colorId,
+      size_label: sizeLabel,
+      sku: v.sku != null && String(v.sku).trim() !== "" ? String(v.sku).trim() : null,
+      stock: Math.max(0, Math.floor(Number(stock) || 0)),
+      is_active: 1,
+    });
+  }
+  if (variantRows.length) {
+    const { error: insErr } = await sb.from("product_variants").insert(variantRows);
+    if (insErr) throw new Error(insErr.message);
+  }
+
+  await syncProductStockTotal(sb, pid);
+}
+
+export async function saveProductInventory(productId, inventory, options = {}) {
   const ctx = await ensureActiveAdminSession();
   if (!ctx) return null;
   const { sb } = ctx;
   const pid = Number(productId);
+  if (options?.preserveStock) {
+    await saveProductInventoryPreserveStock(sb, pid, inventory);
+    return;
+  }
   const variantMode = String(inventory?.variantMode || "none");
   const colors = Array.isArray(inventory?.colors) ? inventory.colors : [];
   const variants = Array.isArray(inventory?.variants) ? inventory.variants : [];
@@ -349,20 +484,32 @@ export async function saveProductInventory(productId, inventory) {
     });
   }
   if (variantRows.length) {
-    const { error: insErr } = await sb.from("product_variants").insert(variantRows);
+    const { data: inserted, error: insErr } = await sb.from("product_variants").insert(variantRows).select("id, stock");
     if (insErr) throw new Error(insErr.message);
+    for (const row of inserted || []) {
+      const st = Number(row.stock) || 0;
+      if (st > 0) {
+        await sb.from("stock_movements").insert({
+          product_id: pid,
+          variant_id: Number(row.id),
+          delta: st,
+          reason: "initial",
+          note: "مخزون أولي عند إنشاء المنتج",
+        });
+      }
+    }
   }
 
-  const totalStock = variantRows.reduce((sum, r) => sum + (Number(r.stock) || 0), 0);
-  const { error: stockErr } = await sb.from("products").update({ stock: totalStock }).eq("id", pid);
-  if (stockErr) throw new Error(stockErr.message);
+  await syncProductStockTotal(sb, pid);
 }
 
 export async function saveProductWithInventory(body, inventory) {
   const editId = body.id != null ? Number(body.id) : NaN;
   if (Number.isFinite(editId)) {
-    await updateProduct(editId, body);
-    await saveProductInventory(editId, inventory);
+    const patch = { ...body };
+    delete patch.stock;
+    await updateProduct(editId, patch);
+    await saveProductInventory(editId, inventory, { preserveStock: true });
     return editId;
   }
   const productBody = { ...body, stock: 0 };
