@@ -28,7 +28,12 @@ export async function storefrontFetch(path, options = {}) {
     }
   }
   if (!res.ok) {
-    const err = new Error(data?.error || res.statusText || "طلب فاشل");
+    const raw = data?.error || text || res.statusText || "طلب فاشل";
+    const err = new Error(
+      typeof raw === "string" && raw.includes("<html")
+        ? "الخادم لا يقبل هذا الطلب (405) — تأكد من تشغيل API أو نشر هجرة Supabase"
+        : raw,
+    );
     err.code = data?.code;
     err.status = res.status;
     throw err;

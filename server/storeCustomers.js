@@ -1,4 +1,5 @@
 import { createHash, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
+import bcrypt from "bcryptjs";
 import { getPool } from "./db.js";
 
 const SESSION_DAYS = 30;
@@ -12,12 +13,10 @@ export function normalizeStorePhone(raw) {
 }
 
 function hashPassword(password) {
-  const salt = randomBytes(16);
-  const hash = scryptSync(String(password), salt, 64);
-  return `scrypt:${salt.toString("hex")}:${hash.toString("hex")}`;
+  return bcrypt.hashSync(String(password), 10);
 }
 
-function verifyPassword(password, stored) {
+function verifyScryptPassword(password, stored) {
   if (!stored || typeof stored !== "string") return false;
   const parts = stored.split(":");
   if (parts.length !== 3 || parts[0] !== "scrypt") return false;
@@ -26,6 +25,12 @@ function verifyPassword(password, stored) {
   const actual = scryptSync(String(password), salt, 64);
   if (expected.length !== actual.length) return false;
   return timingSafeEqual(expected, actual);
+}
+
+function verifyPassword(password, stored) {
+  if (!stored || typeof stored !== "string") return false;
+  if (stored.startsWith("scrypt:")) return verifyScryptPassword(password, stored);
+  return bcrypt.compareSync(String(password), stored);
 }
 
 function hashToken(token) {
