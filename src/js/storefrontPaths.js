@@ -6,7 +6,8 @@ export const STOREFRONT = {
   search: "./search.html",
   category: "./category.html",
   section: "./section.html",
-  product: "./product-detail.html",
+  account: "./account.html",
+  accountOrders: "./account-orders.html",
 };
 
 /** صفحة التصنيف الديناميكية */

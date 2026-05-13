@@ -1,6 +1,7 @@
 import { getStorefrontSupabase } from "../lib/supabase/storefrontClient.js";
 import { cartCount } from "./cartStore.js";
 import { currencyToggleLabel, loadCurrencySettings, toggleDisplayCurrency } from "./currencyStore.js";
+import { accountPageHref } from "./customerSession.js";
 import { categoryStorefrontHref, searchStorefrontHref } from "./storefrontPaths.js";
 import { escapeHtml } from "./storefrontCommon.js";
 
@@ -120,6 +121,24 @@ export async function initStorefrontNav() {
 
   wireSearchForms();
   wireHeroCtas();
+
+  document.querySelectorAll("[data-account-link]").forEach((el) => {
+    if (!(el instanceof HTMLElement)) return;
+    const go = () => {
+      window.location.href = accountPageHref();
+    };
+    if (el instanceof HTMLAnchorElement) {
+      el.href = accountPageHref();
+      return;
+    }
+    el.addEventListener("click", go);
+  });
+
+  window.addEventListener("aw-customer-updated", () => {
+    document.querySelectorAll("[data-account-link]").forEach((el) => {
+      if (el instanceof HTMLAnchorElement) el.href = accountPageHref();
+    });
+  });
 
   window.addEventListener("aw-cart-updated", updateCart);
   window.addEventListener("aw-currency-updated", () => {

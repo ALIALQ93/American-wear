@@ -158,7 +158,7 @@ export async function initDb() {
   }
 }
 
-function getPool() {
+export function getPool() {
   if (!pool) throw new Error("قاعدة البيانات غير مهيأة");
   return pool;
 }

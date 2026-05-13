@@ -30,6 +30,14 @@ import {
   updateAdminProfile,
   deleteAdminProfile,
 } from "./db.js";
+import {
+  registerStoreCustomer,
+  loginStoreCustomer,
+  logoutStoreCustomer,
+  resolveStoreCustomerSession,
+  listStoreCustomerOrders,
+  extractBearerToken,
+} from "./storeCustomers.js";
 
 const PORT = Number(process.env.PORT) || 3000;
 
@@ -850,6 +858,87 @@ app.delete("/api/admin/subsections/:id", requireAdmin, async (req, res) => {
     if (e.code === "HAS_PRODUCTS") {
       return res.status(409).json({ error: "لا يمكن حذف التصنيف الفرعي: توجد منتجات مرتبطة به." });
     }
+    console.error(e);
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+async function requireStoreCustomer(req, res, next) {
+  try {
+    const token = extractBearerToken(req);
+    const customer = await resolveStoreCustomerSession(token);
+    if (!customer) {
+      return res.status(401).json({ error: "يجب تسجيل الدخول", code: "UNAUTHORIZED" });
+    }
+    req.storeCustomer = customer;
+    next();
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+}
+
+app.post("/api/store/auth/register", async (req, res) => {
+  try {
+    const { phone, name, password } = req.body || {};
+    const row = await registerStoreCustomer({ phone, name, password });
+    const login = await loginStoreCustomer({ phone, password });
+    res.status(201).json(login);
+  } catch (e) {
+    const code = e?.code;
+    if (code === "PHONE_EXISTS" || code === "INVALID_PHONE" || code === "INVALID_NAME" || code === "WEAK_PASSWORD") {
+      return res.status(400).json({ error: e.message, code });
+    }
+    if (e?.code === "42P01") {
+      return res.status(503).json({
+        error: "جدول حسابات الزبائن غير موجود. نفّذ npm run db:push.",
+        code: "TABLE_MISSING",
+      });
+    }
+    console.error(e);
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+app.post("/api/store/auth/login", async (req, res) => {
+  try {
+    const { phone, password } = req.body || {};
+    const result = await loginStoreCustomer({ phone, password });
+    res.json(result);
+  } catch (e) {
+    if (e?.code === "INVALID_CREDENTIALS") {
+      return res.status(401).json({ error: e.message, code: e.code });
+    }
+    if (e?.code === "42P01") {
+      return res.status(503).json({
+        error: "جدول حسابات الزبائن غير موجود. نفّذ npm run db:push.",
+        code: "TABLE_MISSING",
+      });
+    }
+    console.error(e);
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+app.post("/api/store/auth/logout", async (req, res) => {
+  try {
+    await logoutStoreCustomer(extractBearerToken(req));
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+app.get("/api/store/auth/me", requireStoreCustomer, (req, res) => {
+  res.json({ customer: req.storeCustomer });
+});
+
+app.get("/api/store/orders", requireStoreCustomer, async (req, res) => {
+  try {
+    const orders = await listStoreCustomerOrders(req.storeCustomer.id);
+    res.json({ orders });
+  } catch (e) {
     console.error(e);
     res.status(500).json({ error: "خطأ في الخادم" });
   }

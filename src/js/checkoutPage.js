@@ -2,6 +2,7 @@ import { getStorefrontSupabase } from "../lib/supabase/storefrontClient.js";
 import { cartSubtotalIqd, clearCart, readCart } from "./cartStore.js";
 import { fetchStorefrontPaymentMethods, formatPrice } from "./currencyStore.js";
 import { escapeHtml } from "./storefrontCommon.js";
+import { getCustomer, getCustomerToken } from "./customerSession.js";
 
 /** @type {{ id: number, nameAr: string, feeIqd: number }[]} */
 let governorates = [];
@@ -22,7 +23,7 @@ function orderErrorMessage(err) {
   if (msg.includes("PRODUCT_UNAVAILABLE")) return "أحد المنتجات لم يعد متاحاً";
   if (msg.includes("VARIANT_NOT_FOUND")) return "خيار منتج غير موجود — حدّث السلة";
   if (msg.includes("PAYMENT_METHOD_REQUIRED")) return "اختر طريقة الدفع";
-  if (msg.includes("PAYMENT_METHOD_INVALID")) return "طريقة الدفع غير صالحة";
+  if (msg.includes("STORE_CUSTOMER_MISMATCH")) return "رقم الهاتف لا يطابق حسابك — صحّح الرقم أو سجّل الخروج";
   return msg || "تعذر إرسال الطلب";
 }
 
@@ -148,6 +149,7 @@ function renderForm() {
     const sb = getStorefrontSupabase();
     if (!sb) return;
 
+    const customer = getCustomer();
     const payload = {
       customer_name: document.getElementById("co-name")?.value?.trim() || "",
       customer_phone: document.getElementById("co-phone")?.value?.trim() || "",
@@ -156,6 +158,9 @@ function renderForm() {
       payment_method_id: document.querySelector('input[name="payment"]:checked')?.value || "",
       items: readCart().map((l) => ({ variant_id: l.variantId, qty: l.qty })),
     };
+    if (customer?.id && getCustomerToken()) {
+      payload.store_customer_id = String(customer.id);
+    }
 
     const btn = e.target?.querySelector?.('button[type="submit"]');
     if (btn instanceof HTMLButtonElement) {
@@ -216,6 +221,13 @@ async function main() {
   paymentMethods = await fetchStorefrontPaymentMethods(sb);
   selectedPaymentId = paymentMethods[0]?.id ?? null;
   renderForm();
+  const c = getCustomer();
+  if (c) {
+    const nameEl = document.getElementById("co-name");
+    const phoneEl = document.getElementById("co-phone");
+    if (nameEl instanceof HTMLInputElement && !nameEl.value) nameEl.value = c.nameAr || "";
+    if (phoneEl instanceof HTMLInputElement && !phoneEl.value) phoneEl.value = c.phone || "";
+  }
 }
 
 document.addEventListener("DOMContentLoaded", main);
