@@ -1,14 +1,22 @@
 import { getAdminToken } from "./session.js";
 import { isSupabaseAuthConfigured, syncAdminTokenFromSupabaseSession, clearAdminSessionAndSupabase } from "./supabaseAuth.js";
 import {
-  createProduct,
   fetchCategoriesTree,
+  fetchProductInventory,
   fetchProductsList,
   fetchProductsStats,
+  saveProductWithInventory,
   updateProduct,
 } from "./adminSupabaseData.js";
+import {
+  getProductInventoryPayload,
+  initProductInventoryPanel,
+  loadSizeLabelsForCategorySlug,
+  resetProductInventory,
+  setProductInventoryState,
+} from "./productInventory.js";
 
-/** @typedef {{ id: number, nameAr: string, nameEn?: string|null, category?: string|null, sku?: string|null, priceIqd: number, stock: number, isActive: number|boolean, imageUrl?: string|null, categoryId?: number|null, sectionId?: number|null, subsectionId?: number|null, categoryNameAr?: string|null, sectionNameAr?: string|null, subsectionNameAr?: string|null }} ProductRow */
+/** @typedef {{ id: number, nameAr: string, nameEn?: string|null, category?: string|null, sku?: string|null, priceIqd: number, stock: number, isActive: number|boolean, imageUrl?: string|null, categoryId?: number|null, sectionId?: number|null, subsectionId?: number|null, categoryNameAr?: string|null, sectionNameAr?: string|null, subsectionNameAr?: string|null, variantMode?: string }} ProductRow */
 
 let categoriesTree = [];
 /** @type {ProductRow[]} */
@@ -225,7 +233,16 @@ function fillSubsectionSelect(sectionId, preferredSubId) {
   }
 }
 
-function openModal(product) {
+function categorySlugById(categoryId) {
+  const cat = categoriesTree.find((c) => Number(c.id) === Number(categoryId));
+  return cat?.slug || "";
+}
+
+async function refreshInventorySizes(categoryId) {
+  await loadSizeLabelsForCategorySlug(categorySlugById(categoryId));
+}
+
+async function openModal(product) {
   const modal = document.getElementById("product-modal");
   const form = document.getElementById("product-form");
   const err = document.getElementById("product-form-error");
@@ -235,8 +252,13 @@ function openModal(product) {
     err.classList.add("hidden");
   }
   form.reset();
+  resetProductInventory();
   const idInput = document.getElementById("product-edit-id");
   const title = document.getElementById("product-modal-title");
+  const finishOpen = async () => {
+    modal.classList.remove("hidden");
+    document.body.classList.add("overflow-hidden");
+  };
   if (product) {
     if (idInput) idInput.value = String(product.id);
     if (title) title.textContent = "تعديل منتج";
@@ -253,6 +275,14 @@ function openModal(product) {
     fillSectionSelect(product.categoryId, product.sectionId);
     const subSel = document.getElementById("product-subsection-id");
     if (product.subsectionId != null && subSel) subSel.value = String(product.subsectionId);
+    await refreshInventorySizes(product.categoryId);
+    try {
+      const inv = await fetchProductInventory(product.id);
+      if (inv) setProductInventoryState(inv);
+    } catch {
+      setProductInventoryState({ variantMode: product.variantMode || "none", colors: [], variants: [] });
+    }
+    finishOpen();
   } else {
     if (idInput) idInput.value = "";
     if (title) title.textContent = "إضافة منتج";
@@ -260,9 +290,9 @@ function openModal(product) {
     fillCategorySelect();
     fillSectionSelect(null);
     fillSubsectionSelect(null);
+    setProductInventoryState({ variantMode: "none", colors: [], variants: [] });
+    finishOpen();
   }
-  modal.classList.remove("hidden");
-  document.body.classList.add("overflow-hidden");
 }
 
 function closeModal() {
@@ -293,15 +323,23 @@ document.addEventListener("DOMContentLoaded", async () => {
   const token = getAdminToken();
   if (!token) return;
 
+  initProductInventoryPanel({
+    root: document.getElementById("product-inventory-root"),
+    modeSelect: document.getElementById("product-variant-mode"),
+    stockWrap: document.getElementById("product-stock-wrap"),
+  });
+  resetProductInventory();
+
   document.getElementById("sidebar-add-product")?.addEventListener("click", () => openModal(null));
   document.getElementById("header-add-product")?.addEventListener("click", () => openModal(null));
   document.getElementById("product-modal-close")?.addEventListener("click", closeModal);
   document.getElementById("product-modal-close-2")?.addEventListener("click", closeModal);
   document.getElementById("product-modal-backdrop")?.addEventListener("click", closeModal);
 
-  document.getElementById("product-category-id")?.addEventListener("change", (e) => {
+  document.getElementById("product-category-id")?.addEventListener("change", async (e) => {
     const v = e.target.value;
     fillSectionSelect(v ? Number(v) : null);
+    await refreshInventorySizes(v ? Number(v) : null);
   });
 
   document.getElementById("product-section-id")?.addEventListener("change", (e) => {
@@ -333,7 +371,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     const catVal = document.getElementById("product-category-id")?.value;
     const secVal = document.getElementById("product-section-id")?.value;
     const subVal = document.getElementById("product-subsection-id")?.value;
+    const inventory = getProductInventoryPayload();
+    if (inventory.variantMode !== "none") {
+      if (inventory.variantMode === "color_only" || inventory.variantMode === "color_size") {
+        const named = (inventory.colors || []).filter((c) => String(c.nameAr || "").trim());
+        if (!named.length) {
+          if (errEl) {
+            errEl.textContent = "أضف لوناً واحداً على الأقل مع اسم عربي";
+            errEl.classList.remove("hidden");
+          }
+          return;
+        }
+      }
+    }
     const body = {
+      id: editId ? Number(editId) : undefined,
       nameAr,
       nameEn: document.getElementById("product-name-en")?.value?.trim() || null,
       sku: document.getElementById("product-sku")?.value?.trim() || null,
@@ -344,13 +396,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       sectionId: secVal ? Number(secVal) : null,
       subsectionId: subVal ? Number(subVal) : null,
       isActive: document.getElementById("product-is-active")?.checked !== false,
+      variantMode: inventory.variantMode,
     };
     try {
-      if (editId) {
-        await patchProduct(Number(editId), body);
-      } else {
-        await createProduct(body);
-      }
+      await saveProductWithInventory(body, inventory);
       closeModal();
       await reloadProducts();
       const stats = await fetchProductsStats();

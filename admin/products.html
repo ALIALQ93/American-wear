@@ -128,7 +128,7 @@
 <!-- Modal -->
 <div id="product-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
 <div id="product-modal-backdrop" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
-<div class="relative w-full max-w-lg bg-surface-container-low border border-outline-variant shadow-2xl max-h-[90vh] overflow-y-auto">
+<div class="relative w-full max-w-2xl bg-surface-container-low border border-outline-variant shadow-2xl max-h-[90vh] overflow-y-auto">
 <div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant">
 <h3 id="product-modal-title" class="text-headline-sm font-headline-sm text-on-surface">إضافة منتج</h3>
 <button type="button" id="product-modal-close" class="p-2 text-on-surface-variant hover:text-primary" aria-label="إغلاق">
@@ -156,10 +156,21 @@
 <input id="product-price" min="0" step="1" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none" type="number" value="0"/>
 </div>
 </div>
-<div>
+<div id="product-stock-wrap">
 <label class="block text-label-sm text-on-surface-variant mb-1">المخزون</label>
 <input id="product-stock" min="0" step="1" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none" type="number" value="0"/>
 </div>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">نوع المتغيرات والمخزون</label>
+<select id="product-variant-mode" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none">
+<option value="none">بدون — منتج واحد (عطر / ساعة)</option>
+<option value="size_only">مقاسات فقط</option>
+<option value="color_only">ألوان فقط</option>
+<option value="color_size">لون + مقاس</option>
+</select>
+<p class="text-label-sm text-on-surface-variant mt-1">السعر أعلاه يطبّق على كل المقاسات والألوان.</p>
+</div>
+<div id="product-inventory-root" class="border border-outline-variant/60 rounded-lg p-4 bg-surface-container/30"></div>
 <div>
 <label class="block text-label-sm text-on-surface-variant mb-1">رابط الصورة</label>
 <input id="product-image-url" dir="ltr" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none text-left" type="url" placeholder="https://..."/>

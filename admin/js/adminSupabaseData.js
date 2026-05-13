@@ -207,6 +207,7 @@ export async function fetchProductsList() {
     categoryNameAr: p.category_id != null ? catMap.get(Number(p.category_id)) ?? null : null,
     sectionNameAr: p.section_id != null ? secMap.get(Number(p.section_id)) ?? null : null,
     subsectionNameAr: p.subsection_id != null ? subMap.get(Number(p.subsection_id)) ?? null : null,
+    variantMode: p.variant_mode ?? "none",
   }));
 }
 
@@ -226,6 +227,7 @@ export async function createProduct(body) {
     category_id: body.categoryId != null ? Number(body.categoryId) : null,
     section_id: body.sectionId != null ? Number(body.sectionId) : null,
     subsection_id: body.subsectionId != null ? Number(body.subsectionId) : null,
+    variant_mode: body.variantMode != null ? String(body.variantMode) : "none",
   };
   const { data, error } = await sb.from("products").insert(row).select("id").single();
   if (error) throw new Error(error.message);
@@ -248,8 +250,121 @@ export async function updateProduct(id, body) {
   if (body.categoryId !== undefined) patch.category_id = body.categoryId == null ? null : Number(body.categoryId);
   if (body.sectionId !== undefined) patch.section_id = body.sectionId == null ? null : Number(body.sectionId);
   if (body.subsectionId !== undefined) patch.subsection_id = body.subsectionId == null ? null : Number(body.subsectionId);
+  if (body.variantMode !== undefined) patch.variant_mode = String(body.variantMode || "none");
   const { error } = await sb.from("products").update(patch).eq("id", id);
   if (error) throw new Error(error.message);
+}
+
+/** @typedef {{ id?: number, nameAr: string, nameEn?: string|null, hexCode?: string|null, imageUrl?: string|null, sortOrder?: number }} InventoryColor */
+/** @typedef {{ id?: number, colorIndex?: number|null, colorId?: number|null, sizeLabel?: string|null, sku?: string|null, stock: number }} InventoryVariant */
+
+export async function fetchProductInventory(productId) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const pid = Number(productId);
+  const { data: prod, error: pe } = await sb.from("products").select("variant_mode").eq("id", pid).maybeSingle();
+  if (pe) throw new Error(pe.message);
+  if (!prod) throw new Error("المنتج غير موجود");
+  const [{ data: colorRows, error: ce }, { data: variantRows, error: ve }] = await Promise.all([
+    sb.from("product_colors").select("*").eq("product_id", pid).order("sort_order", { ascending: true }).order("id", { ascending: true }),
+    sb.from("product_variants").select("*").eq("product_id", pid).order("id", { ascending: true }),
+  ]);
+  if (ce) throw new Error(ce.message);
+  if (ve) throw new Error(ve.message);
+  const colors = (colorRows || []).map((c, i) => ({
+    id: Number(c.id),
+    nameAr: c.name_ar ?? "",
+    nameEn: c.name_en ?? null,
+    hexCode: c.hex_code ?? null,
+    imageUrl: c.image_url ?? null,
+    sortOrder: Number(c.sort_order) || i,
+  }));
+  const colorIdToIndex = new Map(colors.map((c, i) => [c.id, i]));
+  const variants = (variantRows || []).map((v) => ({
+    id: Number(v.id),
+    colorId: v.color_id != null ? Number(v.color_id) : null,
+    colorIndex: v.color_id != null ? colorIdToIndex.get(Number(v.color_id)) ?? null : null,
+    sizeLabel: v.size_label ?? null,
+    sku: v.sku ?? null,
+    stock: Number(v.stock) || 0,
+  }));
+  return { variantMode: prod.variant_mode || "none", colors, variants };
+}
+
+export async function saveProductInventory(productId, inventory) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const pid = Number(productId);
+  const variantMode = String(inventory?.variantMode || "none");
+  const colors = Array.isArray(inventory?.colors) ? inventory.colors : [];
+  const variants = Array.isArray(inventory?.variants) ? inventory.variants : [];
+
+  const { error: modeErr } = await sb.from("products").update({ variant_mode: variantMode }).eq("id", pid);
+  if (modeErr) throw new Error(modeErr.message);
+
+  const { error: delVarErr } = await sb.from("product_variants").delete().eq("product_id", pid);
+  if (delVarErr) throw new Error(delVarErr.message);
+  const { error: delColErr } = await sb.from("product_colors").delete().eq("product_id", pid);
+  if (delColErr) throw new Error(delColErr.message);
+
+  const colorIdByIndex = [];
+  for (let i = 0; i < colors.length; i++) {
+    const c = colors[i];
+    const nameAr = String(c.nameAr ?? "").trim();
+    if (!nameAr) continue;
+    const row = {
+      product_id: pid,
+      name_ar: nameAr,
+      name_en: c.nameEn != null && String(c.nameEn).trim() !== "" ? String(c.nameEn).trim() : null,
+      hex_code: c.hexCode != null && String(c.hexCode).trim() !== "" ? String(c.hexCode).trim() : null,
+      image_url: c.imageUrl != null && String(c.imageUrl).trim() !== "" ? String(c.imageUrl).trim() : null,
+      sort_order: i,
+      is_active: 1,
+    };
+    const { data, error } = await sb.from("product_colors").insert(row).select("id").single();
+    if (error) throw new Error(error.message);
+    colorIdByIndex[i] = Number(data.id);
+  }
+
+  const variantRows = [];
+  for (const v of variants) {
+    const stock = Math.max(0, Math.floor(Number(v.stock) || 0));
+    const colorIndex = v.colorIndex != null ? Number(v.colorIndex) : null;
+    const colorId = colorIndex != null && colorIdByIndex[colorIndex] != null ? colorIdByIndex[colorIndex] : null;
+    const sizeLabel = v.sizeLabel != null && String(v.sizeLabel).trim() !== "" ? String(v.sizeLabel).trim() : null;
+    variantRows.push({
+      product_id: pid,
+      color_id: colorId,
+      size_label: sizeLabel,
+      sku: v.sku != null && String(v.sku).trim() !== "" ? String(v.sku).trim() : null,
+      stock,
+      is_active: 1,
+    });
+  }
+  if (variantRows.length) {
+    const { error: insErr } = await sb.from("product_variants").insert(variantRows);
+    if (insErr) throw new Error(insErr.message);
+  }
+
+  const totalStock = variantRows.reduce((sum, r) => sum + (Number(r.stock) || 0), 0);
+  const { error: stockErr } = await sb.from("products").update({ stock: totalStock }).eq("id", pid);
+  if (stockErr) throw new Error(stockErr.message);
+}
+
+export async function saveProductWithInventory(body, inventory) {
+  const editId = body.id != null ? Number(body.id) : NaN;
+  if (Number.isFinite(editId)) {
+    await updateProduct(editId, body);
+    await saveProductInventory(editId, inventory);
+    return editId;
+  }
+  const productBody = { ...body, stock: 0 };
+  const newId = await createProduct(productBody);
+  if (!newId) throw new Error("تعذر إنشاء المنتج");
+  await saveProductInventory(newId, inventory);
+  return newId;
 }
 
 export async function fetchSizesList(category) {
