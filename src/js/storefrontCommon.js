@@ -1,3 +1,5 @@
+import { productStorefrontHref } from "./storefrontPaths.js";
+
 export function escapeHtml(s) {
   return String(s)
     .replace(/&/g, "&amp;")
@@ -13,7 +15,7 @@ export function formatIqd(n) {
 }
 
 export function productDetailHref(productId) {
-  return `./product-detail.html?id=${encodeURIComponent(String(productId))}`;
+  return productStorefrontHref(productId);
 }
 
 export function parsePositiveInt(raw) {

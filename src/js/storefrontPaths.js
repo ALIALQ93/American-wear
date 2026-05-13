@@ -1,11 +1,13 @@
 /** مسارات صفحات المتجر (نسبية من جذر الموقع) */
 export const STOREFRONT = {
+  launcher: "./index.html",
   home: "./home.html",
   cart: "./cart.html",
   checkout: "./checkout.html",
   search: "./search.html",
   category: "./category.html",
   section: "./section.html",
+  product: "./product-detail.html",
   account: "./account.html",
   accountOrders: "./account-orders.html",
 };
@@ -41,12 +43,21 @@ export function searchStorefrontHref(query) {
   return q ? `${STOREFRONT.search}?q=${encodeURIComponent(q)}` : STOREFRONT.search;
 }
 
-/** رابط وصلنا حديثاً على الرئيسية */
-export function newArrivalsHref() {
-  return `${STOREFRONT.home}#home-new-arrivals`;
+/** أقسام الرئيسية (مراسي داخل الصفحة) */
+export const HOME_ANCHORS = {
+  categories: "home-categories-section",
+  newArrivals: "home-new-arrivals",
+};
+
+export function homeAnchorHref(anchorId) {
+  const id = String(anchorId || "").replace(/^#/, "");
+  return id ? `${STOREFRONT.home}#${id}` : STOREFRONT.home;
 }
 
-/** رابط شبكة التصنيفات على الرئيسية */
+export function newArrivalsHref() {
+  return homeAnchorHref(HOME_ANCHORS.newArrivals);
+}
+
 export function categoriesAnchorHref() {
-  return `${STOREFRONT.home}#home-categories-section`;
+  return homeAnchorHref(HOME_ANCHORS.categories);
 }

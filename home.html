@@ -27,7 +27,11 @@
             border-color: rgba(230, 195, 100, 1);
             transition: all 0.3s ease;
         }
+        .home-anchor-target {
+            scroll-margin-top: 6rem;
+        }
     </style>
+<title>American wear | الرئيسية</title>
 </head>
 <body class="overflow-x-hidden">
 <!-- Top Navigation Bar -->
@@ -46,8 +50,8 @@
 </button>
 <div class="h-4 w-[1px] bg-outline-variant"></div>
 <div class="flex items-center gap-4">
-<button class="material-symbols-outlined text-on-surface hover:text-primary transition-all duration-200 relative" data-cart-link data-icon="shopping_bag">shopping_bag</button>
-<button type="button" data-account-link class="material-symbols-outlined text-on-surface hover:text-primary transition-all duration-200" data-icon="person" title="حسابي">person</button>
+<a href="./cart.html" data-cart-link class="material-symbols-outlined text-on-surface hover:text-primary transition-all duration-200 relative" data-icon="shopping_bag" title="السلة">shopping_bag</a>
+<a href="./account.html" data-account-link data-home-link="account" class="material-symbols-outlined text-on-surface hover:text-primary transition-all duration-200" data-icon="person" title="حسابي">person</a>
 </div>
 </div>
 <!-- Logo (Center) -->
@@ -62,14 +66,17 @@
 </form>
 <div class="hidden lg:flex items-center gap-6" data-nav-categories></div>
 <div class="hidden md:flex items-center gap-6">
-<a class="text-on-surface opacity-50 hover:opacity-100 transition-opacity font-headline-sm text-headline-sm" href="#home-new-arrivals">وصلنا حديثاً</a>
-<a class="text-on-surface opacity-50 hover:opacity-100 transition-opacity font-headline-sm text-headline-sm" href="#home-categories-section">المجموعات</a>
+<a class="text-on-surface opacity-50 hover:opacity-100 transition-opacity font-headline-sm text-headline-sm" data-home-link="newArrivals" href="#home-new-arrivals">وصلنا حديثاً</a>
+<a class="text-primary font-bold border-b-2 border-primary pb-1 font-headline-sm text-headline-sm" data-home-link="categories" href="#home-categories-section">المجموعات</a>
 </div>
 </div>
 </div>
 </nav>
+<div class="fixed top-20 inset-x-0 z-40 md:hidden bg-surface/95 border-b border-outline-variant/60 backdrop-blur-sm">
+<div class="flex gap-4 overflow-x-auto px-margin-desktop py-2 text-label-sm whitespace-nowrap" data-nav-categories-mobile></div>
+</div>
 <!-- Hero Section -->
-<header class="relative w-full h-[921px] overflow-hidden mt-20">
+<header class="relative w-full h-[921px] overflow-hidden mt-20 md:mt-20">
 <img alt="High-end luxury fashion banner" class="w-full h-full object-cover" data-alt="A cinematic, high-fashion editorial shot of a luxury model in a minimalist desert landscape at sunset. The lighting is warm and dramatic, highlighting the fine golden textures of silk fabric. The color palette is dominated by deep blacks, charcoal greys, and shimmering desert gold. The composition is wide, evoking a sense of space and timeless Middle Eastern prestige." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFAvGxe_IG7n0Fq9JGuKeHWOmp6Xs1j2Jj_DZKcbGRMux4bcvo28EHClzd9lCEl01dar7NiqHSJXHNmGNJBU1KOW54uyhvaGg3xhmsX2IWpJXaaX_VhOgPdLioZWpLP0vJWoL-bXKQtjAwX89YO3omf-W3d-E6xs-pf7y0KCLmuwhSVIniZW_6fTcQuGpV1wNubnys0Iy8oz0TtQ4GemgLA4_zYaAUUkAOFcUSxtx_NzU5ioN0xOCvpQGsO1YfsjM2_KJsqp9MFrU"/>
 <div class="absolute inset-0 hero-gradient flex flex-col justify-end items-center pb-24 px-margin-desktop text-center">
 <h1 class="text-primary font-display-lg text-display-lg max-w-4xl mb-6">تعريف الفخامة العصرية للأناقة العربية</h1>
@@ -78,21 +85,22 @@
 </div>
 </header>
 <!-- Categories Grid (يُملأ من Supabase: تصنيفات نشطة) -->
-<section id="home-categories-section" class="max-w-container-max mx-auto px-margin-desktop py-24">
+<section id="home-categories-section" class="home-anchor-target max-w-container-max mx-auto px-margin-desktop py-24">
 <div class="flex justify-between items-end mb-16 border-b border-outline-variant pb-6">
 <h2 class="text-primary font-headline-md text-headline-md">التصنيفات الراقية</h2>
-<a class="text-on-surface-variant font-label-md text-label-md hover:text-primary transition-colors flex items-center gap-2" href="#home-categories-section">عرض الكل <span class="material-symbols-outlined text-[18px]" data-icon="chevron_left">chevron_left</span></a>
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-primary transition-colors flex items-center gap-2" data-home-link="search" href="./search.html">تصفح الكل <span class="material-symbols-outlined text-[18px]" data-icon="chevron_left">chevron_left</span></a>
 </div>
 <div id="home-categories-grid" class="grid grid-cols-1 md:grid-cols-4 gap-gutter min-h-[12rem]">
 <p id="home-categories-loading" class="col-span-full text-on-surface-variant text-center py-12 text-body-md">جاري تحميل التصنيفات…</p>
 </div>
 </section>
 <!-- New Arrivals Product Grid -->
-<section id="home-new-arrivals" class="bg-surface-container-lowest py-24">
+<section id="home-new-arrivals" class="home-anchor-target bg-surface-container-lowest py-24">
 <div class="max-w-container-max mx-auto px-margin-desktop">
-<div class="text-center mb-20">
+<div class="text-center mb-12 md:mb-20 flex flex-col items-center gap-4">
 <span class="text-primary font-label-md text-label-md tracking-[0.3em] uppercase">المجموعة الجديدة</span>
-<h2 class="text-on-surface font-display-lg text-display-lg mt-4">إبداعات مختارة بعناية</h2>
+<h2 class="text-on-surface font-display-lg text-display-lg">إبداعات مختارة بعناية</h2>
+<a class="text-on-surface-variant hover:text-primary text-label-md border border-outline-variant px-4 py-2" data-home-link="search" href="./search.html">عرض المزيد من المنتجات</a>
 </div>
 <div id="home-new-arrivals-grid" class="grid grid-cols-1 md:grid-cols-3 gap-x-gutter gap-y-16 min-h-[8rem]">
 <p id="home-new-arrivals-loading" class="col-span-full text-on-surface-variant text-center py-12 text-body-md">جاري تحميل المنتجات…</p>
@@ -112,10 +120,10 @@
 <p class="text-on-surface-variant font-body-md text-body-md text-center max-w-lg">وجهتكم الأولى للأناقة العالمية والرفاهية التي لا تضاهى في قلب العراق.</p>
 </div>
 <div class="flex flex-wrap justify-center gap-8 md:gap-16">
-<a class="text-on-surface-variant hover:text-primary underline-offset-4 hover:underline font-body-md text-body-md transition-all" href="#">سياسة الخصوصية</a>
-<a class="text-on-surface-variant hover:text-primary underline-offset-4 hover:underline font-body-md text-body-md transition-all" href="#">الشروط والأحكام</a>
-<a class="text-on-surface-variant hover:text-primary underline-offset-4 hover:underline font-body-md text-body-md transition-all" href="#">اتصل بنا</a>
-<a class="text-on-surface-variant hover:text-primary underline-offset-4 hover:underline font-body-md text-body-md transition-all" href="#">الفروع</a>
+<a class="text-on-surface-variant hover:text-primary underline-offset-4 hover:underline font-body-md text-body-md transition-all" data-home-link="categories" href="#home-categories-section">التصنيفات</a>
+<a class="text-on-surface-variant hover:text-primary underline-offset-4 hover:underline font-body-md text-body-md transition-all" data-home-link="newArrivals" href="#home-new-arrivals">وصلنا حديثاً</a>
+<a class="text-on-surface-variant hover:text-primary underline-offset-4 hover:underline font-body-md text-body-md transition-all" data-home-link="account" href="./account.html">حسابي</a>
+<a class="text-on-surface-variant hover:text-primary underline-offset-4 hover:underline font-body-md text-body-md transition-all" data-home-link="cart" href="./cart.html">السلة</a>
 </div>
 <div class="flex gap-6 mt-4">
 <a class="text-on-surface-variant hover:text-primary transition-all" href="#"><span class="material-symbols-outlined" data-icon="public">public</span></a>
@@ -132,6 +140,7 @@
         </div>
 </footer>
 <script type="module" src="./src/js/storefrontNav.js"></script>
+<script type="module" src="./src/js/homePage.js"></script>
 <script type="module" src="./src/js/homeCategories.js"></script>
 <script type="module" src="./src/js/homeNewArrivals.js"></script>
 </body></html>

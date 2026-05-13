@@ -38,8 +38,9 @@ function updateCurrencyLabels() {
 }
 
 async function populateNavCategories(sb) {
-  const containers = document.querySelectorAll("[data-nav-categories]");
-  if (!containers.length || !sb) return;
+  const desktop = document.querySelectorAll("[data-nav-categories]");
+  const mobile = document.querySelectorAll("[data-nav-categories-mobile]");
+  if ((!desktop.length && !mobile.length) || !sb) return;
 
   const { data, error } = await sb
     .from("categories")
@@ -54,6 +55,8 @@ async function populateNavCategories(sb) {
     "text-on-surface-variant hover:text-primary transition-colors font-headline-sm text-headline-sm whitespace-nowrap";
   const activeCls =
     "text-primary font-bold border-b-2 border-primary pb-1 font-headline-sm text-headline-sm whitespace-nowrap";
+  const mobileCls =
+    "inline-flex px-3 py-1 rounded-full border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary";
 
   const path = window.location.pathname.toLowerCase();
   const onCategory = path.endsWith("/category.html") || path.endsWith("category.html");
@@ -61,7 +64,7 @@ async function populateNavCategories(sb) {
     ? new URLSearchParams(window.location.search).get("slug")?.trim().toLowerCase() || ""
     : "";
 
-  const links = (data || [])
+  const desktopLinks = (data || [])
     .map((c) => {
       const slug = String(c.slug || "").trim().toLowerCase();
       const href = categoryStorefrontHref(slug);
@@ -70,8 +73,19 @@ async function populateNavCategories(sb) {
     })
     .join("");
 
-  containers.forEach((el) => {
-    el.innerHTML = links;
+  const mobileLinks = (data || [])
+    .map((c) => {
+      const slug = String(c.slug || "").trim().toLowerCase();
+      const href = categoryStorefrontHref(slug);
+      return `<a class="${mobileCls}" href="${escapeHtml(href)}">${escapeHtml(c.name_ar || slug)}</a>`;
+    })
+    .join("");
+
+  desktop.forEach((el) => {
+    el.innerHTML = desktopLinks;
+  });
+  mobile.forEach((el) => {
+    el.innerHTML = mobileLinks;
   });
 }
 

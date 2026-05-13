@@ -4,26 +4,16 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml"/>
-  <title>American wear — تشغيل محلي</title>
+  <title>American wear</title>
   <link rel="stylesheet" href="./src/styles/tailwind.css"/>
+  <meta http-equiv="refresh" content="0; url=./home.html"/>
+  <script>location.replace("./home.html");</script>
 </head>
 <body class="min-h-screen bg-[#131313] text-[#e5e2e1] flex flex-col items-center justify-center p-8 font-sans">
-  <p class="text-xs uppercase tracking-[0.2em] text-[#c9a84c] mb-2">American wear</p>
-  <h1 class="text-2xl md:text-3xl font-medium text-center mb-3">تشغيل محلي</h1>
-  <p class="text-sm text-white/60 text-center max-w-lg mb-10 leading-relaxed">
-    واجهة المتجر الحالية صفحات عرض (بدون تسجيل دخول للعملاء). لوحة الإدارة تستخدم Supabase Authentication — راجع ملف
-    <code class="text-[#c9a84c]/90">README.md</code>
-    للترتيب الكامل.
+  <p class="text-sm text-white/60 mb-4">جاري التوجيه إلى المتجر…</p>
+  <a class="text-[#c9a84c] underline text-sm" href="./home.html">American wear — الصفحة الرئيسية</a>
+  <p class="text-xs text-white/40 mt-8">
+    <a href="./admin/login.html" class="hover:text-[#c9a84c]">دخول الإدارة</a>
   </p>
-  <div class="flex flex-col sm:flex-row gap-4 w-full max-w-md justify-center">
-    <a
-      class="inline-flex justify-center items-center px-8 py-3 rounded border border-[#c9a84c]/40 text-[#c9a84c] hover:bg-[#c9a84c]/10 transition-colors text-sm font-medium"
-      href="home.html"
-    >واجهة المتجر</a>
-    <a
-      class="inline-flex justify-center items-center px-8 py-3 rounded bg-[#c9a84c] text-[#131313] hover:opacity-90 transition-opacity text-sm font-medium"
-      href="admin/login.html"
-    >دخول الإدارة</a>
-  </div>
 </body>
 </html>

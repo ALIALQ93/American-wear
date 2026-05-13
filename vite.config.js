@@ -31,7 +31,7 @@ export default ({ mode }) => {
     /** يعرّض متغيرات البيئة التي تبدأ بـ VITE_ أو NEXT_PUBLIC_ (مثل قالب Supabase App Router) */
     envPrefix: ["VITE_", "NEXT_PUBLIC_"],
     server: {
-      open: "/",
+      open: "/home.html",
       proxy: {
         "/api": { target: apiTarget, changeOrigin: true },
       },
