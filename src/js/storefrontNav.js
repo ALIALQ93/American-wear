@@ -1,4 +1,6 @@
+import { getStorefrontSupabase } from "../lib/supabase/storefrontClient.js";
 import { cartCount } from "./cartStore.js";
+import { currencyToggleLabel, loadCurrencySettings, toggleDisplayCurrency } from "./currencyStore.js";
 
 function renderBadge(count) {
   const nodes = document.querySelectorAll("[data-cart-link]");
@@ -21,8 +23,22 @@ function renderBadge(count) {
   }
 }
 
-export function initStorefrontNav() {
-  const update = () => renderBadge(cartCount());
+function updateCurrencyLabels() {
+  const label = currencyToggleLabel();
+  document.querySelectorAll("[data-currency-toggle]").forEach((el) => {
+    const text = el.querySelector("[data-currency-label]");
+    if (text) text.textContent = label;
+    else if (el instanceof HTMLElement && !el.querySelector(".material-symbols-outlined")) {
+      el.textContent = label;
+    }
+  });
+}
+
+export async function initStorefrontNav() {
+  const sb = getStorefrontSupabase();
+  await loadCurrencySettings(sb);
+
+  const updateCart = () => renderBadge(cartCount());
   document.querySelectorAll("[data-cart-link]").forEach((el) => {
     if (el instanceof HTMLAnchorElement) return;
     if (el instanceof HTMLElement) {
@@ -31,8 +47,23 @@ export function initStorefrontNav() {
       });
     }
   });
-  window.addEventListener("aw-cart-updated", update);
-  update();
+  document.querySelectorAll("[data-currency-toggle]").forEach((el) => {
+    el.addEventListener("click", () => {
+      toggleDisplayCurrency();
+      updateCurrencyLabels();
+    });
+  });
+
+  window.addEventListener("aw-cart-updated", updateCart);
+  window.addEventListener("aw-currency-updated", () => {
+    updateCurrencyLabels();
+    window.dispatchEvent(new CustomEvent("aw-prices-refresh"));
+  });
+
+  updateCart();
+  updateCurrencyLabels();
 }
 
-document.addEventListener("DOMContentLoaded", initStorefrontNav);
+document.addEventListener("DOMContentLoaded", () => {
+  initStorefrontNav();
+});

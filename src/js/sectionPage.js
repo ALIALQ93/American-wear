@@ -1,5 +1,6 @@
 import { getStorefrontSupabase } from "../lib/supabase/storefrontClient.js";
 import { categoryStorefrontHref } from "./storefrontPaths.js";
+import { formatPrice, formatPriceAlt } from "./currencyStore.js";
 
 function escapeHtml(s) {
   return String(s)
@@ -10,9 +11,7 @@ function escapeHtml(s) {
 }
 
 function formatIqd(n) {
-  const v = Number(n);
-  if (!Number.isFinite(v)) return "—";
-  return `${new Intl.NumberFormat("ar-IQ", { maximumFractionDigits: 0 }).format(v)} د.ع`;
+  return formatPrice(n);
 }
 
 function paramsFromLocation() {
@@ -61,7 +60,8 @@ function productCard(p) {
   const img = p.image_url && String(p.image_url).trim()
     ? `<img alt="" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="${escapeHtml(String(p.image_url).trim())}" loading="lazy"/>`
     : `<div class="absolute inset-0 bg-gradient-to-br from-[#2a2a2a] to-[#0d0d0d]" aria-hidden="true"></div>`;
-  const price = formatIqd(p.price_iqd);
+  const price = formatPrice(p.price_iqd);
+  const priceAlt = formatPriceAlt(p.price_iqd);
   return `<a href="${href}" class="group flex flex-col gap-4 luxury-border luxury-hover rounded overflow-hidden bg-surface-container-low">
 <div class="relative aspect-[4/5] overflow-hidden bg-surface-container">
 ${img}
@@ -69,6 +69,7 @@ ${img}
 <div class="px-4 pb-4 flex flex-col gap-1">
 <h3 class="text-on-surface font-headline-sm text-headline-sm leading-snug">${name}</h3>
 <span class="text-primary font-label-md text-label-md">${escapeHtml(price)}</span>
+<span class="text-on-surface-variant text-label-sm">${escapeHtml(priceAlt)}</span>
 </div>
 </a>`;
 }
@@ -216,3 +217,7 @@ async function main() {
 }
 
 document.addEventListener("DOMContentLoaded", main);
+window.addEventListener("aw-prices-refresh", () => {
+  const root = document.getElementById("section-dynamic-root");
+  if (root && root.querySelector(".grid")) main();
+});

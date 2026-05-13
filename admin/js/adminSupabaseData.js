@@ -572,6 +572,96 @@ export async function updateShippingGovernorate(id, body) {
   if (error) throw new Error(error.message);
 }
 
+export async function fetchUsdIqdRate() {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const { data, error } = await sb.from("store_settings").select("value").eq("key", "usd_iqd_rate").maybeSingle();
+  if (error) throw new Error(error.message);
+  const rate = Number(data?.value);
+  return Number.isFinite(rate) && rate > 0 ? rate : 1310;
+}
+
+export async function updateUsdIqdRate(rate) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const r = Math.floor(Number(rate) || 0);
+  if (r < 1) throw new Error("سعر الصرف يجب أن يكون أكبر من صفر");
+  const { error } = await sb
+    .from("store_settings")
+    .upsert({ key: "usd_iqd_rate", value: String(r), updated_at: new Date().toISOString() }, { onConflict: "key" });
+  if (error) throw new Error(error.message);
+  return r;
+}
+
+export async function fetchPaymentMethods() {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const { data, error } = await sb
+    .from("payment_methods")
+    .select("*")
+    .order("sort_order", { ascending: true })
+    .order("id", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data || []).map((r) => ({
+    id: Number(r.id),
+    nameAr: r.name_ar ?? "",
+    nameEn: r.name_en ?? null,
+    slug: r.slug ?? "",
+    descriptionAr: r.description_ar ?? null,
+    sortOrder: Number(r.sort_order) || 0,
+    isActive: r.is_active,
+  }));
+}
+
+export async function createPaymentMethod(body) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const nameAr = String(body.nameAr ?? "").trim();
+  const slug = String(body.slug ?? "").trim().toLowerCase();
+  if (!nameAr) throw new Error("الاسم العربي مطلوب");
+  if (!slug) throw new Error("المعرف slug مطلوب");
+  const row = {
+    name_ar: nameAr,
+    name_en: body.nameEn != null && String(body.nameEn).trim() !== "" ? String(body.nameEn).trim() : null,
+    slug,
+    description_ar: body.descriptionAr != null && String(body.descriptionAr).trim() !== "" ? String(body.descriptionAr).trim() : null,
+    sort_order: Math.floor(Number(body.sortOrder) || 0),
+    is_active: body.isActive === false || body.isActive === 0 ? 0 : 1,
+  };
+  const { data, error } = await sb.from("payment_methods").insert(row).select("id").single();
+  if (error) throw new Error(error.message);
+  return Number(data.id);
+}
+
+export async function updatePaymentMethod(id, body) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const patch = {};
+  if (body.nameAr !== undefined) patch.name_ar = String(body.nameAr ?? "").trim();
+  if (body.nameEn !== undefined) patch.name_en = body.nameEn == null ? null : String(body.nameEn).trim();
+  if (body.slug !== undefined) patch.slug = String(body.slug ?? "").trim().toLowerCase();
+  if (body.descriptionAr !== undefined) {
+    patch.description_ar = body.descriptionAr == null || String(body.descriptionAr).trim() === "" ? null : String(body.descriptionAr).trim();
+  }
+  if (body.sortOrder !== undefined) patch.sort_order = Math.floor(Number(body.sortOrder) || 0);
+  if (body.isActive !== undefined) patch.is_active = body.isActive === false || body.isActive === 0 ? 0 : 1;
+  const { error } = await sb.from("payment_methods").update(patch).eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+export async function deletePaymentMethod(id) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const { error } = await sb.from("payment_methods").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
 function nestSizeSetItems(sets, items) {
   const bySet = new Map();
   for (const s of sets) {

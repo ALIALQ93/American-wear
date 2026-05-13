@@ -1,5 +1,6 @@
 import { cartSubtotalIqd, readCart, removeFromCart, setCartLineQty } from "./cartStore.js";
-import { escapeHtml, formatIqd } from "./storefrontCommon.js";
+import { escapeHtml } from "./storefrontCommon.js";
+import { formatPrice } from "./currencyStore.js";
 
 function render() {
   const root = document.getElementById("cart-page-root");
@@ -25,7 +26,7 @@ function render() {
         <div class="flex-1 min-w-0">
           <h2 class="font-label-md text-on-surface">${escapeHtml(line.nameAr)}</h2>
           ${label}
-          <p class="text-primary font-label-md mt-2">${escapeHtml(formatIqd(line.priceIqd))}</p>
+          <p class="text-primary font-label-md mt-2">${escapeHtml(formatPrice(line.priceIqd))}</p>
           <div class="flex items-center gap-3 mt-3 flex-wrap">
             <div class="flex items-center border border-outline-variant px-2 py-1 bg-surface-container-low">
               <button type="button" class="js-cart-minus text-primary px-2" data-variant-id="${line.variantId}">−</button>
@@ -35,7 +36,7 @@ function render() {
             <button type="button" class="js-cart-remove text-error text-label-sm hover:underline" data-variant-id="${line.variantId}">إزالة</button>
           </div>
         </div>
-        <div class="text-left shrink-0 font-label-md text-primary">${escapeHtml(formatIqd(line.priceIqd * line.qty))}</div>
+        <div class="text-left shrink-0 font-label-md text-primary">${escapeHtml(formatPrice(line.priceIqd * line.qty))}</div>
       </div>`;
     })
     .join("");
@@ -46,7 +47,7 @@ function render() {
     <div class="border-t border-outline-variant pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
         <p class="text-on-surface-variant text-label-sm">المجموع الفرعي</p>
-        <p class="text-display-sm font-display-sm text-primary">${escapeHtml(formatIqd(subtotal))}</p>
+        <p class="text-display-sm font-display-sm text-primary">${escapeHtml(formatPrice(subtotal))}</p>
         <p class="text-label-sm text-on-surface-variant mt-1">يُضاف أجر الشحن عند إتمام الطلب حسب المحافظة.</p>
       </div>
       <a href="./checkout.html" class="inline-flex justify-center items-center bg-primary text-on-primary font-label-md px-8 py-3 hover:bg-primary-container transition-colors">إتمام الطلب</a>
@@ -78,3 +79,4 @@ function render() {
 
 document.addEventListener("DOMContentLoaded", render);
 window.addEventListener("aw-cart-updated", render);
+window.addEventListener("aw-prices-refresh", render);

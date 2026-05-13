@@ -1,6 +1,7 @@
 import { getStorefrontSupabase } from "../lib/supabase/storefrontClient.js";
 import { addToCart } from "./cartStore.js";
-import { escapeHtml, formatIqd, parsePositiveInt } from "./storefrontCommon.js";
+import { escapeHtml, parsePositiveInt } from "./storefrontCommon.js";
+import { formatPrice, formatPriceAlt } from "./currencyStore.js";
 
 /** @typedef {{ id: number, colorId: number|null, sizeLabel: string|null, stock: number, sku: string|null }} VariantRow */
 /** @typedef {{ id: number, nameAr: string, hexCode: string|null, imageUrl: string|null }} ColorRow */
@@ -148,7 +149,8 @@ function renderPanel() {
   if (!root || !product) return;
   const name = escapeHtml(product.name_ar || "");
   const sku = product.sku ? escapeHtml(product.sku) : "—";
-  const price = formatIqd(product.price_iqd);
+  const price = formatPrice(product.price_iqd);
+  const priceAlt = formatPriceAlt(product.price_iqd);
   const msg = document.getElementById("product-detail-msg");
   const msgHtml = msg && !msg.classList.contains("hidden") ? msg.outerHTML : `<p id="product-detail-msg" class="hidden text-label-sm mt-2"></p>`;
 
@@ -163,6 +165,7 @@ function renderPanel() {
           </div>
           <div class="border-y border-outline-variant py-6 flex justify-between items-center gap-4 flex-wrap">
             <span class="font-display-lg text-display-lg text-primary">${escapeHtml(price)}</span>
+            <span class="text-label-sm text-on-surface-variant">${escapeHtml(priceAlt)}</span>
             ${renderStockBadge()}
           </div>
           ${renderColorPicker()}
@@ -344,3 +347,6 @@ async function main() {
 }
 
 document.addEventListener("DOMContentLoaded", main);
+window.addEventListener("aw-prices-refresh", () => {
+  if (product) renderPanel();
+});

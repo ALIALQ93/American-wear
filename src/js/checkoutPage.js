@@ -1,10 +1,14 @@
 import { getStorefrontSupabase } from "../lib/supabase/storefrontClient.js";
 import { cartSubtotalIqd, clearCart, readCart } from "./cartStore.js";
-import { escapeHtml, formatIqd } from "./storefrontCommon.js";
+import { fetchStorefrontPaymentMethods, formatPrice } from "./currencyStore.js";
+import { escapeHtml } from "./storefrontCommon.js";
 
 /** @type {{ id: number, nameAr: string, feeIqd: number }[]} */
 let governorates = [];
+/** @type {{ id: number, nameAr: string, descriptionAr: string|null }[]} */
+let paymentMethods = [];
 let selectedGovId = null;
+let selectedPaymentId = null;
 
 function orderErrorMessage(err) {
   const msg = String(err?.message || err || "");
@@ -17,6 +21,8 @@ function orderErrorMessage(err) {
   if (msg.includes("INSUFFICIENT_STOCK")) return "كمية غير متوفرة لأحد المنتجات — راجع السلة";
   if (msg.includes("PRODUCT_UNAVAILABLE")) return "أحد المنتجات لم يعد متاحاً";
   if (msg.includes("VARIANT_NOT_FOUND")) return "خيار منتج غير موجود — حدّث السلة";
+  if (msg.includes("PAYMENT_METHOD_REQUIRED")) return "اختر طريقة الدفع";
+  if (msg.includes("PAYMENT_METHOD_INVALID")) return "طريقة الدفع غير صالحة";
   return msg || "تعذر إرسال الطلب";
 }
 
@@ -33,7 +39,8 @@ function renderSuccess(result) {
       <span class="material-symbols-outlined text-primary text-5xl mb-4">check_circle</span>
       <h2 class="text-headline-sm font-headline-sm text-on-surface mb-2">تم استلام طلبك</h2>
       <p class="text-on-surface-variant mb-4">رقم الطلب: <strong class="text-primary font-mono dir-ltr">${escapeHtml(String(result.order_ref || ""))}</strong></p>
-      <p class="text-primary font-label-md">${escapeHtml(formatIqd(result.total_iqd))}</p>
+      <p class="text-primary font-label-md">${escapeHtml(formatPrice(result.total_iqd))}</p>
+      ${result.payment_method ? `<p class="text-label-sm text-on-surface-variant mt-2">الدفع: ${escapeHtml(String(result.payment_method))}</p>` : ""}
       <a href="./home.html" class="inline-block mt-8 text-primary border border-primary px-6 py-3 hover:bg-primary/10">العودة للمتجر</a>
     </div>`;
 }
@@ -54,7 +61,7 @@ function renderForm() {
   const govOptions = governorates
     .map((g) => {
       const sel = selectedGovId === g.id ? "selected" : "";
-      return `<option value="${g.id}" ${sel}>${escapeHtml(g.nameAr)} — ${escapeHtml(formatIqd(g.feeIqd))}</option>`;
+      return `<option value="${g.id}" ${sel}>${escapeHtml(g.nameAr)} — ${escapeHtml(formatPrice(g.feeIqd))}</option>`;
     })
     .join("");
 
@@ -63,9 +70,20 @@ function renderForm() {
       (l) =>
         `<li class="flex justify-between gap-4 text-label-sm py-2 border-b border-outline-variant/40">
           <span>${escapeHtml(l.nameAr)}${l.variantLabel ? ` <span class="text-on-surface-variant">(${escapeHtml(l.variantLabel)})</span>` : ""} × ${l.qty}</span>
-          <span class="text-primary shrink-0">${escapeHtml(formatIqd(l.priceIqd * l.qty))}</span>
+          <span class="text-primary shrink-0">${escapeHtml(formatPrice(l.priceIqd * l.qty))}</span>
         </li>`,
     )
+    .join("");
+
+  const payOptions = paymentMethods
+    .map((p) => {
+      const sel = selectedPaymentId === p.id ? "checked" : "";
+      const desc = p.descriptionAr ? `<p class="text-label-sm text-on-surface-variant mt-1">${escapeHtml(p.descriptionAr)}</p>` : "";
+      return `<label class="flex items-start gap-3 p-3 border border-outline-variant rounded cursor-pointer hover:border-primary has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+        <input type="radio" name="payment" class="mt-1 text-primary js-pay-method" value="${p.id}" ${sel} required/>
+        <span><span class="font-label-md text-on-surface">${escapeHtml(p.nameAr)}</span>${desc}</span>
+      </label>`;
+    })
     .join("");
 
   root.innerHTML = `
@@ -90,17 +108,21 @@ function renderForm() {
           <label class="block text-label-sm text-on-surface-variant mb-1">العنوان التفصيلي *</label>
           <textarea id="co-address" required rows="3" class="w-full bg-surface-container border border-outline-variant px-3 py-2 focus:border-primary outline-none resize-y"></textarea>
         </div>
+        <div>
+          <label class="block text-label-sm text-on-surface-variant mb-2">طريقة الدفع *</label>
+          <div class="space-y-2">${payOptions || '<p class="text-error text-label-sm">لا توجد طرق دفع — راجع الإدارة.</p>'}</div>
+        </div>
         <p id="checkout-error" class="hidden text-error text-label-sm"></p>
         <button type="submit" class="w-full bg-primary text-on-primary font-label-md py-3 hover:bg-primary-container transition-colors">تأكيد الطلب</button>
-        <p class="text-label-sm text-on-surface-variant">الدفع عند الاستلام. سيتم التواصل معك لتأكيد الطلب.</p>
+        <p class="text-label-sm text-on-surface-variant">سيتم التواصل معك لتأكيد الطلب وإتمام الدفع.</p>
       </div>
       <div class="luxury-border rounded-lg p-6 bg-surface-container/30 h-fit">
         <h2 class="font-label-md text-primary mb-4">ملخص الطلب</h2>
         <ul class="mb-4">${summary}</ul>
         <div class="space-y-2 text-label-sm">
-          <div class="flex justify-between"><span class="text-on-surface-variant">المجموع الفرعي</span><span>${escapeHtml(formatIqd(subtotal))}</span></div>
-          <div class="flex justify-between"><span class="text-on-surface-variant">الشحن</span><span id="co-shipping-line">${escapeHtml(formatIqd(shipping))}</span></div>
-          <div class="flex justify-between text-primary font-label-md pt-2 border-t border-outline-variant"><span>الإجمالي</span><span id="co-total-line">${escapeHtml(formatIqd(total))}</span></div>
+          <div class="flex justify-between"><span class="text-on-surface-variant">المجموع الفرعي</span><span>${escapeHtml(formatPrice(subtotal))}</span></div>
+          <div class="flex justify-between"><span class="text-on-surface-variant">الشحن</span><span id="co-shipping-line">${escapeHtml(formatPrice(shipping))}</span></div>
+          <div class="flex justify-between text-primary font-label-md pt-2 border-t border-outline-variant"><span>الإجمالي</span><span id="co-total-line">${escapeHtml(formatPrice(total))}</span></div>
         </div>
       </div>
     </form>`;
@@ -112,8 +134,8 @@ function renderForm() {
     const tot = subtotal + ship;
     const shipEl = document.getElementById("co-shipping-line");
     const totEl = document.getElementById("co-total-line");
-    if (shipEl) shipEl.textContent = formatIqd(ship);
-    if (totEl) totEl.textContent = formatIqd(tot);
+    if (shipEl) shipEl.textContent = formatPrice(ship);
+    if (totEl) totEl.textContent = formatPrice(tot);
   });
 
   document.getElementById("checkout-form")?.addEventListener("submit", async (e) => {
@@ -131,6 +153,7 @@ function renderForm() {
       customer_phone: document.getElementById("co-phone")?.value?.trim() || "",
       customer_address: document.getElementById("co-address")?.value?.trim() || "",
       governorate_id: document.getElementById("co-governorate")?.value || "",
+      payment_method_id: document.querySelector('input[name="payment"]:checked')?.value || "",
       items: readCart().map((l) => ({ variant_id: l.variantId, qty: l.qty })),
     };
 
@@ -190,6 +213,8 @@ async function main() {
     feeIqd: Number(g.fee_iqd) || 0,
   }));
   selectedGovId = governorates[0]?.id ?? null;
+  paymentMethods = await fetchStorefrontPaymentMethods(sb);
+  selectedPaymentId = paymentMethods[0]?.id ?? null;
   renderForm();
 }
 
