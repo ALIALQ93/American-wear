@@ -16,9 +16,19 @@
 </head>
 <body class="overflow-x-hidden">
 <nav class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-md border-b border-primary/30 h-20">
-<div class="flex flex-row-reverse justify-between items-center px-margin-desktop h-full max-w-container-max mx-auto">
-<a class="text-headline-md font-headline-md text-primary tracking-widest uppercase" href="./home.html">American wear</a>
-<a class="text-label-md text-on-surface-variant hover:text-primary" href="./cart.html">العودة للسلة</a>
+<div class="flex flex-row-reverse justify-between items-center px-margin-desktop h-full max-w-container-max mx-auto gap-3">
+<div class="flex items-center gap-3 shrink-0">
+<button type="button" data-currency-toggle class="text-on-surface hover:text-primary transition-colors flex items-center gap-1 font-label-md text-label-md">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+<span data-currency-label>IQD</span>
+</button>
+<a href="./cart.html" data-cart-link class="relative material-symbols-outlined text-primary hover:opacity-80" title="السلة">shopping_bag</a>
+</div>
+<a class="text-headline-md font-headline-md text-primary tracking-widest uppercase shrink-0" href="./home.html">American wear</a>
+<div class="flex items-center gap-3 min-w-0 flex-1 justify-end">
+<a class="text-label-md text-on-surface-variant hover:text-primary whitespace-nowrap" href="./cart.html">العودة للسلة</a>
+<a class="hidden md:inline text-label-md text-on-surface-variant hover:text-primary whitespace-nowrap" href="./home.html">الرئيسية</a>
+</div>
 </div>
 </nav>
 <main class="pt-28 pb-20 max-w-3xl mx-auto px-margin-desktop min-h-[60vh]">
@@ -27,6 +37,7 @@
 <p class="text-on-surface-variant">جاري التحميل…</p>
 </div>
 </main>
+<script type="module" src="./src/js/storefrontNav.js"></script>
 <script type="module" src="./src/js/checkoutPage.js"></script>
 </body>
 </html>

@@ -50,6 +50,7 @@ export default ({ mode }) => {
         input: {
           home: resolve(root, "index.html"),
           storefront: resolve(root, "home.html"),
+          search: resolve(root, "search.html"),
           cart: resolve(root, "cart.html"),
           checkout: resolve(root, "checkout.html"),
           productDetail: resolve(root, "product-detail.html"),

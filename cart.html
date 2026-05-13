@@ -16,11 +16,22 @@
 </head>
 <body class="overflow-x-hidden">
 <nav class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-md border-b border-primary/30 h-20">
-<div class="flex flex-row-reverse justify-between items-center px-margin-desktop h-full max-w-container-max mx-auto">
-<a class="text-headline-md font-headline-md text-primary tracking-widest uppercase" href="./home.html">American wear</a>
-<div class="flex items-center gap-6">
-<a class="text-label-md text-on-surface-variant hover:text-primary" href="./home.html">الرئيسية</a>
+<div class="flex flex-row-reverse justify-between items-center px-margin-desktop h-full max-w-container-max mx-auto gap-3">
+<div class="flex items-center gap-3 shrink-0">
+<button type="button" data-currency-toggle class="text-on-surface hover:text-primary transition-colors flex items-center gap-1 font-label-md text-label-md">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+<span data-currency-label>IQD</span>
+</button>
 <a href="./cart.html" data-cart-link class="relative material-symbols-outlined text-primary" title="السلة">shopping_bag</a>
+</div>
+<a class="text-headline-md font-headline-md text-primary tracking-widest uppercase shrink-0" href="./home.html">American wear</a>
+<div class="flex items-center gap-3 min-w-0 flex-1 justify-end">
+<form data-storefront-search class="hidden sm:flex items-center relative max-w-[11rem] lg:max-w-xs w-full">
+<span class="material-symbols-outlined absolute right-3 text-on-surface-variant pointer-events-none text-[18px]">search</span>
+<input name="q" class="w-full bg-surface-container border border-outline-variant text-on-surface text-label-sm pr-9 pl-2 py-1.5 rounded focus:ring-1 focus:ring-primary/50" placeholder="بحث..." type="search"/>
+</form>
+<div data-nav-categories class="hidden xl:flex items-center gap-4 overflow-x-auto max-w-md"></div>
+<a class="hidden md:inline text-label-md text-on-surface-variant hover:text-primary whitespace-nowrap" href="./home.html">الرئيسية</a>
 </div>
 </div>
 </nav>

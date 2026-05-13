@@ -51,20 +51,19 @@
 </div>
 </div>
 <!-- Logo (Center) -->
-<div class="absolute left-1/2 -translate-x-1/2 text-headline-md font-headline-md text-primary tracking-widest uppercase">
+<a href="./home.html" class="absolute left-1/2 -translate-x-1/2 text-headline-md font-headline-md text-primary tracking-widest uppercase hover:opacity-90 transition-opacity">
                 American wear
-            </div>
+            </a>
 <!-- Right Links & Search (Arabic Context: Far Right) -->
-<div class="flex items-center gap-8">
-<div class="relative flex items-center">
+<div class="flex items-center gap-8 min-w-0">
+<form data-storefront-search class="relative flex items-center">
 <span class="material-symbols-outlined absolute right-3 text-on-surface-variant pointer-events-none" data-icon="search">search</span>
-<input class="bg-surface-container border-none text-on-surface text-label-md font-label-md pr-10 pl-4 py-2 w-48 focus:ring-1 focus:ring-primary/50 transition-all" placeholder="بحث..." type="text"/>
-</div>
+<input name="q" class="bg-surface-container border-none text-on-surface text-label-md font-label-md pr-10 pl-4 py-2 w-48 focus:ring-1 focus:ring-primary/50 transition-all" placeholder="بحث..." type="search"/>
+</form>
+<div class="hidden lg:flex items-center gap-6" data-nav-categories></div>
 <div class="hidden md:flex items-center gap-6">
-<a class="text-primary font-bold border-b-2 border-primary pb-1 font-headline-sm text-headline-sm" href="#">المجموعات</a>
-<a class="text-on-surface opacity-50 hover:opacity-100 transition-opacity font-headline-sm text-headline-sm" href="#">وصلنا حديثاً</a>
-<a class="text-on-surface opacity-50 hover:opacity-100 transition-opacity font-headline-sm text-headline-sm" href="#">المصممون</a>
-<a class="text-on-surface opacity-50 hover:opacity-100 transition-opacity font-headline-sm text-headline-sm" href="#">الحصريات</a>
+<a class="text-on-surface opacity-50 hover:opacity-100 transition-opacity font-headline-sm text-headline-sm" href="#home-new-arrivals">وصلنا حديثاً</a>
+<a class="text-on-surface opacity-50 hover:opacity-100 transition-opacity font-headline-sm text-headline-sm" href="#home-categories-section">المجموعات</a>
 </div>
 </div>
 </div>
@@ -75,7 +74,7 @@
 <div class="absolute inset-0 hero-gradient flex flex-col justify-end items-center pb-24 px-margin-desktop text-center">
 <h1 class="text-primary font-display-lg text-display-lg max-w-4xl mb-6">تعريف الفخامة العصرية للأناقة العربية</h1>
 <p class="text-on-surface-variant font-body-lg text-body-lg max-w-2xl mb-10">استكشف مجموعتنا الحصرية من الأزياء والملحقات الفاخرة التي تجسد التراث والابتكار</p>
-<button class="bg-primary text-on-primary font-label-md text-label-md px-12 py-4 tracking-widest hover:bg-primary-container transition-all uppercase shadow-lg">تسوق الآن</button>
+<button type="button" data-scroll-to="#home-categories-section" class="bg-primary text-on-primary font-label-md text-label-md px-12 py-4 tracking-widest hover:bg-primary-container transition-all uppercase shadow-lg">تسوق الآن</button>
 </div>
 </header>
 <!-- Categories Grid (يُملأ من Supabase: تصنيفات نشطة) -->
@@ -89,97 +88,14 @@
 </div>
 </section>
 <!-- New Arrivals Product Grid -->
-<section class="bg-surface-container-lowest py-24">
+<section id="home-new-arrivals" class="bg-surface-container-lowest py-24">
 <div class="max-w-container-max mx-auto px-margin-desktop">
 <div class="text-center mb-20">
 <span class="text-primary font-label-md text-label-md tracking-[0.3em] uppercase">المجموعة الجديدة</span>
 <h2 class="text-on-surface font-display-lg text-display-lg mt-4">إبداعات مختارة بعناية</h2>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-x-gutter gap-y-16">
-<!-- Product 1 -->
-<div class="flex flex-col gap-6 group">
-<div class="relative aspect-[4/5] bg-surface-container overflow-hidden luxury-border transition-all duration-500 group-hover:border-primary">
-<img alt="Premium Item 1" class="w-full h-full object-cover" data-alt="A sleek, crimson red luxury sneaker displayed in a high-key studio environment. The shoe is angled to show its aerodynamic design and high-quality synthetic materials. Background is a seamless dark charcoal gradient. Subtle golden lens flares add a touch of exclusivity. The lighting is razor-sharp, emphasizing the futuristic and clean lines of the product." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0bXSGdOu6N1G5jTec2n4SKUb7mrxptkDkjwaaEGTyqwmgjAx5OwlVzlRjryUOo0wn3JXFnIeNzkGQvt7q96kY_AeF6UpUnLvx2gHp8UJ5y5RHSkCS7fhcFJOvfiOUdleFLgK_E5pXsFY_Ys2c2I1BVKIB9ebDQDqVfo81wpP26pB_GJsIcjBYku7WHSJPyxKip0mck48V3uCbM6ne3bf-JpBusA-mXQjxIyVIcO-WK8-jRkwRhpHEcUISaYWTy_Z3mZfWaKd1EG8"/>
-<button class="absolute bottom-0 left-0 right-0 bg-primary text-on-primary py-4 font-label-md text-label-md transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">أضف إلى السلة</button>
-</div>
-<div class="flex justify-between items-start">
-<div class="flex flex-col gap-1">
-<span class="text-on-surface-variant font-label-sm text-label-sm">أحذية رياضية فاخرة</span>
-<h4 class="text-on-surface font-headline-sm text-headline-sm">سكارليت إيديشن</h4>
-</div>
-<span class="text-primary font-label-md text-label-md">1,250,000 IQD</span>
-</div>
-</div>
-<!-- Product 2 -->
-<div class="flex flex-col gap-6 group">
-<div class="relative aspect-[4/5] bg-surface-container overflow-hidden luxury-border transition-all duration-500 group-hover:border-primary">
-<img alt="Premium Item 2" class="w-full h-full object-cover" data-alt="Minimalist designer sunglasses with black matte frames and dark gold polarized lenses. The glasses are resting on a piece of dark textured volcanic rock. The lighting is high-contrast, creating deep shadows and bright highlights on the golden lenses. The background is a flat, deep black, ensuring the eyewear is the sole focus of the premium product shot." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWmX-69LYV234aJTjWWsOlMOewu2n2f7IMsoLdm--8C65DFpZoWakCFSiU4mVg_BN2HPfxzl3LZS-MAa6E9LxddjsyycQ0JtoTTIjzKsVCD2YmRHRR-6ru8F4ljD5_KsSogBYGAesM17PceB5eKowlfBVH0QaGQVla_q2p7UhgvsVYXmdjPhHCtGrXPchblCAu3-2HXTgQtOGBOPupW2YHHVCvolcr0d-c3FmdAXRUHGfO5ooBm3dq7THFRN5H5hJl_41ckq1y5qc"/>
-<button class="absolute bottom-0 left-0 right-0 bg-primary text-on-primary py-4 font-label-md text-label-md transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">أضف إلى السلة</button>
-</div>
-<div class="flex justify-between items-start">
-<div class="flex flex-col gap-1">
-<span class="text-on-surface-variant font-label-sm text-label-sm">إكسسوارات</span>
-<h4 class="text-on-surface font-headline-sm text-headline-sm">أونيكس فيجن</h4>
-</div>
-<span class="text-primary font-label-md text-label-md">450,000 IQD</span>
-</div>
-</div>
-<!-- Product 3 -->
-<div class="flex flex-col gap-6 group">
-<div class="relative aspect-[4/5] bg-surface-container overflow-hidden luxury-border transition-all duration-500 group-hover:border-primary">
-<img alt="Premium Item 3" class="w-full h-full object-cover" data-alt="A stack of folded premium heavyweight black t-shirts made from organic cotton. The focus is on the high-quality fabric weave and the precision of the seams. The lighting is side-lit, revealing the soft texture of the material. The background is a minimalist studio setting in dark grey, maintaining the high-end boutique aesthetic of the brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5afh8ytF8IYVEQnrDaPK8TET480eNx_f9UUJYYQzoEkXfmaAjTdwxU29Scyimh4UOGrYvJ0es4CTCrlmW3cwCdarouowBp5kNH9QEtTbrd8d3v0_QEC3NKB-0LQqq55DIF_PJbjHY_2HIjM0Fm76rJenI5K3bPqsaotkVqyRQszm74txVsK7sPmGqwVUWoyPUdTNISWpynASqWXENFLw6ZeaL1f-5pksFAy2CExgGYKAVUwWbxZmB_hrDOoUtwjdSCzXCrEurOXs"/>
-<button class="absolute bottom-0 left-0 right-0 bg-primary text-on-primary py-4 font-label-md text-label-md transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">أضف إلى السلة</button>
-</div>
-<div class="flex justify-between items-start">
-<div class="flex flex-col gap-1">
-<span class="text-on-surface-variant font-label-sm text-label-sm">ملابس أساسية</span>
-<h4 class="text-on-surface font-headline-sm text-headline-sm">طقم التيشيرت الملكي</h4>
-</div>
-<span class="text-primary font-label-md text-label-md">185,000 IQD</span>
-</div>
-</div>
-<!-- Product 4 -->
-<div class="flex flex-col gap-6 group">
-<div class="relative aspect-[4/5] bg-surface-container overflow-hidden luxury-border transition-all duration-500 group-hover:border-primary">
-<img alt="Premium Item 4" class="w-full h-full object-cover" data-alt="An antique-style leather travel bag in rich mahogany brown, featuring gold brass buckles. The bag is placed on an old wooden floor in a dimly lit library setting. The atmosphere is nostalgic and sophisticated. The camera angle is low, giving the product a monumental and enduring quality. The color palette is warm but grounded in deep dark neutrals." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWUD4F2YYQMxZmXog1n2bGVjAgghh0zEEDdPjoKttU-9kZ9C4XuLgP-_lHf0nsePGwJ1QzAFPNV_QFKUCdP52RHJSikqwJLJyCUHYuz9HJtI4uK-UhTqs8j2qQwn147ev39UhY2NfRUC_XRWuXWOJyWdOXvSoQqlT97iLUQdzB9mT0atF_2r48mCwOv6hSAI6RVUgfV6xnEDj5Nyfkxq8xhatvLnnVsKLE8csT1zNtniJoDxOpKYL0ayxmJHNOVkAjPmo9-38iKTg"/>
-<button class="absolute bottom-0 left-0 right-0 bg-primary text-on-primary py-4 font-label-md text-label-md transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">أضف إلى السلة</button>
-</div>
-<div class="flex justify-between items-start">
-<div class="flex flex-col gap-1">
-<span class="text-on-surface-variant font-label-sm text-label-sm">حقائب السفر</span>
-<h4 class="text-on-surface font-headline-sm text-headline-sm">كلاسيك ماستر</h4>
-</div>
-<span class="text-primary font-label-md text-label-md">890,000 IQD</span>
-</div>
-</div>
-<!-- Product 5 -->
-<div class="flex flex-col gap-6 group">
-<div class="relative aspect-[4/5] bg-surface-container overflow-hidden luxury-border transition-all duration-500 group-hover:border-primary">
-<img alt="Premium Item 5" class="w-full h-full object-cover" data-alt="A stunning gold necklace with a black diamond pendant, displayed on a velvet bust. The lighting is intimate, with a soft spotlight creating a sparkle on the diamond and a rich glow on the gold chain. The background is a dark, out-of-focus boutique interior. The mood is one of extreme exclusivity and high-end jewelry craftsmanship." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoi8mvfGq5CwlHWdXcoaBVg4_4ibQdBzh-44UQiD2r-8NCAJ4DAQjclTVRKrIddpuYQdiOVrnORCvlYFxo8FNX5cBmGcIvX_ryATOxSPhPoLRuKso8GHfEIYx-Tkw9-Xu-chwwrv5NEaHEolcuhVDm-I4FDMoJRMdFTN-TotLi_zlDdlN2Hmy3y1Uc_4ZOXN9Mo-cCDsG3P2tITkiiuXRMwl8NX9ZYRzmHm_1FtpCNSlerfOJbwm_gYzbW1VP3fnRnaRbrzDTVyhE"/>
-<button class="absolute bottom-0 left-0 right-0 bg-primary text-on-primary py-4 font-label-md text-label-md transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">أضف إلى السلة</button>
-</div>
-<div class="flex justify-between items-start">
-<div class="flex flex-col gap-1">
-<span class="text-on-surface-variant font-label-sm text-label-sm">مجوهرات</span>
-<h4 class="text-on-surface font-headline-sm text-headline-sm">عقد الألماس الأسود</h4>
-</div>
-<span class="text-primary font-label-md text-label-md">3,200,000 IQD</span>
-</div>
-</div>
-<!-- Product 6 -->
-<div class="flex flex-col gap-6 group">
-<div class="relative aspect-[4/5] bg-surface-container overflow-hidden luxury-border transition-all duration-500 group-hover:border-primary">
-<img alt="Premium Item 6" class="w-full h-full object-cover" data-alt="A minimalist black leather backpack with gold zippers, styled in a modern urban architectural setting. The lighting is natural but crisp, creating clean shadows against a concrete wall. The design is sleek and functional, aimed at a high-end professional market. The image is captured with a high-end lens, emphasizing the sharp edges and premium material quality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhaBtK8vIF4ZeUw_r33xhB6iaLy6ebqUvRJi35lT15hia70TU0-lxoc82sC7L2eK2CBEXiuV41WS0zVFT0q2S-vNb4CPcr0l-iNoLGBmlqLg5i9mfISAmPOU41KB62Ro4U6ZYgfuwC1z7pZ0GRbwpB8b5jDJGGeKOSE7pSdgDmuBugthK3ccjdh3YeQFWKDNlV01XJ72Fk83p_tIkizB72n4gMljrOcB5A5hsuJ7G4tPNrNUT1c2wkWd2feGpEjru4a7EoEAEE3CQ"/>
-<button class="absolute bottom-0 left-0 right-0 bg-primary text-on-primary py-4 font-label-md text-label-md transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">أضف إلى السلة</button>
-</div>
-<div class="flex justify-between items-start">
-<div class="flex flex-col gap-1">
-<span class="text-on-surface-variant font-label-sm text-label-sm">إكسسوارات العمل</span>
-<h4 class="text-on-surface font-headline-sm text-headline-sm">حقيبة الظهر التنفيذية</h4>
-</div>
-<span class="text-primary font-label-md text-label-md">525,000 IQD</span>
-</div>
-</div>
+<div id="home-new-arrivals-grid" class="grid grid-cols-1 md:grid-cols-3 gap-x-gutter gap-y-16 min-h-[8rem]">
+<p id="home-new-arrivals-loading" class="col-span-full text-on-surface-variant text-center py-12 text-body-md">جاري تحميل المنتجات…</p>
 </div>
 </div>
 </section>
@@ -217,4 +133,5 @@
 </footer>
 <script type="module" src="./src/js/storefrontNav.js"></script>
 <script type="module" src="./src/js/homeCategories.js"></script>
+<script type="module" src="./src/js/homeNewArrivals.js"></script>
 </body></html>
