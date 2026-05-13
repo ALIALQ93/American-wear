@@ -181,8 +181,17 @@
 </div>
 <div id="product-inventory-root" class="border border-outline-variant/60 rounded-lg p-4 bg-surface-container/30"></div>
 <div>
-<label class="block text-label-sm text-on-surface-variant mb-1">رابط الصورة</label>
-<input id="product-image-url" dir="ltr" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none text-left" type="url" placeholder="https://..."/>
+<label class="block text-label-sm text-on-surface-variant mb-1">صورة المنتج</label>
+<div class="flex flex-wrap items-center gap-2 mb-2">
+<input id="product-image-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif" class="max-w-full text-label-sm text-on-surface file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-surface-container-high file:text-on-surface"/>
+<span id="product-image-upload-msg" class="text-label-sm text-on-surface-variant hidden"></span>
+</div>
+<div id="product-image-preview-wrap" class="hidden mb-2 max-w-xs rounded border border-outline-variant overflow-hidden bg-surface-container">
+<img id="product-image-preview" alt="" class="w-full h-40 object-cover"/>
+</div>
+<label class="block text-label-sm text-on-surface-variant mb-1">أو رابط الصورة (HTTPS)</label>
+<input id="product-image-url" dir="ltr" class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none text-left text-sm" type="url" placeholder="https://… يُملأ تلقائياً بعد الرفع"/>
+<p class="text-label-sm text-on-surface-variant mt-1 leading-relaxed">الرفع يحفظ الملف في <strong class="text-on-surface font-medium">Supabase Storage</strong> ثم يُسجَّل الرابط عند «حفظ». الحد ٥ ميغابايت؛ JPEG أو PNG أو WebP أو GIF.</p>
 </div>
 <div>
 <label class="block text-label-sm text-on-surface-variant mb-1">التصنيف الرئيسي</label>

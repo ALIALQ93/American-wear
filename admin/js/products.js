@@ -9,6 +9,7 @@ import {
   fetchSizeSets,
   saveProductWithInventory,
   updateProduct,
+  uploadProductCoverImage,
 } from "./adminSupabaseData.js";
 import {
   getProductInventoryPayload,
@@ -39,6 +40,42 @@ function escapeHtml(s) {
 
 function formatNumber(n) {
   return new Intl.NumberFormat("ar-IQ", { maximumFractionDigits: 0 }).format(Number(n) || 0);
+}
+
+function setProductImageUploadMsg(text, isError) {
+  const el = document.getElementById("product-image-upload-msg");
+  if (!el) return;
+  if (!text) {
+    el.textContent = "";
+    el.classList.add("hidden");
+    el.classList.remove("text-error", "text-primary");
+    return;
+  }
+  el.textContent = text;
+  el.classList.remove("hidden");
+  el.classList.toggle("text-error", Boolean(isError));
+  el.classList.toggle("text-primary", !isError);
+}
+
+function syncProductImagePreview() {
+  const url = document.getElementById("product-image-url")?.value?.trim() || "";
+  const wrap = document.getElementById("product-image-preview-wrap");
+  const img = document.getElementById("product-image-preview");
+  if (!wrap || !img) return;
+  if (!url) {
+    img.removeAttribute("src");
+    wrap.classList.add("hidden");
+    return;
+  }
+  img.src = url;
+  wrap.classList.remove("hidden");
+}
+
+function resetProductImageUploadUi() {
+  const fileIn = document.getElementById("product-image-file");
+  if (fileIn instanceof HTMLInputElement) fileIn.value = "";
+  setProductImageUploadMsg("");
+  syncProductImagePreview();
 }
 
 /** @param {ProductRow} p */
@@ -281,6 +318,7 @@ async function openModal(product) {
   }
   form.reset();
   resetProductInventory();
+  resetProductImageUploadUi();
   setEditingProductId(null);
   const idInput = document.getElementById("product-edit-id");
   const title = document.getElementById("product-modal-title");
@@ -297,6 +335,7 @@ async function openModal(product) {
     document.getElementById("product-price").value = String(product.priceIqd ?? 0);
     document.getElementById("product-stock").value = String(product.stock ?? 0);
     document.getElementById("product-image-url").value = product.imageUrl || "";
+    syncProductImagePreview();
     document.getElementById("product-is-active").checked = product.isActive === 1 || product.isActive === true;
     fillCategorySelect();
     const catSel = document.getElementById("product-category-id");
@@ -376,6 +415,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("product-modal-close")?.addEventListener("click", closeModal);
   document.getElementById("product-modal-close-2")?.addEventListener("click", closeModal);
   document.getElementById("product-modal-backdrop")?.addEventListener("click", closeModal);
+
+  document.getElementById("product-image-url")?.addEventListener("input", () => syncProductImagePreview());
+
+  document.getElementById("product-image-file")?.addEventListener("change", async (ev) => {
+    const t = ev.target;
+    if (!(t instanceof HTMLInputElement) || !t.files?.length) return;
+    const file = t.files[0];
+    setProductImageUploadMsg("جاري الرفع…", false);
+    try {
+      const url = await uploadProductCoverImage(file);
+      const urlIn = document.getElementById("product-image-url");
+      if (urlIn) urlIn.value = url;
+      syncProductImagePreview();
+      setProductImageUploadMsg("تم الرفع — اضغط «حفظ» لتخزين الرابط مع المنتج.", false);
+    } catch (err) {
+      setProductImageUploadMsg(err instanceof Error ? err.message : "فشل الرفع", true);
+      t.value = "";
+    }
+  });
 
   document.getElementById("product-category-id")?.addEventListener("change", (e) => {
     const v = e.target.value;

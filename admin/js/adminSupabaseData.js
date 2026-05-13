@@ -1259,3 +1259,43 @@ export async function uploadSectionCoverImage(file) {
   if (!url) throw new Error("تعذر الحصول على رابط الصورة");
   return url;
 }
+
+/**
+ * رفع صورة غلاف منتج إلى Supabase Storage (`category-images/product-covers/…`).
+ * يُخزَّن الرابط في `products.image_url`.
+ * @param {File} file
+ * @returns {Promise<string>}
+ */
+export async function uploadProductCoverImage(file) {
+  if (!(file instanceof File) || file.size === 0) {
+    throw new Error("اختر ملف صورة صالحاً");
+  }
+  if (file.size > CATEGORY_IMAGE_MAX_BYTES) {
+    throw new Error("حجم الصورة يتجاوز ٥ ميغابايت");
+  }
+  const mime = normalizeCategoryImageMime(file);
+  if (!mime || !Object.prototype.hasOwnProperty.call(CATEGORY_IMAGE_MIME_TO_EXT, mime)) {
+    throw new Error("الصيغ المسموحة: JPEG أو PNG أو WebP أو GIF");
+  }
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) throw new Error("انتهت الجلسة — سجّل الدخول مجدداً");
+  const { sb } = ctx;
+  const ext = categoryImageExtFromFile(file);
+  const path = `product-covers/${crypto.randomUUID()}.${ext}`;
+  const { error: upErr } = await sb.storage.from(CATEGORY_IMAGES_BUCKET).upload(path, file, {
+    cacheControl: "3600",
+    upsert: false,
+    contentType: mime,
+  });
+  if (upErr) {
+    const m = String(upErr.message || "");
+    if (m.includes("Bucket not found") || m.includes("not found")) {
+      throw new Error("دلو التخزين غير مُنشأ — نفّذ npm run db:push لهجرة التخزين.");
+    }
+    throw new Error(m || "فشل الرفع");
+  }
+  const { data } = sb.storage.from(CATEGORY_IMAGES_BUCKET).getPublicUrl(path);
+  const url = data?.publicUrl;
+  if (!url) throw new Error("تعذر الحصول على رابط الصورة");
+  return url;
+}
