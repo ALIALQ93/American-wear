@@ -5,20 +5,23 @@ import {
   fetchProductInventory,
   fetchProductsList,
   fetchProductsStats,
+  fetchSizeSets,
   saveProductWithInventory,
   updateProduct,
 } from "./adminSupabaseData.js";
 import {
   getProductInventoryPayload,
   initProductInventoryPanel,
-  loadSizeLabelsForCategorySlug,
+  loadSizeLabelsForSetId,
   resetProductInventory,
   setProductInventoryState,
 } from "./productInventory.js";
 
-/** @typedef {{ id: number, nameAr: string, nameEn?: string|null, category?: string|null, sku?: string|null, priceIqd: number, stock: number, isActive: number|boolean, imageUrl?: string|null, categoryId?: number|null, sectionId?: number|null, subsectionId?: number|null, categoryNameAr?: string|null, sectionNameAr?: string|null, subsectionNameAr?: string|null, variantMode?: string }} ProductRow */
+/** @typedef {{ id: number, nameAr: string, nameEn?: string|null, category?: string|null, sku?: string|null, priceIqd: number, stock: number, isActive: number|boolean, imageUrl?: string|null, categoryId?: number|null, sectionId?: number|null, subsectionId?: number|null, categoryNameAr?: string|null, sectionNameAr?: string|null, subsectionNameAr?: string|null, variantMode?: string, sizeSetId?: number|null }} ProductRow */
 
 let categoriesTree = [];
+/** @type {{ id: number, nameAr: string, slug: string }[]} */
+let sizeSetsCache = [];
 /** @type {ProductRow[]} */
 let productsCache = [];
 let searchQuery = "";
@@ -238,8 +241,30 @@ function categorySlugById(categoryId) {
   return cat?.slug || "";
 }
 
-async function refreshInventorySizes(categoryId) {
-  await loadSizeLabelsForCategorySlug(categorySlugById(categoryId));
+function syncSizeSetWrapVisibility() {
+  const mode = document.getElementById("product-variant-mode")?.value || "none";
+  const wrap = document.getElementById("product-size-set-wrap");
+  if (!wrap) return;
+  const show = mode === "size_only" || mode === "color_size";
+  wrap.classList.toggle("hidden", !show);
+}
+
+function fillSizeSetSelect(preferredId) {
+  const sel = document.getElementById("product-size-set-id");
+  if (!sel) return;
+  sel.innerHTML = `<option value="">— اختر مجموعة مقاسات —</option>`;
+  for (const s of sizeSetsCache) {
+    const opt = document.createElement("option");
+    opt.value = String(s.id);
+    opt.textContent = s.nameAr || s.slug;
+    sel.appendChild(opt);
+  }
+  const pref = Number(preferredId);
+  if (sizeSetsCache.some((s) => Number(s.id) === pref)) sel.value = String(pref);
+}
+
+async function refreshInventorySizes(setId) {
+  await loadSizeLabelsForSetId(setId ? Number(setId) : null);
 }
 
 async function openModal(product) {
@@ -275,7 +300,9 @@ async function openModal(product) {
     fillSectionSelect(product.categoryId, product.sectionId);
     const subSel = document.getElementById("product-subsection-id");
     if (product.subsectionId != null && subSel) subSel.value = String(product.subsectionId);
-    await refreshInventorySizes(product.categoryId);
+    fillSizeSetSelect(product.sizeSetId);
+    syncSizeSetWrapVisibility();
+    await refreshInventorySizes(product.sizeSetId);
     try {
       const inv = await fetchProductInventory(product.id);
       if (inv) setProductInventoryState(inv);
@@ -290,6 +317,8 @@ async function openModal(product) {
     fillCategorySelect();
     fillSectionSelect(null);
     fillSubsectionSelect(null);
+    fillSizeSetSelect(null);
+    syncSizeSetWrapVisibility();
     setProductInventoryState({ variantMode: "none", colors: [], variants: [] });
     finishOpen();
   }
@@ -336,9 +365,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("product-modal-close-2")?.addEventListener("click", closeModal);
   document.getElementById("product-modal-backdrop")?.addEventListener("click", closeModal);
 
-  document.getElementById("product-category-id")?.addEventListener("change", async (e) => {
+  document.getElementById("product-category-id")?.addEventListener("change", (e) => {
     const v = e.target.value;
     fillSectionSelect(v ? Number(v) : null);
+  });
+
+  document.getElementById("product-variant-mode")?.addEventListener("change", () => {
+    syncSizeSetWrapVisibility();
+  });
+
+  document.getElementById("product-size-set-id")?.addEventListener("change", async (e) => {
+    const v = e.target.value;
     await refreshInventorySizes(v ? Number(v) : null);
   });
 
@@ -371,6 +408,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const catVal = document.getElementById("product-category-id")?.value;
     const secVal = document.getElementById("product-section-id")?.value;
     const subVal = document.getElementById("product-subsection-id")?.value;
+    const sizeSetVal = document.getElementById("product-size-set-id")?.value;
     const inventory = getProductInventoryPayload();
     if (inventory.variantMode !== "none") {
       if (inventory.variantMode === "color_only" || inventory.variantMode === "color_size") {
@@ -383,6 +421,16 @@ document.addEventListener("DOMContentLoaded", async () => {
           return;
         }
       }
+    }
+    if (
+      (inventory.variantMode === "size_only" || inventory.variantMode === "color_size") &&
+      !sizeSetVal
+    ) {
+      if (errEl) {
+        errEl.textContent = "اختر مجموعة المقاسات الجاهزة";
+        errEl.classList.remove("hidden");
+      }
+      return;
     }
     const body = {
       id: editId ? Number(editId) : undefined,
@@ -397,6 +445,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       subsectionId: subVal ? Number(subVal) : null,
       isActive: document.getElementById("product-is-active")?.checked !== false,
       variantMode: inventory.variantMode,
+      sizeSetId: sizeSetVal ? Number(sizeSetVal) : null,
     };
     try {
       await saveProductWithInventory(body, inventory);
@@ -413,12 +462,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   try {
-    const [catTree, stats, prodList] = await Promise.all([
+    const [catTree, stats, prodList, sizeSets] = await Promise.all([
       fetchCategoriesTree(true),
       fetchProductsStats(),
       fetchProductsList(),
+      fetchSizeSets(true),
     ]);
     if (catTree) categoriesTree = catTree;
+    if (sizeSets) sizeSetsCache = sizeSets.map((s) => ({ id: s.id, nameAr: s.nameAr, slug: s.slug }));
     if (stats) renderStats(stats);
     if (prodList) {
       productsCache = prodList;

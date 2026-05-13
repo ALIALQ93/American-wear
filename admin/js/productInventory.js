@@ -1,4 +1,4 @@
-import { fetchSizesList } from "./adminSupabaseData.js";
+import { fetchSizeSetLabels } from "./adminSupabaseData.js";
 
 /** @typedef {{ nameAr: string, nameEn?: string|null, hexCode?: string|null, imageUrl?: string|null }} ColorDraft */
 /** @typedef {{ colorIndex?: number|null, sizeLabel?: string|null, sku?: string|null, stock: number }} VariantDraft */
@@ -57,7 +57,7 @@ function setStockColorSize(colorIdx, sizeLabel, stock) {
 
 function renderSizeOnly() {
   if (!sizeLabels.length) {
-    return `<p class="text-label-sm text-on-surface-variant">لا توجد قوالب مقاسات لهذا التصنيف. أضفها من صفحة <a href="./sizes.html" class="text-primary underline">المقاسات</a> (حقل category = slug التصنيف).</p>`;
+    return `<p class="text-label-sm text-on-surface-variant">اختر <strong class="text-on-surface">مجموعة مقاسات</strong> من القائمة أعلاه، أو أضف مجموعة من <a href="./sizes.html" class="text-primary underline">صفحة المقاسات</a>.</p>`;
   }
   const rows = sizeLabels
     .map(
@@ -121,7 +121,7 @@ function renderColorModes() {
   const addBtn = `<button type="button" id="inv-add-color" class="mt-3 px-3 py-2 text-label-sm border border-primary/40 text-primary hover:bg-primary/10">+ إضافة لون</button>`;
   const sizeHint =
     variantMode === "color_size" && !sizeLabels.length
-      ? `<p class="text-label-sm text-error mb-2">أضف قوالب مقاسات لـ slug التصنيف أولاً.</p>`
+      ? `<p class="text-label-sm text-error mb-2">اختر مجموعة مقاسات أولاً.</p>`
       : "";
   return `${sizeHint}<div class="space-y-4">${cards || `<p class="text-label-sm text-on-surface-variant">أضف لوناً واحداً على الأقل.</p>`}</div>${addBtn}`;
 }
@@ -231,12 +231,20 @@ export function initProductInventoryPanel(options) {
   }
 }
 
-export async function loadSizeLabelsForCategorySlug(slug) {
-  const list = slug ? await fetchSizesList(slug) : [];
-  sizeLabels = (list || [])
-    .filter((r) => r.isActive === 1 || r.isActive === true)
-    .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
-    .map((r) => r.label);
+export async function loadSizeLabelsForSetId(setId) {
+  if (!setId) {
+    sizeLabels = [];
+    renderPanel();
+    return;
+  }
+  const list = await fetchSizeSetLabels(setId);
+  sizeLabels = list || [];
+  renderPanel();
+}
+
+/** @deprecated استخدم loadSizeLabelsForSetId */
+export async function loadSizeLabelsForCategorySlug() {
+  sizeLabels = [];
   renderPanel();
 }
 

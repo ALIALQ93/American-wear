@@ -208,6 +208,7 @@ export async function fetchProductsList() {
     sectionNameAr: p.section_id != null ? secMap.get(Number(p.section_id)) ?? null : null,
     subsectionNameAr: p.subsection_id != null ? subMap.get(Number(p.subsection_id)) ?? null : null,
     variantMode: p.variant_mode ?? "none",
+    sizeSetId: p.size_set_id != null ? Number(p.size_set_id) : null,
   }));
 }
 
@@ -228,6 +229,7 @@ export async function createProduct(body) {
     section_id: body.sectionId != null ? Number(body.sectionId) : null,
     subsection_id: body.subsectionId != null ? Number(body.subsectionId) : null,
     variant_mode: body.variantMode != null ? String(body.variantMode) : "none",
+    size_set_id: body.sizeSetId != null ? Number(body.sizeSetId) : null,
   };
   const { data, error } = await sb.from("products").insert(row).select("id").single();
   if (error) throw new Error(error.message);
@@ -251,6 +253,7 @@ export async function updateProduct(id, body) {
   if (body.sectionId !== undefined) patch.section_id = body.sectionId == null ? null : Number(body.sectionId);
   if (body.subsectionId !== undefined) patch.subsection_id = body.subsectionId == null ? null : Number(body.subsectionId);
   if (body.variantMode !== undefined) patch.variant_mode = String(body.variantMode || "none");
+  if (body.sizeSetId !== undefined) patch.size_set_id = body.sizeSetId == null ? null : Number(body.sizeSetId);
   const { error } = await sb.from("products").update(patch).eq("id", id);
   if (error) throw new Error(error.message);
 }
@@ -382,6 +385,180 @@ export async function fetchSizesList(category) {
     isActive: r.is_active,
     sortOrder: Number(r.sort_order) || 0,
   }));
+}
+
+export async function fetchShippingGovernorates() {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const { data, error } = await sb
+    .from("shipping_governorates")
+    .select("*")
+    .order("sort_order", { ascending: true })
+    .order("id", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data || []).map((r) => ({
+    id: Number(r.id),
+    nameAr: r.name_ar ?? "",
+    nameEn: r.name_en ?? null,
+    slug: r.slug ?? "",
+    feeIqd: Number(r.fee_iqd) || 0,
+    isMajor: r.is_major === 1 || r.is_major === true,
+    sortOrder: Number(r.sort_order) || 0,
+    isActive: r.is_active,
+  }));
+}
+
+export async function updateShippingGovernorate(id, body) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const patch = {};
+  if (body.feeIqd !== undefined) patch.fee_iqd = Math.max(0, Math.floor(Number(body.feeIqd) || 0));
+  if (body.isActive !== undefined) patch.is_active = body.isActive === false || body.isActive === 0 ? 0 : 1;
+  if (body.sortOrder !== undefined) patch.sort_order = Math.floor(Number(body.sortOrder) || 0);
+  if (body.nameAr !== undefined) patch.name_ar = String(body.nameAr ?? "").trim();
+  if (body.nameEn !== undefined) patch.name_en = body.nameEn == null ? null : String(body.nameEn).trim();
+  const { error } = await sb.from("shipping_governorates").update(patch).eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+function nestSizeSetItems(sets, items) {
+  const bySet = new Map();
+  for (const s of sets) {
+    bySet.set(Number(s.id), {
+      id: Number(s.id),
+      nameAr: s.name_ar,
+      nameEn: s.name_en,
+      slug: s.slug,
+      sortOrder: Number(s.sort_order) || 0,
+      isActive: s.is_active,
+      items: [],
+    });
+  }
+  for (const it of items) {
+    const sid = Number(it.set_id);
+    if (bySet.has(sid)) {
+      bySet.get(sid).items.push({
+        id: Number(it.id),
+        label: it.label,
+        sortOrder: Number(it.sort_order) || 0,
+      });
+    }
+  }
+  for (const row of bySet.values()) {
+    row.items.sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id);
+  }
+  return Array.from(bySet.values()).sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id);
+}
+
+export async function fetchSizeSets(activeOnly = false) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  let q = sb.from("size_sets").select("*").order("sort_order", { ascending: true }).order("id", { ascending: true });
+  if (activeOnly) q = q.eq("is_active", 1);
+  const { data: sets, error: se } = await q;
+  if (se) throw new Error(se.message);
+  const list = sets || [];
+  if (!list.length) return [];
+  const ids = list.map((s) => Number(s.id));
+  const { data: items, error: ie } = await sb
+    .from("size_set_items")
+    .select("*")
+    .in("set_id", ids)
+    .order("sort_order", { ascending: true })
+    .order("id", { ascending: true });
+  if (ie) throw new Error(ie.message);
+  return nestSizeSetItems(list, items || []);
+}
+
+export async function fetchSizeSetLabels(setId) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const sid = Number(setId);
+  if (!Number.isFinite(sid)) return [];
+  const { data, error } = await sb
+    .from("size_set_items")
+    .select("label, sort_order")
+    .eq("set_id", sid)
+    .order("sort_order", { ascending: true })
+    .order("id", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data || []).map((r) => r.label);
+}
+
+export async function createSizeSet(body) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const slug = String(body.slug ?? "").trim().toLowerCase();
+  if (!isValidSlug(slug)) throw new Error("slug غير صالح");
+  const row = {
+    name_ar: String(body.nameAr ?? "").trim(),
+    name_en: body.nameEn != null && String(body.nameEn).trim() !== "" ? String(body.nameEn).trim() : null,
+    slug,
+    sort_order: Number(body.sortOrder) || 0,
+    is_active: body.isActive === false || body.isActive === 0 ? 0 : 1,
+  };
+  const { data, error } = await sb.from("size_sets").insert(row).select("id").single();
+  if (error) {
+    if (error.code === "23505") throw new Error("هذا slug مستخدم مسبقاً");
+    throw new Error(error.message);
+  }
+  return Number(data.id);
+}
+
+export async function updateSizeSet(id, body) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const patch = {};
+  if (body.nameAr !== undefined) patch.name_ar = String(body.nameAr ?? "").trim();
+  if (body.nameEn !== undefined) patch.name_en = body.nameEn == null ? null : String(body.nameEn).trim();
+  if (body.slug !== undefined) {
+    const slug = String(body.slug).trim().toLowerCase();
+    if (!isValidSlug(slug)) throw new Error("slug غير صالح");
+    patch.slug = slug;
+  }
+  if (body.sortOrder !== undefined) patch.sort_order = Number(body.sortOrder) || 0;
+  if (body.isActive !== undefined) patch.is_active = body.isActive === false || body.isActive === 0 ? 0 : 1;
+  const { error } = await sb.from("size_sets").update(patch).eq("id", id);
+  if (error) {
+    if (error.code === "23505") throw new Error("هذا slug مستخدم مسبقاً");
+    throw new Error(error.message);
+  }
+}
+
+export async function deleteSizeSet(id) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const { count, error: c1 } = await sb.from("products").select("id", { count: "exact", head: true }).eq("size_set_id", id);
+  if (c1) throw new Error(c1.message);
+  if ((count ?? 0) > 0) throw new Error("لا يمكن الحذف: منتجات مرتبطة بهذه المجموعة.");
+  const { error } = await sb.from("size_sets").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+export async function saveSizeSetItems(setId, labels) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const sid = Number(setId);
+  const { error: delErr } = await sb.from("size_set_items").delete().eq("set_id", sid);
+  if (delErr) throw new Error(delErr.message);
+  const rows = (labels || [])
+    .map((label, i) => String(label || "").trim())
+    .filter(Boolean)
+    .map((label, i) => ({ set_id: sid, label, sort_order: i }));
+  if (!rows.length) return;
+  const { error } = await sb.from("size_set_items").insert(rows);
+  if (error) {
+    if (error.code === "23505") throw new Error("مقاس مكرر في نفس المجموعة");
+    throw new Error(error.message);
+  }
 }
 
 function nestSections(cats, secs, subs = []) {

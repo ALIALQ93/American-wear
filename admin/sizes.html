@@ -2,7 +2,7 @@
 <html class="dark" dir="rtl" lang="ar">
 <head>
 <meta charset="utf-8"/>
-<title>American wear | المقاسات</title>
+<title>American wear | مجموعات المقاسات</title>
 <script>
 (function(){var k="aw_admin_jwt";try{var p=location.pathname||"";if(/admin\/login\.html$/i.test(p))return;if(!sessionStorage.getItem(k))location.replace("./login.html");}catch(e){location.replace("./login.html");}})();
 </script>
@@ -43,16 +43,16 @@
 <span class="material-symbols-outlined">straighten</span>
 <span>المقاسات</span>
 </a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./shipping.html">
+<span class="material-symbols-outlined">local_shipping</span>
+<span>أجور الشحن</span>
+</a>
 <a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 font-label-md hover:bg-surface-container-high hover:text-primary transition-all" href="./users.html">
 <span class="material-symbols-outlined">manage_accounts</span>
 <span>المسؤولون</span>
 </a>
 </nav>
 <div class="px-4 mt-auto">
-<a href="./products.html#add" class="w-full bg-primary text-on-primary font-label-md py-3 mb-6 flex items-center justify-center gap-2 no-underline text-center">
-<span class="material-symbols-outlined">add</span>
-منتج جديد
-</a>
 <div class="flex items-center gap-3 px-2 py-4 border-t border-outline-variant">
 <div class="w-10 h-10 bg-surface-variant border border-primary/30 flex items-center justify-center text-primary text-label-sm font-bold">A</div>
 <div>
@@ -67,16 +67,65 @@
 </aside>
 
 <main class="md:mr-64 min-h-screen">
-<header class="h-20 px-6 md:px-8 flex items-center border-b border-primary/30 sticky top-0 bg-surface/90 backdrop-blur-md z-30">
+<header class="h-20 px-6 md:px-8 flex flex-wrap items-center justify-between gap-4 border-b border-primary/30 sticky top-0 bg-surface/90 backdrop-blur-md z-30">
 <div>
-<h2 class="font-headline-sm text-headline-sm text-on-surface">قوالب المقاسات</h2>
-<p class="text-label-sm text-on-surface-variant mt-1">عرض حسب الفئة من قاعدة البيانات (قراءة فقط حتى يُضاف API للتعديل)</p>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">مجموعات المقاسات الجاهزة</h2>
+<p class="text-label-sm text-on-surface-variant mt-1">عرّف المقاسات مرة واحدة — يختارها المسؤول عند إضافة منتج (ملابس، أحذية، …).</p>
 </div>
+<button type="button" id="header-new-set" class="bg-primary text-black px-4 py-2 font-label-md">+ مجموعة جديدة</button>
 </header>
 <div class="p-6 md:p-8 max-w-container-max mx-auto" id="sizes-root">
 <p class="text-on-surface-variant text-center py-12">جاري التحميل…</p>
 </div>
 </main>
+
+<div id="set-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+<div id="set-modal-backdrop" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+<div class="relative w-full max-w-lg bg-surface-container-low border border-outline-variant shadow-2xl max-h-[90vh] overflow-y-auto">
+<div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant">
+<h3 id="set-modal-title" class="text-headline-sm font-headline-sm text-on-surface">مجموعة مقاسات</h3>
+<button type="button" id="set-modal-close" class="p-2 text-on-surface-variant hover:text-primary" aria-label="إغلاق"><span class="material-symbols-outlined">close</span></button>
+</div>
+<form id="set-form" class="p-6 space-y-4">
+<input type="hidden" id="set-edit-id" value=""/>
+<p id="set-form-error" class="hidden text-label-sm text-error bg-error-container/20 border border-error/30 px-3 py-2"></p>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">الاسم بالعربية *</label>
+<input id="set-name-ar" required class="w-full bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none" type="text" placeholder="ملابس (حروف)"/>
+</div>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">الاسم بالإنجليزية</label>
+<div class="flex gap-2">
+<input id="set-name-en" class="flex-1 bg-surface-container border border-outline-variant px-3 py-2 text-on-surface focus:border-primary outline-none" type="text" placeholder="Clothing alpha"/>
+<button type="button" id="set-suggest-slug" class="shrink-0 px-3 py-2 text-label-sm border border-outline-variant hover:border-primary">slug</button>
+</div>
+</div>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">slug *</label>
+<input id="set-slug" required dir="ltr" class="w-full bg-surface-container border border-outline-variant px-3 py-2 font-mono text-sm text-left" type="text"/>
+</div>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">المقاسات * <span class="font-normal">(سطر لكل مقاس)</span></label>
+<textarea id="set-labels" rows="6" class="w-full bg-surface-container border border-outline-variant px-3 py-2 font-mono text-sm dir-ltr text-left" placeholder="S&#10;M&#10;L&#10;XL"></textarea>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">ترتيب</label>
+<input id="set-sort" type="number" value="0" class="w-full bg-surface-container border border-outline-variant px-3 py-2"/>
+</div>
+<label class="flex items-center gap-2 cursor-pointer self-end pb-2">
+<input id="set-active" type="checkbox" class="rounded border-outline-variant text-primary" checked/>
+<span class="text-body-md">نشطة</span>
+</label>
+</div>
+<div class="flex justify-end gap-3 pt-4 border-t border-outline-variant">
+<button type="button" id="set-modal-close-2" class="px-4 py-2 border border-outline-variant">إلغاء</button>
+<button type="submit" class="px-6 py-2 bg-primary text-black font-label-md">حفظ</button>
+</div>
+</form>
+</div>
+</div>
+
 <script type="module" src="./js/sizes.js"></script>
 </body>
 </html>
