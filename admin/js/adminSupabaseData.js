@@ -277,6 +277,7 @@ export async function fetchProductInventory(productId) {
   if (ve) throw new Error(ve.message);
   const colors = (colorRows || []).map((c, i) => ({
     id: Number(c.id),
+    presetId: c.preset_id != null ? Number(c.preset_id) : null,
     nameAr: c.name_ar ?? "",
     nameEn: c.name_en ?? null,
     hexCode: c.hex_code ?? null,
@@ -319,6 +320,7 @@ export async function saveProductInventory(productId, inventory) {
     if (!nameAr) continue;
     const row = {
       product_id: pid,
+      preset_id: c.presetId != null ? Number(c.presetId) : null,
       name_ar: nameAr,
       name_en: c.nameEn != null && String(c.nameEn).trim() !== "" ? String(c.nameEn).trim() : null,
       hex_code: c.hexCode != null && String(c.hexCode).trim() !== "" ? String(c.hexCode).trim() : null,
@@ -559,6 +561,74 @@ export async function saveSizeSetItems(setId, labels) {
     if (error.code === "23505") throw new Error("مقاس مكرر في نفس المجموعة");
     throw new Error(error.message);
   }
+}
+
+export async function fetchColorPresets(activeOnly = false) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  let q = sb.from("color_presets").select("*").order("sort_order", { ascending: true }).order("id", { ascending: true });
+  if (activeOnly) q = q.eq("is_active", 1);
+  const { data, error } = await q;
+  if (error) throw new Error(error.message);
+  return (data || []).map((r) => ({
+    id: Number(r.id),
+    nameAr: r.name_ar ?? "",
+    nameEn: r.name_en ?? null,
+    hexCode: r.hex_code ?? "#888888",
+    sortOrder: Number(r.sort_order) || 0,
+    isActive: r.is_active,
+  }));
+}
+
+export async function createColorPreset(body) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const hex = String(body.hexCode ?? "").trim();
+  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) throw new Error("كود اللون بصيغة #RRGGBB");
+  const row = {
+    name_ar: String(body.nameAr ?? "").trim(),
+    name_en: body.nameEn != null && String(body.nameEn).trim() !== "" ? String(body.nameEn).trim() : null,
+    hex_code: hex,
+    sort_order: Number(body.sortOrder) || 0,
+    is_active: body.isActive === false || body.isActive === 0 ? 0 : 1,
+  };
+  const { data, error } = await sb.from("color_presets").insert(row).select("id").single();
+  if (error) {
+    if (error.code === "23505") throw new Error("اسم اللون مستخدم مسبقاً");
+    throw new Error(error.message);
+  }
+  return Number(data.id);
+}
+
+export async function updateColorPreset(id, body) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const patch = {};
+  if (body.nameAr !== undefined) patch.name_ar = String(body.nameAr ?? "").trim();
+  if (body.nameEn !== undefined) patch.name_en = body.nameEn == null ? null : String(body.nameEn).trim();
+  if (body.hexCode !== undefined) {
+    const hex = String(body.hexCode).trim();
+    if (!/^#[0-9a-fA-F]{6}$/.test(hex)) throw new Error("كود اللون بصيغة #RRGGBB");
+    patch.hex_code = hex;
+  }
+  if (body.sortOrder !== undefined) patch.sort_order = Number(body.sortOrder) || 0;
+  if (body.isActive !== undefined) patch.is_active = body.isActive === false || body.isActive === 0 ? 0 : 1;
+  const { error } = await sb.from("color_presets").update(patch).eq("id", id);
+  if (error) {
+    if (error.code === "23505") throw new Error("اسم اللون مستخدم مسبقاً");
+    throw new Error(error.message);
+  }
+}
+
+export async function deleteColorPreset(id) {
+  const ctx = await ensureActiveAdminSession();
+  if (!ctx) return null;
+  const { sb } = ctx;
+  const { error } = await sb.from("color_presets").delete().eq("id", id);
+  if (error) throw new Error(error.message);
 }
 
 function nestSections(cats, secs, subs = []) {

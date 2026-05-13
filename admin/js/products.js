@@ -1,6 +1,7 @@
 import { getAdminToken } from "./session.js";
 import { isSupabaseAuthConfigured, syncAdminTokenFromSupabaseSession, clearAdminSessionAndSupabase } from "./supabaseAuth.js";
 import {
+  fetchColorPresets,
   fetchCategoriesTree,
   fetchProductInventory,
   fetchProductsList,
@@ -14,6 +15,7 @@ import {
   initProductInventoryPanel,
   loadSizeLabelsForSetId,
   resetProductInventory,
+  setColorPresets,
   setProductInventoryState,
 } from "./productInventory.js";
 
@@ -415,7 +417,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const named = (inventory.colors || []).filter((c) => String(c.nameAr || "").trim());
         if (!named.length) {
           if (errEl) {
-            errEl.textContent = "أضف لوناً واحداً على الأقل مع اسم عربي";
+            errEl.textContent = "اختر لوناً واحداً على الأقل من لوحة الألوان";
             errEl.classList.remove("hidden");
           }
           return;
@@ -462,14 +464,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   try {
-    const [catTree, stats, prodList, sizeSets] = await Promise.all([
+    const [catTree, stats, prodList, sizeSets, colorPresetList] = await Promise.all([
       fetchCategoriesTree(true),
       fetchProductsStats(),
       fetchProductsList(),
       fetchSizeSets(true),
+      fetchColorPresets(true),
     ]);
     if (catTree) categoriesTree = catTree;
     if (sizeSets) sizeSetsCache = sizeSets.map((s) => ({ id: s.id, nameAr: s.nameAr, slug: s.slug }));
+    if (colorPresetList) setColorPresets(colorPresetList);
     if (stats) renderStats(stats);
     if (prodList) {
       productsCache = prodList;
